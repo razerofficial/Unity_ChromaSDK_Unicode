@@ -1,0 +1,24 @@
+{
+  "name": "com.razer.chromasdk",
+  "version": "1.0.11",
+  "displayName": "Razer Chroma SDK",
+  "description": "Razer Chroma SDK for Unity",
+  "unity": "2021.3",
+  "unityRelease": "15f1",
+  "documentationUrl": "https://github.com/razerofficial/Unity_ChromaSDK",
+  "changelogUrl": "https://github.com/razerofficial/Unity_ChromaSDK?#changelog",
+  "licensesUrl": "https://github.com/razerofficial/Unity_ChromaSDK?#licensing",
+  "dependencies": {
+    "com.unity.textmeshpro": "3.0.6"
+  },
+  "keywords": [
+    "chroma",
+    "rgb",
+    "chroma rgb"
+  ],
+  "author": {
+    "name": "Razer Inc.",
+    "email": "developers@razer.com",
+    "url": "https://www.razer.com"
+  }
+}
