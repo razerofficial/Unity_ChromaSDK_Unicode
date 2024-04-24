@@ -25,6 +25,8 @@
 
 * This Chroma SDK plugin requires `Unity 2021.3.15f1` or higher.
 
+* Note: This version includes Unicode support for paths with special characters.
+
 ## User Privacy
 
 Note: The Chroma SDK requires only the minimum amount of information necessary to operate during initialization, including the title of the application or game, description of the application or game, application or game author, and application or game support contact information. This information is displayed in the Chroma app. The Chroma SDK does not monitor or collect any personal data related to users.
@@ -45,7 +47,7 @@ To import the Chroma SDK into Unity using the Unity Package Manager, follow thes
 
 ![image_6](images/image_6.png)
 
-2. In the text box that appears, enter the URL [https://github.com/razerofficial/Unity_ChromaSDK.git](https://github.com/razerofficial/Unity_ChromaSDK.git) and click Add.
+2. In the text box that appears, enter the URL [https://github.com/razerofficial/Unity_ChromaSDK_Unicode.git](https://github.com/razerofficial/Unity_ChromaSDK_Unicode.git) and click Add.
 
 If the installation is successful, the `Razer Chroma SDK` package will appear in the package list with the `git` tag.
 
@@ -364,12 +366,14 @@ The `ChromaAnimationAPI` class provides a wrapper for the Chroma Editor Library.
 
 * [AddColor](#AddColor)
 * [AddFrame](#AddFrame)
+* [AddNonZeroAllKeys](#AddNonZeroAllKeys)
 * [AddNonZeroAllKeysAllFrames](#AddNonZeroAllKeysAllFrames)
 * [AddNonZeroAllKeysAllFramesName](#AddNonZeroAllKeysAllFramesName)
 * [AddNonZeroAllKeysAllFramesNameD](#AddNonZeroAllKeysAllFramesNameD)
 * [AddNonZeroAllKeysAllFramesOffset](#AddNonZeroAllKeysAllFramesOffset)
 * [AddNonZeroAllKeysAllFramesOffsetName](#AddNonZeroAllKeysAllFramesOffsetName)
 * [AddNonZeroAllKeysAllFramesOffsetNameD](#AddNonZeroAllKeysAllFramesOffsetNameD)
+* [AddNonZeroAllKeysName](#AddNonZeroAllKeysName)
 * [AddNonZeroAllKeysOffset](#AddNonZeroAllKeysOffset)
 * [AddNonZeroAllKeysOffsetName](#AddNonZeroAllKeysOffsetName)
 * [AddNonZeroAllKeysOffsetNameD](#AddNonZeroAllKeysOffsetNameD)
@@ -453,18 +457,24 @@ The `ChromaAnimationAPI` class provides a wrapper for the Chroma Editor Library.
 * [CopyRedChannelAllFrames](#CopyRedChannelAllFrames)
 * [CopyRedChannelAllFramesName](#CopyRedChannelAllFramesName)
 * [CopyRedChannelAllFramesNameD](#CopyRedChannelAllFramesNameD)
+* [CopyZeroAllKeys](#CopyZeroAllKeys)
 * [CopyZeroAllKeysAllFrames](#CopyZeroAllKeysAllFrames)
 * [CopyZeroAllKeysAllFramesName](#CopyZeroAllKeysAllFramesName)
 * [CopyZeroAllKeysAllFramesNameD](#CopyZeroAllKeysAllFramesNameD)
 * [CopyZeroAllKeysAllFramesOffset](#CopyZeroAllKeysAllFramesOffset)
 * [CopyZeroAllKeysAllFramesOffsetName](#CopyZeroAllKeysAllFramesOffsetName)
 * [CopyZeroAllKeysAllFramesOffsetNameD](#CopyZeroAllKeysAllFramesOffsetNameD)
+* [CopyZeroAllKeysName](#CopyZeroAllKeysName)
+* [CopyZeroAllKeysOffset](#CopyZeroAllKeysOffset)
+* [CopyZeroAllKeysOffsetName](#CopyZeroAllKeysOffsetName)
 * [CopyZeroKeyColor](#CopyZeroKeyColor)
 * [CopyZeroKeyColorName](#CopyZeroKeyColorName)
 * [CopyZeroKeyColorNameD](#CopyZeroKeyColorNameD)
+* [CopyZeroTargetAllKeys](#CopyZeroTargetAllKeys)
 * [CopyZeroTargetAllKeysAllFrames](#CopyZeroTargetAllKeysAllFrames)
 * [CopyZeroTargetAllKeysAllFramesName](#CopyZeroTargetAllKeysAllFramesName)
 * [CopyZeroTargetAllKeysAllFramesNameD](#CopyZeroTargetAllKeysAllFramesNameD)
+* [CopyZeroTargetAllKeysName](#CopyZeroTargetAllKeysName)
 * [CoreCreateChromaLinkEffect](#CoreCreateChromaLinkEffect)
 * [CoreCreateEffect](#CoreCreateEffect)
 * [CoreCreateHeadsetEffect](#CoreCreateHeadsetEffect)
@@ -475,8 +485,11 @@ The `ChromaAnimationAPI` class provides a wrapper for the Chroma Editor Library.
 * [CoreDeleteEffect](#CoreDeleteEffect)
 * [CoreInit](#CoreInit)
 * [CoreInitSDK](#CoreInitSDK)
+* [CoreIsActive](#CoreIsActive)
+* [CoreIsConnected](#CoreIsConnected)
 * [CoreQueryDevice](#CoreQueryDevice)
 * [CoreSetEffect](#CoreSetEffect)
+* [CoreSetEventName](#CoreSetEventName)
 * [CoreStreamBroadcast](#CoreStreamBroadcast)
 * [CoreStreamBroadcastEnd](#CoreStreamBroadcastEnd)
 * [CoreStreamGetAuthShortcode](#CoreStreamGetAuthShortcode)
@@ -606,6 +619,7 @@ The `ChromaAnimationAPI` class provides a wrapper for the Chroma Editor Library.
 * [GetFrameCount](#GetFrameCount)
 * [GetFrameCountName](#GetFrameCountName)
 * [GetFrameCountNameD](#GetFrameCountNameD)
+* [GetFrameName](#GetFrameName)
 * [GetKeyColor](#GetKeyColor)
 * [GetKeyColorD](#GetKeyColorD)
 * [GetKeyColorName](#GetKeyColorName)
@@ -847,12 +861,14 @@ The `ChromaAnimationAPI` class provides a wrapper for the Chroma Editor Library.
 * [StopComposite](#StopComposite)
 * [StopCompositeD](#StopCompositeD)
 * [SubtractColor](#SubtractColor)
+* [SubtractNonZeroAllKeys](#SubtractNonZeroAllKeys)
 * [SubtractNonZeroAllKeysAllFrames](#SubtractNonZeroAllKeysAllFrames)
 * [SubtractNonZeroAllKeysAllFramesName](#SubtractNonZeroAllKeysAllFramesName)
 * [SubtractNonZeroAllKeysAllFramesNameD](#SubtractNonZeroAllKeysAllFramesNameD)
 * [SubtractNonZeroAllKeysAllFramesOffset](#SubtractNonZeroAllKeysAllFramesOffset)
 * [SubtractNonZeroAllKeysAllFramesOffsetName](#SubtractNonZeroAllKeysAllFramesOffsetName)
 * [SubtractNonZeroAllKeysAllFramesOffsetNameD](#SubtractNonZeroAllKeysAllFramesOffsetNameD)
+* [SubtractNonZeroAllKeysName](#SubtractNonZeroAllKeysName)
 * [SubtractNonZeroAllKeysOffset](#SubtractNonZeroAllKeysOffset)
 * [SubtractNonZeroAllKeysOffsetName](#SubtractNonZeroAllKeysOffsetName)
 * [SubtractNonZeroAllKeysOffsetNameD](#SubtractNonZeroAllKeysOffsetNameD)
@@ -890,11 +906,11 @@ The `ChromaAnimationAPI` class provides a wrapper for the Chroma Editor Library.
 * [UnloadLibraryStreamingPlugin](#UnloadLibraryStreamingPlugin)
 * [UpdateFrame](#UpdateFrame)
 * [UpdateFrameName](#UpdateFrameName)
+* [UseForwardChromaEvents](#UseForwardChromaEvents)
 * [UseIdleAnimation](#UseIdleAnimation)
 * [UseIdleAnimations](#UseIdleAnimations)
 * [UsePreloading](#UsePreloading)
 * [UsePreloadingName](#UsePreloadingName)
-
 ---
 
 <a name="AddColor"></a>
@@ -911,12 +927,12 @@ int result = ChromaAnimationAPI.AddColor(int color1, int color2);
 <a name="AddFrame"></a>
 **AddFrame**
 
-Adds a frame to the `Chroma` animation and sets the `duration` (in seconds).
-The `color` is expected to be an array of the dimensions for the `deviceType/device`.
-The `length` parameter is the size of the `color` array. For `EChromaSDKDevice1DEnum`
-the array size should be `MAX LEDS`. For `EChromaSDKDevice2DEnum` the array
-size should be `MAX ROW` * `MAX COLUMN`. Returns the animation id upon
-success. Returns -1 upon failure.
+Adds a frame to the `Chroma` animation and sets the `duration` (in seconds). 
+The `color` is expected to be an array of the dimensions for the `deviceType/device`. 
+The `length` parameter is the size of the `color` array. For `EChromaSDKDevice1DEnum` 
+the array size should be `MAX LEDS`. For `EChromaSDKDevice2DEnum` the array 
+size should be `MAX ROW` times `MAX COLUMN`. Returns the animation id upon 
+success. Returns negative one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.AddFrame(int animationId, float duration, int[] colors, int length);
@@ -924,10 +940,22 @@ int result = ChromaAnimationAPI.AddFrame(int animationId, float duration, int[] 
 
 ---
 
+<a name="AddNonZeroAllKeys"></a>
+**AddNonZeroAllKeys**
+
+Add source color to target where color is not black for frame id, reference 
+source and target by id.
+
+```charp
+ChromaAnimationAPI.AddNonZeroAllKeys(int sourceAnimationId, int targetAnimationId, int frameId);
+```
+
+---
+
 <a name="AddNonZeroAllKeysAllFrames"></a>
 **AddNonZeroAllKeysAllFrames**
 
-Add source color to target where color is not black for all frames, reference
+Add source color to target where color is not black for all frames, reference 
 source and target by id.
 
 ```charp
@@ -939,7 +967,7 @@ ChromaAnimationAPI.AddNonZeroAllKeysAllFrames(int sourceAnimationId, int targetA
 <a name="AddNonZeroAllKeysAllFramesName"></a>
 **AddNonZeroAllKeysAllFramesName**
 
-Add source color to target where color is not black for all frames, reference
+Add source color to target where color is not black for all frames, reference 
 source and target by name.
 
 ```charp
@@ -962,8 +990,8 @@ double result = ChromaAnimationAPI.AddNonZeroAllKeysAllFramesNameD(string source
 <a name="AddNonZeroAllKeysAllFramesOffset"></a>
 **AddNonZeroAllKeysAllFramesOffset**
 
-Add source color to target where color is not black for all frames starting
-at offset for the length of the source, reference source and target by
+Add source color to target where color is not black for all frames starting 
+at offset for the length of the source, reference source and target by 
 id.
 
 ```charp
@@ -975,8 +1003,8 @@ ChromaAnimationAPI.AddNonZeroAllKeysAllFramesOffset(int sourceAnimationId, int t
 <a name="AddNonZeroAllKeysAllFramesOffsetName"></a>
 **AddNonZeroAllKeysAllFramesOffsetName**
 
-Add source color to target where color is not black for all frames starting
-at offset for the length of the source, reference source and target by
+Add source color to target where color is not black for all frames starting 
+at offset for the length of the source, reference source and target by 
 name.
 
 ```charp
@@ -996,10 +1024,22 @@ double result = ChromaAnimationAPI.AddNonZeroAllKeysAllFramesOffsetNameD(string 
 
 ---
 
+<a name="AddNonZeroAllKeysName"></a>
+**AddNonZeroAllKeysName**
+
+Add source color to target where color is not black for frame id, reference 
+source and target by name.
+
+```charp
+ChromaAnimationAPI.AddNonZeroAllKeysName(string sourceAnimation, string targetAnimation, int frameId);
+```
+
+---
+
 <a name="AddNonZeroAllKeysOffset"></a>
 **AddNonZeroAllKeysOffset**
 
-Add source color to target where color is not black for the source frame
+Add source color to target where color is not black for the source frame 
 and target offset frame, reference source and target by id.
 
 ```charp
@@ -1011,7 +1051,7 @@ ChromaAnimationAPI.AddNonZeroAllKeysOffset(int sourceAnimationId, int targetAnim
 <a name="AddNonZeroAllKeysOffsetName"></a>
 **AddNonZeroAllKeysOffsetName**
 
-Add source color to target where color is not black for the source frame
+Add source color to target where color is not black for the source frame 
 and target offset frame, reference source and target by name.
 
 ```charp
@@ -1034,7 +1074,7 @@ double result = ChromaAnimationAPI.AddNonZeroAllKeysOffsetNameD(string sourceAni
 <a name="AddNonZeroTargetAllKeysAllFrames"></a>
 **AddNonZeroTargetAllKeysAllFrames**
 
-Add source color to target where the target color is not black for all frames,
+Add source color to target where the target color is not black for all frames, 
 reference source and target by id.
 
 ```charp
@@ -1046,7 +1086,7 @@ ChromaAnimationAPI.AddNonZeroTargetAllKeysAllFrames(int sourceAnimationId, int t
 <a name="AddNonZeroTargetAllKeysAllFramesName"></a>
 **AddNonZeroTargetAllKeysAllFramesName**
 
-Add source color to target where the target color is not black for all frames,
+Add source color to target where the target color is not black for all frames, 
 reference source and target by name.
 
 ```charp
@@ -1069,8 +1109,8 @@ double result = ChromaAnimationAPI.AddNonZeroTargetAllKeysAllFramesNameD(string 
 <a name="AddNonZeroTargetAllKeysAllFramesOffset"></a>
 **AddNonZeroTargetAllKeysAllFramesOffset**
 
-Add source color to target where the target color is not black for all frames
-starting at offset for the length of the source, reference source and target
+Add source color to target where the target color is not black for all frames 
+starting at offset for the length of the source, reference source and target 
 by id.
 
 ```charp
@@ -1082,8 +1122,8 @@ ChromaAnimationAPI.AddNonZeroTargetAllKeysAllFramesOffset(int sourceAnimationId,
 <a name="AddNonZeroTargetAllKeysAllFramesOffsetName"></a>
 **AddNonZeroTargetAllKeysAllFramesOffsetName**
 
-Add source color to target where the target color is not black for all frames
-starting at offset for the length of the source, reference source and target
+Add source color to target where the target color is not black for all frames 
+starting at offset for the length of the source, reference source and target 
 by name.
 
 ```charp
@@ -1106,7 +1146,7 @@ double result = ChromaAnimationAPI.AddNonZeroTargetAllKeysAllFramesOffsetNameD(s
 <a name="AddNonZeroTargetAllKeysOffset"></a>
 **AddNonZeroTargetAllKeysOffset**
 
-Add source color to target where target color is not blank from the source
+Add source color to target where target color is not blank from the source 
 frame to the target offset frame, reference source and target by id.
 
 ```charp
@@ -1118,7 +1158,7 @@ ChromaAnimationAPI.AddNonZeroTargetAllKeysOffset(int sourceAnimationId, int targ
 <a name="AddNonZeroTargetAllKeysOffsetName"></a>
 **AddNonZeroTargetAllKeysOffsetName**
 
-Add source color to target where target color is not blank from the source
+Add source color to target where target color is not blank from the source 
 frame to the target offset frame, reference source and target by name.
 
 ```charp
@@ -1141,7 +1181,7 @@ double result = ChromaAnimationAPI.AddNonZeroTargetAllKeysOffsetNameD(string sou
 <a name="AppendAllFrames"></a>
 **AppendAllFrames**
 
-Append all source frames to the target animation, reference source and target
+Append all source frames to the target animation, reference source and target 
 by id.
 
 ```charp
@@ -1153,7 +1193,7 @@ ChromaAnimationAPI.AppendAllFrames(int sourceAnimationId, int targetAnimationId)
 <a name="AppendAllFramesName"></a>
 **AppendAllFramesName**
 
-Append all source frames to the target animation, reference source and target
+Append all source frames to the target animation, reference source and target 
 by name.
 
 ```charp
@@ -1198,7 +1238,7 @@ ChromaAnimationAPI.ClearAnimationType(int deviceType, int device);
 <a name="CloseAll"></a>
 **CloseAll**
 
-`PluginCloseAll` closes all open animations so they can be reloaded from
+`PluginCloseAll` closes all open animations so they can be reloaded from 
 disk. The set of animations will be stopped if playing.
 
 ```charp
@@ -1210,10 +1250,10 @@ ChromaAnimationAPI.CloseAll();
 <a name="CloseAnimation"></a>
 **CloseAnimation**
 
-Closes the `Chroma` animation to free up resources referenced by id. Returns
-the animation id upon success. Returns -1 upon failure. This might be used
-while authoring effects if there was a change necessitating re-opening
-the animation. The animation id can no longer be used once closed.
+Closes the `Chroma` animation to free up resources referenced by id. Returns 
+the animation id upon success. Returns negative one upon failure. This 
+might be used while authoring effects if there was a change necessitating 
+re-opening the animation. The animation id can no longer be used once closed.
 
 ```charp
 int result = ChromaAnimationAPI.CloseAnimation(int animationId);
@@ -1235,7 +1275,7 @@ double result = ChromaAnimationAPI.CloseAnimationD(double animationId);
 <a name="CloseAnimationName"></a>
 **CloseAnimationName**
 
-Closes the `Chroma` animation referenced by name so that the animation can
+Closes the `Chroma` animation referenced by name so that the animation can 
 be reloaded from disk.
 
 ```charp
@@ -1258,7 +1298,7 @@ double result = ChromaAnimationAPI.CloseAnimationNameD(string path);
 <a name="CloseComposite"></a>
 **CloseComposite**
 
-`PluginCloseComposite` closes a set of animations so they can be reloaded
+`PluginCloseComposite` closes a set of animations so they can be reloaded 
 from disk. The set of animations will be stopped if playing.
 
 ```charp
@@ -1281,7 +1321,7 @@ double result = ChromaAnimationAPI.CloseCompositeD(string name);
 <a name="CopyAllKeys"></a>
 **CopyAllKeys**
 
-Copy source animation to target animation for the given frame. Source and
+Copy source animation to target animation for the given frame. Source and 
 target are referenced by id.
 
 ```charp
@@ -1293,7 +1333,7 @@ ChromaAnimationAPI.CopyAllKeys(int sourceAnimationId, int targetAnimationId, int
 <a name="CopyAllKeysName"></a>
 **CopyAllKeysName**
 
-Copy source animation to target animation for the given frame. Source and
+Copy source animation to target animation for the given frame. Source and 
 target are referenced by id.
 
 ```charp
@@ -1305,7 +1345,7 @@ ChromaAnimationAPI.CopyAllKeysName(string sourceAnimation, string targetAnimatio
 <a name="CopyAnimation"></a>
 **CopyAnimation**
 
-Copy animation to named target animation in memory. If target animation
+Copy animation to named target animation in memory. If target animation 
 exists, close first. Source is referenced by id.
 
 ```charp
@@ -1317,7 +1357,7 @@ int result = ChromaAnimationAPI.CopyAnimation(int sourceAnimationId, string targ
 <a name="CopyAnimationName"></a>
 **CopyAnimationName**
 
-Copy animation to named target animation in memory. If target animation
+Copy animation to named target animation in memory. If target animation 
 exists, close first. Source is referenced by name.
 
 ```charp
@@ -1340,7 +1380,7 @@ double result = ChromaAnimationAPI.CopyAnimationNameD(string sourceAnimation, st
 <a name="CopyBlueChannelAllFrames"></a>
 **CopyBlueChannelAllFrames**
 
-Copy blue channel to other channels for all frames. Intensity range is 0.0
+Copy blue channel to other channels for all frames. Intensity range is 0.0 
 to 1.0. Reference the animation by id.
 
 ```charp
@@ -1352,7 +1392,7 @@ ChromaAnimationAPI.CopyBlueChannelAllFrames(int animationId, float redIntensity,
 <a name="CopyBlueChannelAllFramesName"></a>
 **CopyBlueChannelAllFramesName**
 
-Copy blue channel to other channels for all frames. Intensity range is 0.0
+Copy blue channel to other channels for all frames. Intensity range is 0.0 
 to 1.0. Reference the animation by name.
 
 ```charp
@@ -1375,7 +1415,7 @@ double result = ChromaAnimationAPI.CopyBlueChannelAllFramesNameD(string path, do
 <a name="CopyGreenChannelAllFrames"></a>
 **CopyGreenChannelAllFrames**
 
-Copy green channel to other channels for all frames. Intensity range is
+Copy green channel to other channels for all frames. Intensity range is 
 0.0 to 1.0. Reference the animation by id.
 
 ```charp
@@ -1387,7 +1427,7 @@ ChromaAnimationAPI.CopyGreenChannelAllFrames(int animationId, float redIntensity
 <a name="CopyGreenChannelAllFramesName"></a>
 **CopyGreenChannelAllFramesName**
 
-Copy green channel to other channels for all frames. Intensity range is
+Copy green channel to other channels for all frames. Intensity range is 
 0.0 to 1.0. Reference the animation by name.
 
 ```charp
@@ -1410,7 +1450,7 @@ double result = ChromaAnimationAPI.CopyGreenChannelAllFramesNameD(string path, d
 <a name="CopyKeyColor"></a>
 **CopyKeyColor**
 
-Copy animation key color from the source animation to the target animation
+Copy animation key color from the source animation to the target animation 
 for the given frame. Reference the source and target by id.
 
 ```charp
@@ -1422,7 +1462,7 @@ ChromaAnimationAPI.CopyKeyColor(int sourceAnimationId, int targetAnimationId, in
 <a name="CopyKeyColorAllFrames"></a>
 **CopyKeyColorAllFrames**
 
-Copy animation key color from the source animation to the target animation
+Copy animation key color from the source animation to the target animation 
 for all frames. Reference the source and target by id.
 
 ```charp
@@ -1434,7 +1474,7 @@ ChromaAnimationAPI.CopyKeyColorAllFrames(int sourceAnimationId, int targetAnimat
 <a name="CopyKeyColorAllFramesName"></a>
 **CopyKeyColorAllFramesName**
 
-Copy animation key color from the source animation to the target animation
+Copy animation key color from the source animation to the target animation 
 for all frames. Reference the source and target by name.
 
 ```charp
@@ -1457,8 +1497,8 @@ double result = ChromaAnimationAPI.CopyKeyColorAllFramesNameD(string sourceAnima
 <a name="CopyKeyColorAllFramesOffset"></a>
 **CopyKeyColorAllFramesOffset**
 
-Copy animation key color from the source animation to the target animation
-for all frames, starting at the offset for the length of the source animation.
+Copy animation key color from the source animation to the target animation 
+for all frames, starting at the offset for the length of the source animation. 
 Source and target are referenced by id.
 
 ```charp
@@ -1470,8 +1510,8 @@ ChromaAnimationAPI.CopyKeyColorAllFramesOffset(int sourceAnimationId, int target
 <a name="CopyKeyColorAllFramesOffsetName"></a>
 **CopyKeyColorAllFramesOffsetName**
 
-Copy animation key color from the source animation to the target animation
-for all frames, starting at the offset for the length of the source animation.
+Copy animation key color from the source animation to the target animation 
+for all frames, starting at the offset for the length of the source animation. 
 Source and target are referenced by name.
 
 ```charp
@@ -1494,7 +1534,7 @@ double result = ChromaAnimationAPI.CopyKeyColorAllFramesOffsetNameD(string sourc
 <a name="CopyKeyColorName"></a>
 **CopyKeyColorName**
 
-Copy animation key color from the source animation to the target animation
+Copy animation key color from the source animation to the target animation 
 for the given frame.
 
 ```charp
@@ -1517,8 +1557,8 @@ double result = ChromaAnimationAPI.CopyKeyColorNameD(string sourceAnimation, str
 <a name="CopyKeysColor"></a>
 **CopyKeysColor**
 
-Copy animation color for a set of keys from the source animation to the
-target animation for the given frame. Reference the source and target by
+Copy animation color for a set of keys from the source animation to the 
+target animation for the given frame. Reference the source and target by 
 id.
 
 ```charp
@@ -1530,7 +1570,7 @@ ChromaAnimationAPI.CopyKeysColor(int sourceAnimationId, int targetAnimationId, i
 <a name="CopyKeysColorAllFrames"></a>
 **CopyKeysColorAllFrames**
 
-Copy animation color for a set of keys from the source animation to the
+Copy animation color for a set of keys from the source animation to the 
 target animation for all frames. Reference the source and target by id.
 
 ```charp
@@ -1542,7 +1582,7 @@ ChromaAnimationAPI.CopyKeysColorAllFrames(int sourceAnimationId, int targetAnima
 <a name="CopyKeysColorAllFramesName"></a>
 **CopyKeysColorAllFramesName**
 
-Copy animation color for a set of keys from the source animation to the
+Copy animation color for a set of keys from the source animation to the 
 target animation for all frames. Reference the source and target by name.
 
 ```charp
@@ -1554,8 +1594,8 @@ ChromaAnimationAPI.CopyKeysColorAllFramesName(string sourceAnimation, string tar
 <a name="CopyKeysColorName"></a>
 **CopyKeysColorName**
 
-Copy animation color for a set of keys from the source animation to the
-target animation for the given frame. Reference the source and target by
+Copy animation color for a set of keys from the source animation to the 
+target animation for the given frame. Reference the source and target by 
 name.
 
 ```charp
@@ -1567,8 +1607,8 @@ ChromaAnimationAPI.CopyKeysColorName(string sourceAnimation, string targetAnimat
 <a name="CopyKeysColorOffset"></a>
 **CopyKeysColorOffset**
 
-Copy animation color for a set of keys from the source animation to the
-target animation from the source frame to the target frame. Reference the
+Copy animation color for a set of keys from the source animation to the 
+target animation from the source frame to the target frame. Reference the 
 source and target by id.
 
 ```charp
@@ -1580,8 +1620,8 @@ ChromaAnimationAPI.CopyKeysColorOffset(int sourceAnimationId, int targetAnimatio
 <a name="CopyKeysColorOffsetName"></a>
 **CopyKeysColorOffsetName**
 
-Copy animation color for a set of keys from the source animation to the
-target animation from the source frame to the target frame. Reference the
+Copy animation color for a set of keys from the source animation to the 
+target animation from the source frame to the target frame. Reference the 
 source and target by name.
 
 ```charp
@@ -1593,7 +1633,7 @@ ChromaAnimationAPI.CopyKeysColorOffsetName(string sourceAnimation, string target
 <a name="CopyNonZeroAllKeys"></a>
 **CopyNonZeroAllKeys**
 
-Copy source animation to target animation for the given frame. Source and
+Copy source animation to target animation for the given frame. Source and 
 target are referenced by id.
 
 ```charp
@@ -1605,7 +1645,7 @@ ChromaAnimationAPI.CopyNonZeroAllKeys(int sourceAnimationId, int targetAnimation
 <a name="CopyNonZeroAllKeysAllFrames"></a>
 **CopyNonZeroAllKeysAllFrames**
 
-Copy nonzero colors from a source animation to a target animation for all
+Copy nonzero colors from a source animation to a target animation for all 
 frames. Reference source and target by id.
 
 ```charp
@@ -1617,7 +1657,7 @@ ChromaAnimationAPI.CopyNonZeroAllKeysAllFrames(int sourceAnimationId, int target
 <a name="CopyNonZeroAllKeysAllFramesName"></a>
 **CopyNonZeroAllKeysAllFramesName**
 
-Copy nonzero colors from a source animation to a target animation for all
+Copy nonzero colors from a source animation to a target animation for all 
 frames. Reference source and target by name.
 
 ```charp
@@ -1640,8 +1680,8 @@ double result = ChromaAnimationAPI.CopyNonZeroAllKeysAllFramesNameD(string sourc
 <a name="CopyNonZeroAllKeysAllFramesOffset"></a>
 **CopyNonZeroAllKeysAllFramesOffset**
 
-Copy nonzero colors from a source animation to a target animation for all
-frames starting at the offset for the length of the source animation. The
+Copy nonzero colors from a source animation to a target animation for all 
+frames starting at the offset for the length of the source animation. The 
 source and target are referenced by id.
 
 ```charp
@@ -1653,8 +1693,8 @@ ChromaAnimationAPI.CopyNonZeroAllKeysAllFramesOffset(int sourceAnimationId, int 
 <a name="CopyNonZeroAllKeysAllFramesOffsetName"></a>
 **CopyNonZeroAllKeysAllFramesOffsetName**
 
-Copy nonzero colors from a source animation to a target animation for all
-frames starting at the offset for the length of the source animation. The
+Copy nonzero colors from a source animation to a target animation for all 
+frames starting at the offset for the length of the source animation. The 
 source and target are referenced by name.
 
 ```charp
@@ -1677,7 +1717,7 @@ double result = ChromaAnimationAPI.CopyNonZeroAllKeysAllFramesOffsetNameD(string
 <a name="CopyNonZeroAllKeysName"></a>
 **CopyNonZeroAllKeysName**
 
-Copy nonzero colors from source animation to target animation for the specified
+Copy nonzero colors from source animation to target animation for the specified 
 frame. Source and target are referenced by id.
 
 ```charp
@@ -1700,8 +1740,8 @@ double result = ChromaAnimationAPI.CopyNonZeroAllKeysNameD(string sourceAnimatio
 <a name="CopyNonZeroAllKeysOffset"></a>
 **CopyNonZeroAllKeysOffset**
 
-Copy nonzero colors from the source animation to the target animation from
-the source frame to the target offset frame. Source and target are referenced
+Copy nonzero colors from the source animation to the target animation from 
+the source frame to the target offset frame. Source and target are referenced 
 by id.
 
 ```charp
@@ -1713,8 +1753,8 @@ ChromaAnimationAPI.CopyNonZeroAllKeysOffset(int sourceAnimationId, int targetAni
 <a name="CopyNonZeroAllKeysOffsetName"></a>
 **CopyNonZeroAllKeysOffsetName**
 
-Copy nonzero colors from the source animation to the target animation from
-the source frame to the target offset frame. Source and target are referenced
+Copy nonzero colors from the source animation to the target animation from 
+the source frame to the target offset frame. Source and target are referenced 
 by name.
 
 ```charp
@@ -1737,7 +1777,7 @@ double result = ChromaAnimationAPI.CopyNonZeroAllKeysOffsetNameD(string sourceAn
 <a name="CopyNonZeroKeyColor"></a>
 **CopyNonZeroKeyColor**
 
-Copy animation key color from the source animation to the target animation
+Copy animation key color from the source animation to the target animation 
 for the given frame where color is not zero.
 
 ```charp
@@ -1749,7 +1789,7 @@ ChromaAnimationAPI.CopyNonZeroKeyColor(int sourceAnimationId, int targetAnimatio
 <a name="CopyNonZeroKeyColorName"></a>
 **CopyNonZeroKeyColorName**
 
-Copy animation key color from the source animation to the target animation
+Copy animation key color from the source animation to the target animation 
 for the given frame where color is not zero.
 
 ```charp
@@ -1772,8 +1812,8 @@ double result = ChromaAnimationAPI.CopyNonZeroKeyColorNameD(string sourceAnimati
 <a name="CopyNonZeroTargetAllKeys"></a>
 **CopyNonZeroTargetAllKeys**
 
-Copy nonzero colors from the source animation to the target animation where
-the target color is nonzero for the specified frame. Source and target
+Copy nonzero colors from the source animation to the target animation where 
+the target color is nonzero for the specified frame. Source and target 
 are referenced by id.
 
 ```charp
@@ -1785,8 +1825,8 @@ ChromaAnimationAPI.CopyNonZeroTargetAllKeys(int sourceAnimationId, int targetAni
 <a name="CopyNonZeroTargetAllKeysAllFrames"></a>
 **CopyNonZeroTargetAllKeysAllFrames**
 
-Copy nonzero colors from the source animation to the target animation where
-the target color is nonzero for all frames. Source and target are referenced
+Copy nonzero colors from the source animation to the target animation where 
+the target color is nonzero for all frames. Source and target are referenced 
 by id.
 
 ```charp
@@ -1798,8 +1838,8 @@ ChromaAnimationAPI.CopyNonZeroTargetAllKeysAllFrames(int sourceAnimationId, int 
 <a name="CopyNonZeroTargetAllKeysAllFramesName"></a>
 **CopyNonZeroTargetAllKeysAllFramesName**
 
-Copy nonzero colors from the source animation to the target animation where
-the target color is nonzero for all frames. Source and target are referenced
+Copy nonzero colors from the source animation to the target animation where 
+the target color is nonzero for all frames. Source and target are referenced 
 by name.
 
 ```charp
@@ -1822,8 +1862,8 @@ double result = ChromaAnimationAPI.CopyNonZeroTargetAllKeysAllFramesNameD(string
 <a name="CopyNonZeroTargetAllKeysAllFramesOffset"></a>
 **CopyNonZeroTargetAllKeysAllFramesOffset**
 
-Copy nonzero colors from the source animation to the target animation where
-the target color is nonzero for all frames. Source and target are referenced
+Copy nonzero colors from the source animation to the target animation where 
+the target color is nonzero for all frames. Source and target are referenced 
 by name.
 
 ```charp
@@ -1835,9 +1875,9 @@ ChromaAnimationAPI.CopyNonZeroTargetAllKeysAllFramesOffset(int sourceAnimationId
 <a name="CopyNonZeroTargetAllKeysAllFramesOffsetName"></a>
 **CopyNonZeroTargetAllKeysAllFramesOffsetName**
 
-Copy nonzero colors from the source animation to the target animation where
-the target color is nonzero for all frames starting at the target offset
-for the length of the source animation. Source and target animations are
+Copy nonzero colors from the source animation to the target animation where 
+the target color is nonzero for all frames starting at the target offset 
+for the length of the source animation. Source and target animations are 
 referenced by name.
 
 ```charp
@@ -1860,8 +1900,8 @@ double result = ChromaAnimationAPI.CopyNonZeroTargetAllKeysAllFramesOffsetNameD(
 <a name="CopyNonZeroTargetAllKeysName"></a>
 **CopyNonZeroTargetAllKeysName**
 
-Copy nonzero colors from the source animation to the target animation where
-the target color is nonzero for the specified frame. The source and target
+Copy nonzero colors from the source animation to the target animation where 
+the target color is nonzero for the specified frame. The source and target 
 are referenced by name.
 
 ```charp
@@ -1884,8 +1924,8 @@ double result = ChromaAnimationAPI.CopyNonZeroTargetAllKeysNameD(string sourceAn
 <a name="CopyNonZeroTargetAllKeysOffset"></a>
 **CopyNonZeroTargetAllKeysOffset**
 
-Copy nonzero colors from the source animation to the target animation where
-the target color is nonzero for the specified source frame and target offset
+Copy nonzero colors from the source animation to the target animation where 
+the target color is nonzero for the specified source frame and target offset 
 frame. The source and target are referenced by id.
 
 ```charp
@@ -1897,8 +1937,8 @@ ChromaAnimationAPI.CopyNonZeroTargetAllKeysOffset(int sourceAnimationId, int tar
 <a name="CopyNonZeroTargetAllKeysOffsetName"></a>
 **CopyNonZeroTargetAllKeysOffsetName**
 
-Copy nonzero colors from the source animation to the target animation where
-the target color is nonzero for the specified source frame and target offset
+Copy nonzero colors from the source animation to the target animation where 
+the target color is nonzero for the specified source frame and target offset 
 frame. The source and target are referenced by name.
 
 ```charp
@@ -1921,8 +1961,8 @@ double result = ChromaAnimationAPI.CopyNonZeroTargetAllKeysOffsetNameD(string so
 <a name="CopyNonZeroTargetZeroAllKeysAllFrames"></a>
 **CopyNonZeroTargetZeroAllKeysAllFrames**
 
-Copy nonzero colors from the source animation to the target animation where
-the target color is zero for all frames. Source and target are referenced
+Copy nonzero colors from the source animation to the target animation where 
+the target color is zero for all frames. Source and target are referenced 
 by id.
 
 ```charp
@@ -1934,8 +1974,8 @@ ChromaAnimationAPI.CopyNonZeroTargetZeroAllKeysAllFrames(int sourceAnimationId, 
 <a name="CopyNonZeroTargetZeroAllKeysAllFramesName"></a>
 **CopyNonZeroTargetZeroAllKeysAllFramesName**
 
-Copy nonzero colors from the source animation to the target animation where
-the target color is zero for all frames. Source and target are referenced
+Copy nonzero colors from the source animation to the target animation where 
+the target color is zero for all frames. Source and target are referenced 
 by name.
 
 ```charp
@@ -1958,7 +1998,7 @@ double result = ChromaAnimationAPI.CopyNonZeroTargetZeroAllKeysAllFramesNameD(st
 <a name="CopyRedChannelAllFrames"></a>
 **CopyRedChannelAllFrames**
 
-Copy red channel to other channels for all frames. Intensity range is 0.0
+Copy red channel to other channels for all frames. Intensity range is 0.0 
 to 1.0. Reference the animation by id.
 
 ```charp
@@ -1970,7 +2010,7 @@ ChromaAnimationAPI.CopyRedChannelAllFrames(int animationId, float greenIntensity
 <a name="CopyRedChannelAllFramesName"></a>
 **CopyRedChannelAllFramesName**
 
-Copy green channel to other channels for all frames. Intensity range is
+Copy green channel to other channels for all frames. Intensity range is 
 0.0 to 1.0. Reference the animation by name.
 
 ```charp
@@ -1990,10 +2030,22 @@ double result = ChromaAnimationAPI.CopyRedChannelAllFramesNameD(string path, dou
 
 ---
 
+<a name="CopyZeroAllKeys"></a>
+**CopyZeroAllKeys**
+
+Copy zero colors from source animation to target animation for the frame. 
+Source and target are referenced by id.
+
+```charp
+ChromaAnimationAPI.CopyZeroAllKeys(int sourceAnimationId, int targetAnimationId, int frameId);
+```
+
+---
+
 <a name="CopyZeroAllKeysAllFrames"></a>
 **CopyZeroAllKeysAllFrames**
 
-Copy zero colors from source animation to target animation for all frames.
+Copy zero colors from source animation to target animation for all frames. 
 Source and target are referenced by id.
 
 ```charp
@@ -2005,7 +2057,7 @@ ChromaAnimationAPI.CopyZeroAllKeysAllFrames(int sourceAnimationId, int targetAni
 <a name="CopyZeroAllKeysAllFramesName"></a>
 **CopyZeroAllKeysAllFramesName**
 
-Copy zero colors from source animation to target animation for all frames.
+Copy zero colors from source animation to target animation for all frames. 
 Source and target are referenced by name.
 
 ```charp
@@ -2028,8 +2080,8 @@ double result = ChromaAnimationAPI.CopyZeroAllKeysAllFramesNameD(string sourceAn
 <a name="CopyZeroAllKeysAllFramesOffset"></a>
 **CopyZeroAllKeysAllFramesOffset**
 
-Copy zero colors from source animation to target animation for all frames
-starting at the target offset for the length of the source animation. Source
+Copy zero colors from source animation to target animation for all frames 
+starting at the target offset for the length of the source animation. Source 
 and target are referenced by id.
 
 ```charp
@@ -2041,8 +2093,8 @@ ChromaAnimationAPI.CopyZeroAllKeysAllFramesOffset(int sourceAnimationId, int tar
 <a name="CopyZeroAllKeysAllFramesOffsetName"></a>
 **CopyZeroAllKeysAllFramesOffsetName**
 
-Copy zero colors from source animation to target animation for all frames
-starting at the target offset for the length of the source animation. Source
+Copy zero colors from source animation to target animation for all frames 
+starting at the target offset for the length of the source animation. Source 
 and target are referenced by name.
 
 ```charp
@@ -2062,10 +2114,48 @@ double result = ChromaAnimationAPI.CopyZeroAllKeysAllFramesOffsetNameD(string so
 
 ---
 
+<a name="CopyZeroAllKeysName"></a>
+**CopyZeroAllKeysName**
+
+Copy zero colors from source animation to target animation for the frame. 
+Source and target are referenced by name.
+
+```charp
+ChromaAnimationAPI.CopyZeroAllKeysName(string sourceAnimation, string targetAnimation, int frameId);
+```
+
+---
+
+<a name="CopyZeroAllKeysOffset"></a>
+**CopyZeroAllKeysOffset**
+
+Copy zero colors from source animation to target animation for the frame 
+id starting at the target offset for the length of the source animation. 
+Source and target are referenced by id.
+
+```charp
+ChromaAnimationAPI.CopyZeroAllKeysOffset(int sourceAnimationId, int targetAnimationId, int frameId, int offset);
+```
+
+---
+
+<a name="CopyZeroAllKeysOffsetName"></a>
+**CopyZeroAllKeysOffsetName**
+
+Copy zero colors from source animation to target animation for the frame 
+id starting at the target offset for the length of the source animation. 
+Source and target are referenced by name.
+
+```charp
+ChromaAnimationAPI.CopyZeroAllKeysOffsetName(string sourceAnimation, string targetAnimation, int frameId, int offset);
+```
+
+---
+
 <a name="CopyZeroKeyColor"></a>
 **CopyZeroKeyColor**
 
-Copy zero key color from source animation to target animation for the specified
+Copy zero key color from source animation to target animation for the specified 
 frame. Source and target are referenced by id.
 
 ```charp
@@ -2077,7 +2167,7 @@ ChromaAnimationAPI.CopyZeroKeyColor(int sourceAnimationId, int targetAnimationId
 <a name="CopyZeroKeyColorName"></a>
 **CopyZeroKeyColorName**
 
-Copy zero key color from source animation to target animation for the specified
+Copy zero key color from source animation to target animation for the specified 
 frame. Source and target are referenced by name.
 
 ```charp
@@ -2097,10 +2187,22 @@ double result = ChromaAnimationAPI.CopyZeroKeyColorNameD(string sourceAnimation,
 
 ---
 
+<a name="CopyZeroTargetAllKeys"></a>
+**CopyZeroTargetAllKeys**
+
+Copy nonzero color from source animation to target animation where target 
+is zero for the frame. Source and target are referenced by id.
+
+```charp
+ChromaAnimationAPI.CopyZeroTargetAllKeys(int sourceAnimationId, int targetAnimationId, int frameId);
+```
+
+---
+
 <a name="CopyZeroTargetAllKeysAllFrames"></a>
 **CopyZeroTargetAllKeysAllFrames**
 
-Copy nonzero color from source animation to target animation where target
+Copy nonzero color from source animation to target animation where target 
 is zero for all frames. Source and target are referenced by id.
 
 ```charp
@@ -2112,7 +2214,7 @@ ChromaAnimationAPI.CopyZeroTargetAllKeysAllFrames(int sourceAnimationId, int tar
 <a name="CopyZeroTargetAllKeysAllFramesName"></a>
 **CopyZeroTargetAllKeysAllFramesName**
 
-Copy nonzero color from source animation to target animation where target
+Copy nonzero color from source animation to target animation where target 
 is zero for all frames. Source and target are referenced by name.
 
 ```charp
@@ -2128,6 +2230,18 @@ D suffix for limited data types.
 
 ```charp
 double result = ChromaAnimationAPI.CopyZeroTargetAllKeysAllFramesNameD(string sourceAnimation, string targetAnimation);
+```
+
+---
+
+<a name="CopyZeroTargetAllKeysName"></a>
+**CopyZeroTargetAllKeysName**
+
+Copy nonzero color from source animation to target animation where target 
+is zero for the frame. Source and target are referenced by name.
+
+```charp
+ChromaAnimationAPI.CopyZeroTargetAllKeysName(string sourceAnimation, string targetAnimation, int frameId);
 ```
 
 ---
@@ -2242,6 +2356,28 @@ int result = ChromaAnimationAPI.CoreInitSDK(ref ChromaSDK.APPINFOTYPE appInfo);
 
 ---
 
+<a name="CoreIsActive"></a>
+**CoreIsActive**
+
+Direct access to low level API.
+
+```charp
+int result = ChromaAnimationAPI.CoreIsActive(BOOL& active);
+```
+
+---
+
+<a name="CoreIsConnected"></a>
+**CoreIsConnected**
+
+Direct access to low level API.
+
+```charp
+int result = ChromaAnimationAPI.CoreIsConnected(ChromaSDK::DEVICE_INFO_TYPE& deviceInfo);
+```
+
+---
+
 <a name="CoreQueryDevice"></a>
 **CoreQueryDevice**
 
@@ -2264,14 +2400,25 @@ int result = ChromaAnimationAPI.CoreSetEffect(Guid effectId);
 
 ---
 
+<a name="CoreSetEventName"></a>
+**CoreSetEventName**
+
+Direct access to low level API.
+
+```charp
+int result = ChromaAnimationAPI.CoreSetEventName(LPCTSTR name);
+```
+
+---
+
 <a name="CoreStreamBroadcast"></a>
 **CoreStreamBroadcast**
 
-Begin broadcasting Chroma RGB data using the stored stream key as the endpoint.
-Intended for Cloud Gaming Platforms,  restore the streaming key when the
-game instance is launched to continue streaming.  streamId is a null terminated
-string  streamKey is a null terminated string  StreamGetStatus() should
-return the READY status to use this method.
+Begin broadcasting Chroma RGB data using the stored stream key as the endpoint. 
+Intended for Cloud Gaming Platforms, restore the streaming key when the 
+game instance is launched to continue streaming. streamId is a null terminated 
+string streamKey is a null terminated string StreamGetStatus() should return 
+the READY status to use this method.
 
 ```charp
 bool result = ChromaAnimationAPI.CoreStreamBroadcast(string streamId, string streamKey);
@@ -2282,7 +2429,7 @@ bool result = ChromaAnimationAPI.CoreStreamBroadcast(string streamId, string str
 <a name="CoreStreamBroadcastEnd"></a>
 **CoreStreamBroadcastEnd**
 
-End broadcasting Chroma RGB data.  StreamGetStatus() should return the BROADCASTING
+End broadcasting Chroma RGB data. StreamGetStatus() should return the BROADCASTING 
 status to use this method.
 
 ```charp
@@ -2294,13 +2441,16 @@ bool result = ChromaAnimationAPI.CoreStreamBroadcastEnd();
 <a name="CoreStreamGetAuthShortcode"></a>
 **CoreStreamGetAuthShortcode**
 
-shortcode: Pass the address of a preallocated character buffer to get the
-streaming auth code. The buffer should have a minimum length of 6.  length:
-Length will return as zero if the streaming auth code could not be obtained.
-If length is greater than zero, it will be the length of the returned streaming
-auth code.  Once you have the shortcode, it should be shown to the user
-so they can associate the stream with their Razer ID  StreamGetStatus()
-should return the READY status before invoking this method.
+shortcode: Pass the address of a preallocated character buffer to get the 
+streaming auth code. The buffer should have a minimum length of 6. length: 
+Length will return as zero if the streaming auth code could not be obtained. 
+If length is greater than zero, it will be the length of the returned streaming 
+auth code. Once you have the shortcode, it should be shown to the user 
+so they can associate the stream with their Razer ID StreamGetStatus() 
+should return the READY status before invoking this method. platform: is 
+the null terminated string that identifies the source of the stream: { 
+GEFORCE_NOW, LUNA, STADIA, GAME_PASS } title: is the null terminated string 
+that identifies the application or game.
 
 ```charp
 ChromaAnimationAPI.CoreStreamGetAuthShortcode(ref string shortcode, out byte length, string platform, string title);
@@ -2311,9 +2461,9 @@ ChromaAnimationAPI.CoreStreamGetAuthShortcode(ref string shortcode, out byte len
 <a name="CoreStreamGetFocus"></a>
 **CoreStreamGetFocus**
 
-focus: Pass the address of a preallocated character buffer to get the stream
-focus. The buffer should have a length of 48  length: Length will return
-as zero if the stream focus could not be obtained. If length is greater
+focus: Pass the address of a preallocated character buffer to get the stream 
+focus. The buffer should have a length of 48 length: Length will return 
+as zero if the stream focus could not be obtained. If length is greater 
 than zero, it will be the length of the returned stream focus.
 
 ```charp
@@ -2325,18 +2475,16 @@ bool result = ChromaAnimationAPI.CoreStreamGetFocus(ref string focus, out byte l
 <a name="CoreStreamGetId"></a>
 **CoreStreamGetId**
 
-Intended for Cloud Gaming Platforms, store the stream id to persist in user
-preferences to continue streaming if the game is suspended or closed. shortcode:
-The shortcode is a null terminated string. Use the shortcode that authorized
-the stream to obtain the stream id.  streamId should be a preallocated
-buffer to get the stream key. The buffer should have a length of 48.  length:
-Length will return zero if the key could not be obtained. If the length
-is greater than zero, it will be the length of the returned streaming id.
-Retrieve the stream id after authorizing the shortcode. The authorization
-window will expire in 5 minutes. Be sure to save the stream key before
-the window expires.  platform: is the null terminated string that identifies
-the source of the stream: { GEFORCE_NOW, LUNA, STADIA, GAME_PASS }
-StreamGetStatus() should return the READY status to use this method.
+Intended for Cloud Gaming Platforms, store the stream id to persist in user 
+preferences to continue streaming if the game is suspended or closed. shortcode: 
+The shortcode is a null terminated string. Use the shortcode that authorized 
+the stream to obtain the stream id. streamId should be a preallocated buffer 
+to get the stream key. The buffer should have a length of 48. length: Length 
+will return zero if the key could not be obtained. If the length is greater 
+than zero, it will be the length of the returned streaming id. Retrieve 
+the stream id after authorizing the shortcode. The authorization window 
+will expire in 5 minutes. Be sure to save the stream key before the window 
+expires. StreamGetStatus() should return the READY status to use this method.
 
 ```charp
 ChromaAnimationAPI.CoreStreamGetId(string shortcode, ref string streamId, out byte length);
@@ -2347,19 +2495,18 @@ ChromaAnimationAPI.CoreStreamGetId(string shortcode, ref string streamId, out by
 <a name="CoreStreamGetKey"></a>
 **CoreStreamGetKey**
 
-Intended for Cloud Gaming Platforms, store the streaming key to persist
-in user preferences to continue streaming if the game is suspended or closed.
-shortcode: The shortcode is a null terminated string. Use the shortcode
-that authorized the stream to obtain the stream key.  If the status is
-in the BROADCASTING or WATCHING state, passing a NULL shortcode will return
-the active streamId.  streamKey should be a preallocated buffer to get
-the stream key. The buffer should have a length of 48.  length: Length
-will return zero if the key could not be obtained. If the length is greater
-than zero, it will be the length of the returned streaming key.  Retrieve
-the stream key after authorizing the shortcode. The authorization window
-will expire in 5 minutes. Be sure to save the stream key before the window
-expires.  StreamGetStatus() should return the READY status to use this
-method.
+Intended for Cloud Gaming Platforms, store the streaming key to persist 
+in user preferences to continue streaming if the game is suspended or closed. 
+shortcode: The shortcode is a null terminated string. Use the shortcode 
+that authorized the stream to obtain the stream key. If the status is in 
+the BROADCASTING or WATCHING state, passing a NULL shortcode will return 
+the active streamId. streamKey should be a preallocated buffer to get the 
+stream key. The buffer should have a length of 48. length: Length will 
+return zero if the key could not be obtained. If the length is greater 
+than zero, it will be the length of the returned streaming key. Retrieve 
+the stream key after authorizing the shortcode. The authorization window 
+will expire in 5 minutes. Be sure to save the stream key before the window 
+expires. StreamGetStatus() should return the READY status to use this method.
 
 ```charp
 ChromaAnimationAPI.CoreStreamGetKey(string shortcode, ref string streamKey, out byte length);
@@ -2392,9 +2539,9 @@ string result = ChromaAnimationAPI.CoreStreamGetStatusString(ChromaSDK.Stream.St
 <a name="CoreStreamReleaseShortcode"></a>
 **CoreStreamReleaseShortcode**
 
-This prevents the stream id and stream key from being obtained through the
-shortcode. This closes the auth window.  shortcode is a null terminated
-string.  StreamGetStatus() should return the READY status to use this method.
+This prevents the stream id and stream key from being obtained through the 
+shortcode. This closes the auth window. shortcode is a null terminated 
+string. StreamGetStatus() should return the READY status to use this method. 
 returns success when shortcode has been released
 
 ```charp
@@ -2406,8 +2553,8 @@ bool result = ChromaAnimationAPI.CoreStreamReleaseShortcode(string shortcode);
 <a name="CoreStreamSetFocus"></a>
 **CoreStreamSetFocus**
 
-The focus is a null terminated string. Set the focus identifer for the application
-designated to automatically change the streaming state.  Returns true on
+The focus is a null terminated string. Set the focus identifer for the application 
+designated to automatically change the streaming state. Returns true on 
 success.
 
 ```charp
@@ -2419,7 +2566,7 @@ bool result = ChromaAnimationAPI.CoreStreamSetFocus(string focus);
 <a name="CoreStreamSupportsStreaming"></a>
 **CoreStreamSupportsStreaming**
 
-Returns true if the Chroma streaming is supported. If false is returned,
+Returns true if the Chroma streaming is supported. If false is returned, 
 avoid calling stream methods.
 
 ```charp
@@ -2431,8 +2578,8 @@ bool result = ChromaAnimationAPI.CoreStreamSupportsStreaming();
 <a name="CoreStreamWatch"></a>
 **CoreStreamWatch**
 
-Begin watching the Chroma RGB data using streamID parameter.  streamId is
-a null terminated string.  StreamGetStatus() should return the READY status
+Begin watching the Chroma RGB data using streamID parameter. streamId is 
+a null terminated string. StreamGetStatus() should return the READY status 
 to use this method.
 
 ```charp
@@ -2444,7 +2591,7 @@ bool result = ChromaAnimationAPI.CoreStreamWatch(string streamId, ulong timestam
 <a name="CoreStreamWatchEnd"></a>
 **CoreStreamWatchEnd**
 
-End watching Chroma RGB data stream.  StreamGetStatus() should return the
+End watching Chroma RGB data stream. StreamGetStatus() should return the 
 WATCHING status to use this method.
 
 ```charp
@@ -2467,13 +2614,13 @@ int result = ChromaAnimationAPI.CoreUnInit();
 <a name="CreateAnimation"></a>
 **CreateAnimation**
 
-Creates a `Chroma` animation at the given path. The `deviceType` parameter
-uses `EChromaSDKDeviceTypeEnum` as an integer. The `device` parameter uses
-`EChromaSDKDevice1DEnum` or `EChromaSDKDevice2DEnum` as an integer, respective
-to the `deviceType`. Returns the animation id upon success. Returns -1
-upon failure. Saves a `Chroma` animation file with the `.chroma` extension
-at the given path. Returns the animation id upon success. Returns -1 upon
-failure.
+Creates a `Chroma` animation at the given path. The `deviceType` parameter 
+uses `EChromaSDKDeviceTypeEnum` as an integer. The `device` parameter uses 
+`EChromaSDKDevice1DEnum` or `EChromaSDKDevice2DEnum` as an integer, respective 
+to the `deviceType`. Returns the animation id upon success. Returns negative 
+one upon failure. Saves a `Chroma` animation file with the `.chroma` extension 
+at the given path. Returns the animation id upon success. Returns negative 
+one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.CreateAnimation(string path, int deviceType, int device);
@@ -2484,12 +2631,12 @@ int result = ChromaAnimationAPI.CreateAnimation(string path, int deviceType, int
 <a name="CreateAnimationInMemory"></a>
 **CreateAnimationInMemory**
 
-Creates a `Chroma` animation in memory without creating a file. The `deviceType`
-parameter uses `EChromaSDKDeviceTypeEnum` as an integer. The `device` parameter
-uses `EChromaSDKDevice1DEnum` or `EChromaSDKDevice2DEnum` as an integer,
-respective to the `deviceType`. Returns the animation id upon success.
-Returns -1 upon failure. Returns the animation id upon success. Returns
--1 upon failure.
+Creates a `Chroma` animation in memory without creating a file. The `deviceType` 
+parameter uses `EChromaSDKDeviceTypeEnum` as an integer. The `device` parameter 
+uses `EChromaSDKDevice1DEnum` or `EChromaSDKDevice2DEnum` as an integer, 
+respective to the `deviceType`. Returns the animation id upon success. 
+Returns negative one upon failure. Returns the animation id upon success. 
+Returns negative one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.CreateAnimationInMemory(int deviceType, int device);
@@ -2522,7 +2669,7 @@ int result = ChromaAnimationAPI.DeleteEffect(Guid effectId);
 <a name="DuplicateFirstFrame"></a>
 **DuplicateFirstFrame**
 
-Duplicate the first animation frame so that the animation length matches
+Duplicate the first animation frame so that the animation length matches 
 the frame count. Animation is referenced by id.
 
 ```charp
@@ -2534,7 +2681,7 @@ ChromaAnimationAPI.DuplicateFirstFrame(int animationId, int frameCount);
 <a name="DuplicateFirstFrameName"></a>
 **DuplicateFirstFrameName**
 
-Duplicate the first animation frame so that the animation length matches
+Duplicate the first animation frame so that the animation length matches 
 the frame count. Animation is referenced by name.
 
 ```charp
@@ -2557,8 +2704,8 @@ double result = ChromaAnimationAPI.DuplicateFirstFrameNameD(string path, double 
 <a name="DuplicateFrames"></a>
 **DuplicateFrames**
 
-Duplicate all the frames of the animation to double the animation length.
-Frame 1 becomes frame 1 and 2. Frame 2 becomes frame 3 and 4. And so on.
+Duplicate all the frames of the animation to double the animation length. 
+Frame 1 becomes frame 1 and 2. Frame 2 becomes frame 3 and 4. And so on. 
 The animation is referenced by id.
 
 ```charp
@@ -2570,8 +2717,8 @@ ChromaAnimationAPI.DuplicateFrames(int animationId);
 <a name="DuplicateFramesName"></a>
 **DuplicateFramesName**
 
-Duplicate all the frames of the animation to double the animation length.
-Frame 1 becomes frame 1 and 2. Frame 2 becomes frame 3 and 4. And so on.
+Duplicate all the frames of the animation to double the animation length. 
+Frame 1 becomes frame 1 and 2. Frame 2 becomes frame 3 and 4. And so on. 
 The animation is referenced by name.
 
 ```charp
@@ -2594,7 +2741,7 @@ double result = ChromaAnimationAPI.DuplicateFramesNameD(string path);
 <a name="DuplicateMirrorFrames"></a>
 **DuplicateMirrorFrames**
 
-Duplicate all the animation frames in reverse so that the animation plays
+Duplicate all the animation frames in reverse so that the animation plays 
 forwards and backwards. Animation is referenced by id.
 
 ```charp
@@ -2606,7 +2753,7 @@ ChromaAnimationAPI.DuplicateMirrorFrames(int animationId);
 <a name="DuplicateMirrorFramesName"></a>
 **DuplicateMirrorFramesName**
 
-Duplicate all the animation frames in reverse so that the animation plays
+Duplicate all the animation frames in reverse so that the animation plays 
 forwards and backwards. Animation is referenced by name.
 
 ```charp
@@ -2629,7 +2776,7 @@ double result = ChromaAnimationAPI.DuplicateMirrorFramesNameD(string path);
 <a name="FadeEndFrames"></a>
 **FadeEndFrames**
 
-Fade the animation to black starting at the fade frame index to the end
+Fade the animation to black starting at the fade frame index to the end 
 of the animation. Animation is referenced by id.
 
 ```charp
@@ -2641,7 +2788,7 @@ ChromaAnimationAPI.FadeEndFrames(int animationId, int fade);
 <a name="FadeEndFramesName"></a>
 **FadeEndFramesName**
 
-Fade the animation to black starting at the fade frame index to the end
+Fade the animation to black starting at the fade frame index to the end 
 of the animation. Animation is referenced by name.
 
 ```charp
@@ -2664,7 +2811,7 @@ double result = ChromaAnimationAPI.FadeEndFramesNameD(string path, double fade);
 <a name="FadeStartFrames"></a>
 **FadeStartFrames**
 
-Fade the animation from black to full color starting at 0 to the fade frame
+Fade the animation from black to full color starting at 0 to the fade frame 
 index. Animation is referenced by id.
 
 ```charp
@@ -2676,7 +2823,7 @@ ChromaAnimationAPI.FadeStartFrames(int animationId, int fade);
 <a name="FadeStartFramesName"></a>
 **FadeStartFramesName**
 
-Fade the animation from black to full color starting at 0 to the fade frame
+Fade the animation from black to full color starting at 0 to the fade frame 
 index. Animation is referenced by name.
 
 ```charp
@@ -2699,7 +2846,7 @@ double result = ChromaAnimationAPI.FadeStartFramesNameD(string path, double fade
 <a name="FillColor"></a>
 **FillColor**
 
-Set the RGB value for all colors in the specified frame. Animation is referenced
+Set the RGB value for all colors in the specified frame. Animation is referenced 
 by id.
 
 ```charp
@@ -2711,7 +2858,7 @@ ChromaAnimationAPI.FillColor(int animationId, int frameId, int color);
 <a name="FillColorAllFrames"></a>
 **FillColorAllFrames**
 
-Set the RGB value for all colors for all frames. Animation is referenced
+Set the RGB value for all colors for all frames. Animation is referenced 
 by id.
 
 ```charp
@@ -2723,7 +2870,7 @@ ChromaAnimationAPI.FillColorAllFrames(int animationId, int color);
 <a name="FillColorAllFramesName"></a>
 **FillColorAllFramesName**
 
-Set the RGB value for all colors for all frames. Animation is referenced
+Set the RGB value for all colors for all frames. Animation is referenced 
 by name.
 
 ```charp
@@ -2746,7 +2893,7 @@ double result = ChromaAnimationAPI.FillColorAllFramesNameD(string path, double c
 <a name="FillColorAllFramesRGB"></a>
 **FillColorAllFramesRGB**
 
-Set the RGB value for all colors for all frames. Use the range of 0 to 255
+Set the RGB value for all colors for all frames. Use the range of 0 to 255 
 for red, green, and blue parameters. Animation is referenced by id.
 
 ```charp
@@ -2758,7 +2905,7 @@ ChromaAnimationAPI.FillColorAllFramesRGB(int animationId, int red, int green, in
 <a name="FillColorAllFramesRGBName"></a>
 **FillColorAllFramesRGBName**
 
-Set the RGB value for all colors for all frames. Use the range of 0 to 255
+Set the RGB value for all colors for all frames. Use the range of 0 to 255 
 for red, green, and blue parameters. Animation is referenced by name.
 
 ```charp
@@ -2781,7 +2928,7 @@ double result = ChromaAnimationAPI.FillColorAllFramesRGBNameD(string path, doubl
 <a name="FillColorName"></a>
 **FillColorName**
 
-Set the RGB value for all colors in the specified frame. Animation is referenced
+Set the RGB value for all colors in the specified frame. Animation is referenced 
 by name.
 
 ```charp
@@ -2804,7 +2951,7 @@ double result = ChromaAnimationAPI.FillColorNameD(string path, double frameId, d
 <a name="FillColorRGB"></a>
 **FillColorRGB**
 
-Set the RGB value for all colors in the specified frame. Animation is referenced
+Set the RGB value for all colors in the specified frame. Animation is referenced 
 by id.
 
 ```charp
@@ -2816,7 +2963,7 @@ ChromaAnimationAPI.FillColorRGB(int animationId, int frameId, int red, int green
 <a name="FillColorRGBName"></a>
 **FillColorRGBName**
 
-Set the RGB value for all colors in the specified frame. Animation is referenced
+Set the RGB value for all colors in the specified frame. Animation is referenced 
 by name.
 
 ```charp
@@ -2839,8 +2986,8 @@ double result = ChromaAnimationAPI.FillColorRGBNameD(string path, double frameId
 <a name="FillNonZeroColor"></a>
 **FillNonZeroColor**
 
-This method will only update colors in the animation that are not already
-set to black. Set the RGB value for a subset of colors in the specified
+This method will only update colors in the animation that are not already 
+set to black. Set the RGB value for a subset of colors in the specified 
 frame. Animation is referenced by id.
 
 ```charp
@@ -2852,8 +2999,8 @@ ChromaAnimationAPI.FillNonZeroColor(int animationId, int frameId, int color);
 <a name="FillNonZeroColorAllFrames"></a>
 **FillNonZeroColorAllFrames**
 
-This method will only update colors in the animation that are not already
-set to black. Set the RGB value for a subset of colors for all frames.
+This method will only update colors in the animation that are not already 
+set to black. Set the RGB value for a subset of colors for all frames. 
 Animation is referenced by id.
 
 ```charp
@@ -2865,8 +3012,8 @@ ChromaAnimationAPI.FillNonZeroColorAllFrames(int animationId, int color);
 <a name="FillNonZeroColorAllFramesName"></a>
 **FillNonZeroColorAllFramesName**
 
-This method will only update colors in the animation that are not already
-set to black. Set the RGB value for a subset of colors for all frames.
+This method will only update colors in the animation that are not already 
+set to black. Set the RGB value for a subset of colors for all frames. 
 Animation is referenced by name.
 
 ```charp
@@ -2889,9 +3036,9 @@ double result = ChromaAnimationAPI.FillNonZeroColorAllFramesNameD(string path, d
 <a name="FillNonZeroColorAllFramesRGB"></a>
 **FillNonZeroColorAllFramesRGB**
 
-This method will only update colors in the animation that are not already
-set to black. Set the RGB value for a subset of colors for all frames.
-Use the range of 0 to 255 for red, green, and blue parameters. Animation
+This method will only update colors in the animation that are not already 
+set to black. Set the RGB value for a subset of colors for all frames. 
+Use the range of 0 to 255 for red, green, and blue parameters. Animation 
 is referenced by id.
 
 ```charp
@@ -2903,9 +3050,9 @@ ChromaAnimationAPI.FillNonZeroColorAllFramesRGB(int animationId, int red, int gr
 <a name="FillNonZeroColorAllFramesRGBName"></a>
 **FillNonZeroColorAllFramesRGBName**
 
-This method will only update colors in the animation that are not already
-set to black. Set the RGB value for a subset of colors for all frames.
-Use the range of 0 to 255 for red, green, and blue parameters. Animation
+This method will only update colors in the animation that are not already 
+set to black. Set the RGB value for a subset of colors for all frames. 
+Use the range of 0 to 255 for red, green, and blue parameters. Animation 
 is referenced by name.
 
 ```charp
@@ -2928,8 +3075,8 @@ double result = ChromaAnimationAPI.FillNonZeroColorAllFramesRGBNameD(string path
 <a name="FillNonZeroColorName"></a>
 **FillNonZeroColorName**
 
-This method will only update colors in the animation that are not already
-set to black. Set the RGB value for a subset of colors in the specified
+This method will only update colors in the animation that are not already 
+set to black. Set the RGB value for a subset of colors in the specified 
 frame. Animation is referenced by name.
 
 ```charp
@@ -2952,9 +3099,9 @@ double result = ChromaAnimationAPI.FillNonZeroColorNameD(string path, double fra
 <a name="FillNonZeroColorRGB"></a>
 **FillNonZeroColorRGB**
 
-This method will only update colors in the animation that are not already
-set to black. Set the RGB value for a subset of colors in the specified
-frame. Use the range of 0 to 255 for red, green, and blue parameters. Animation
+This method will only update colors in the animation that are not already 
+set to black. Set the RGB value for a subset of colors in the specified 
+frame. Use the range of 0 to 255 for red, green, and blue parameters. Animation 
 is referenced by id.
 
 ```charp
@@ -2966,9 +3113,9 @@ ChromaAnimationAPI.FillNonZeroColorRGB(int animationId, int frameId, int red, in
 <a name="FillNonZeroColorRGBName"></a>
 **FillNonZeroColorRGBName**
 
-This method will only update colors in the animation that are not already
-set to black. Set the RGB value for a subset of colors in the specified
-frame. Use the range of 0 to 255 for red, green, and blue parameters. Animation
+This method will only update colors in the animation that are not already 
+set to black. Set the RGB value for a subset of colors in the specified 
+frame. Use the range of 0 to 255 for red, green, and blue parameters. Animation 
 is referenced by name.
 
 ```charp
@@ -2991,7 +3138,7 @@ double result = ChromaAnimationAPI.FillNonZeroColorRGBNameD(string path, double 
 <a name="FillRandomColors"></a>
 **FillRandomColors**
 
-Fill the frame with random RGB values for the given frame. Animation is
+Fill the frame with random RGB values for the given frame. Animation is 
 referenced by id.
 
 ```charp
@@ -3003,7 +3150,7 @@ ChromaAnimationAPI.FillRandomColors(int animationId, int frameId);
 <a name="FillRandomColorsAllFrames"></a>
 **FillRandomColorsAllFrames**
 
-Fill the frame with random RGB values for all frames. Animation is referenced
+Fill the frame with random RGB values for all frames. Animation is referenced 
 by id.
 
 ```charp
@@ -3015,7 +3162,7 @@ ChromaAnimationAPI.FillRandomColorsAllFrames(int animationId);
 <a name="FillRandomColorsAllFramesName"></a>
 **FillRandomColorsAllFramesName**
 
-Fill the frame with random RGB values for all frames. Animation is referenced
+Fill the frame with random RGB values for all frames. Animation is referenced 
 by name.
 
 ```charp
@@ -3038,7 +3185,7 @@ double result = ChromaAnimationAPI.FillRandomColorsAllFramesNameD(string path);
 <a name="FillRandomColorsBlackAndWhite"></a>
 **FillRandomColorsBlackAndWhite**
 
-Fill the frame with random black and white values for the specified frame.
+Fill the frame with random black and white values for the specified frame. 
 Animation is referenced by id.
 
 ```charp
@@ -3050,7 +3197,7 @@ ChromaAnimationAPI.FillRandomColorsBlackAndWhite(int animationId, int frameId);
 <a name="FillRandomColorsBlackAndWhiteAllFrames"></a>
 **FillRandomColorsBlackAndWhiteAllFrames**
 
-Fill the frame with random black and white values for all frames. Animation
+Fill the frame with random black and white values for all frames. Animation 
 is referenced by id.
 
 ```charp
@@ -3062,7 +3209,7 @@ ChromaAnimationAPI.FillRandomColorsBlackAndWhiteAllFrames(int animationId);
 <a name="FillRandomColorsBlackAndWhiteAllFramesName"></a>
 **FillRandomColorsBlackAndWhiteAllFramesName**
 
-Fill the frame with random black and white values for all frames. Animation
+Fill the frame with random black and white values for all frames. Animation 
 is referenced by name.
 
 ```charp
@@ -3085,7 +3232,7 @@ double result = ChromaAnimationAPI.FillRandomColorsBlackAndWhiteAllFramesNameD(s
 <a name="FillRandomColorsBlackAndWhiteName"></a>
 **FillRandomColorsBlackAndWhiteName**
 
-Fill the frame with random black and white values for the specified frame.
+Fill the frame with random black and white values for the specified frame. 
 Animation is referenced by name.
 
 ```charp
@@ -3108,7 +3255,7 @@ double result = ChromaAnimationAPI.FillRandomColorsBlackAndWhiteNameD(string pat
 <a name="FillRandomColorsName"></a>
 **FillRandomColorsName**
 
-Fill the frame with random RGB values for the given frame. Animation is
+Fill the frame with random RGB values for the given frame. Animation is 
 referenced by name.
 
 ```charp
@@ -3131,7 +3278,7 @@ double result = ChromaAnimationAPI.FillRandomColorsNameD(string path, double fra
 <a name="FillThresholdColors"></a>
 **FillThresholdColors**
 
-Fill the specified frame with RGB color where the animation color is less
+Fill the specified frame with RGB color where the animation color is less 
 than the RGB threshold. Animation is referenced by id.
 
 ```charp
@@ -3143,7 +3290,7 @@ ChromaAnimationAPI.FillThresholdColors(int animationId, int frameId, int thresho
 <a name="FillThresholdColorsAllFrames"></a>
 **FillThresholdColorsAllFrames**
 
-Fill all frames with RGB color where the animation color is less than the
+Fill all frames with RGB color where the animation color is less than the 
 RGB threshold. Animation is referenced by id.
 
 ```charp
@@ -3155,7 +3302,7 @@ ChromaAnimationAPI.FillThresholdColorsAllFrames(int animationId, int threshold, 
 <a name="FillThresholdColorsAllFramesName"></a>
 **FillThresholdColorsAllFramesName**
 
-Fill all frames with RGB color where the animation color is less than the
+Fill all frames with RGB color where the animation color is less than the 
 RGB threshold. Animation is referenced by name.
 
 ```charp
@@ -3178,7 +3325,7 @@ double result = ChromaAnimationAPI.FillThresholdColorsAllFramesNameD(string path
 <a name="FillThresholdColorsAllFramesRGB"></a>
 **FillThresholdColorsAllFramesRGB**
 
-Fill all frames with RGB color where the animation color is less than the
+Fill all frames with RGB color where the animation color is less than the 
 threshold. Animation is referenced by id.
 
 ```charp
@@ -3190,7 +3337,7 @@ ChromaAnimationAPI.FillThresholdColorsAllFramesRGB(int animationId, int threshol
 <a name="FillThresholdColorsAllFramesRGBName"></a>
 **FillThresholdColorsAllFramesRGBName**
 
-Fill all frames with RGB color where the animation color is less than the
+Fill all frames with RGB color where the animation color is less than the 
 threshold. Animation is referenced by name.
 
 ```charp
@@ -3213,8 +3360,8 @@ double result = ChromaAnimationAPI.FillThresholdColorsAllFramesRGBNameD(string p
 <a name="FillThresholdColorsMinMaxAllFramesRGB"></a>
 **FillThresholdColorsMinMaxAllFramesRGB**
 
-Fill all frames with the min RGB color where the animation color is less
-than the min threshold AND with the max RGB color where the animation is
+Fill all frames with the min RGB color where the animation color is less 
+than the min threshold AND with the max RGB color where the animation is 
 more than the max threshold. Animation is referenced by id.
 
 ```charp
@@ -3226,8 +3373,8 @@ ChromaAnimationAPI.FillThresholdColorsMinMaxAllFramesRGB(int animationId, int mi
 <a name="FillThresholdColorsMinMaxAllFramesRGBName"></a>
 **FillThresholdColorsMinMaxAllFramesRGBName**
 
-Fill all frames with the min RGB color where the animation color is less
-than the min threshold AND with the max RGB color where the animation is
+Fill all frames with the min RGB color where the animation color is less 
+than the min threshold AND with the max RGB color where the animation is 
 more than the max threshold. Animation is referenced by name.
 
 ```charp
@@ -3250,8 +3397,8 @@ double result = ChromaAnimationAPI.FillThresholdColorsMinMaxAllFramesRGBNameD(st
 <a name="FillThresholdColorsMinMaxRGB"></a>
 **FillThresholdColorsMinMaxRGB**
 
-Fill the specified frame with the min RGB color where the animation color
-is less than the min threshold AND with the max RGB color where the animation
+Fill the specified frame with the min RGB color where the animation color 
+is less than the min threshold AND with the max RGB color where the animation 
 is more than the max threshold. Animation is referenced by id.
 
 ```charp
@@ -3263,8 +3410,8 @@ ChromaAnimationAPI.FillThresholdColorsMinMaxRGB(int animationId, int frameId, in
 <a name="FillThresholdColorsMinMaxRGBName"></a>
 **FillThresholdColorsMinMaxRGBName**
 
-Fill the specified frame with the min RGB color where the animation color
-is less than the min threshold AND with the max RGB color where the animation
+Fill the specified frame with the min RGB color where the animation color 
+is less than the min threshold AND with the max RGB color where the animation 
 is more than the max threshold. Animation is referenced by name.
 
 ```charp
@@ -3287,7 +3434,7 @@ double result = ChromaAnimationAPI.FillThresholdColorsMinMaxRGBNameD(string path
 <a name="FillThresholdColorsName"></a>
 **FillThresholdColorsName**
 
-Fill the specified frame with RGB color where the animation color is less
+Fill the specified frame with RGB color where the animation color is less 
 than the RGB threshold. Animation is referenced by name.
 
 ```charp
@@ -3310,7 +3457,7 @@ double result = ChromaAnimationAPI.FillThresholdColorsNameD(string path, double 
 <a name="FillThresholdColorsRGB"></a>
 **FillThresholdColorsRGB**
 
-Fill the specified frame with RGB color where the animation color is less
+Fill the specified frame with RGB color where the animation color is less 
 than the RGB threshold. Animation is referenced by id.
 
 ```charp
@@ -3322,7 +3469,7 @@ ChromaAnimationAPI.FillThresholdColorsRGB(int animationId, int frameId, int thre
 <a name="FillThresholdColorsRGBName"></a>
 **FillThresholdColorsRGBName**
 
-Fill the specified frame with RGB color where the animation color is less
+Fill the specified frame with RGB color where the animation color is less 
 than the RGB threshold. Animation is referenced by name.
 
 ```charp
@@ -3345,7 +3492,7 @@ double result = ChromaAnimationAPI.FillThresholdColorsRGBNameD(string path, doub
 <a name="FillThresholdRGBColorsAllFramesRGB"></a>
 **FillThresholdRGBColorsAllFramesRGB**
 
-Fill all frames with RGB color where the animation color is less than the
+Fill all frames with RGB color where the animation color is less than the 
 RGB threshold. Animation is referenced by id.
 
 ```charp
@@ -3357,7 +3504,7 @@ ChromaAnimationAPI.FillThresholdRGBColorsAllFramesRGB(int animationId, int redTh
 <a name="FillThresholdRGBColorsAllFramesRGBName"></a>
 **FillThresholdRGBColorsAllFramesRGBName**
 
-Fill all frames with RGB color where the animation color is less than the
+Fill all frames with RGB color where the animation color is less than the 
 RGB threshold. Animation is referenced by name.
 
 ```charp
@@ -3380,7 +3527,7 @@ double result = ChromaAnimationAPI.FillThresholdRGBColorsAllFramesRGBNameD(strin
 <a name="FillThresholdRGBColorsRGB"></a>
 **FillThresholdRGBColorsRGB**
 
-Fill the specified frame with RGB color where the animation color is less
+Fill the specified frame with RGB color where the animation color is less 
 than the RGB threshold. Animation is referenced by id.
 
 ```charp
@@ -3392,7 +3539,7 @@ ChromaAnimationAPI.FillThresholdRGBColorsRGB(int animationId, int frameId, int r
 <a name="FillThresholdRGBColorsRGBName"></a>
 **FillThresholdRGBColorsRGBName**
 
-Fill the specified frame with RGB color where the animation color is less
+Fill the specified frame with RGB color where the animation color is less 
 than the RGB threshold. Animation is referenced by name.
 
 ```charp
@@ -3415,7 +3562,7 @@ double result = ChromaAnimationAPI.FillThresholdRGBColorsRGBNameD(string path, d
 <a name="FillZeroColor"></a>
 **FillZeroColor**
 
-Fill the specified frame with RGB color where the animation color is zero.
+Fill the specified frame with RGB color where the animation color is zero. 
 Animation is referenced by id.
 
 ```charp
@@ -3427,7 +3574,7 @@ ChromaAnimationAPI.FillZeroColor(int animationId, int frameId, int color);
 <a name="FillZeroColorAllFrames"></a>
 **FillZeroColorAllFrames**
 
-Fill all frames with RGB color where the animation color is zero. Animation
+Fill all frames with RGB color where the animation color is zero. Animation 
 is referenced by id.
 
 ```charp
@@ -3439,7 +3586,7 @@ ChromaAnimationAPI.FillZeroColorAllFrames(int animationId, int color);
 <a name="FillZeroColorAllFramesName"></a>
 **FillZeroColorAllFramesName**
 
-Fill all frames with RGB color where the animation color is zero. Animation
+Fill all frames with RGB color where the animation color is zero. Animation 
 is referenced by name.
 
 ```charp
@@ -3462,7 +3609,7 @@ double result = ChromaAnimationAPI.FillZeroColorAllFramesNameD(string path, doub
 <a name="FillZeroColorAllFramesRGB"></a>
 **FillZeroColorAllFramesRGB**
 
-Fill all frames with RGB color where the animation color is zero. Animation
+Fill all frames with RGB color where the animation color is zero. Animation 
 is referenced by id.
 
 ```charp
@@ -3474,7 +3621,7 @@ ChromaAnimationAPI.FillZeroColorAllFramesRGB(int animationId, int red, int green
 <a name="FillZeroColorAllFramesRGBName"></a>
 **FillZeroColorAllFramesRGBName**
 
-Fill all frames with RGB color where the animation color is zero. Animation
+Fill all frames with RGB color where the animation color is zero. Animation 
 is referenced by name.
 
 ```charp
@@ -3497,7 +3644,7 @@ double result = ChromaAnimationAPI.FillZeroColorAllFramesRGBNameD(string path, d
 <a name="FillZeroColorName"></a>
 **FillZeroColorName**
 
-Fill the specified frame with RGB color where the animation color is zero.
+Fill the specified frame with RGB color where the animation color is zero. 
 Animation is referenced by name.
 
 ```charp
@@ -3520,7 +3667,7 @@ double result = ChromaAnimationAPI.FillZeroColorNameD(string path, double frameI
 <a name="FillZeroColorRGB"></a>
 **FillZeroColorRGB**
 
-Fill the specified frame with RGB color where the animation color is zero.
+Fill the specified frame with RGB color where the animation color is zero. 
 Animation is referenced by id.
 
 ```charp
@@ -3532,7 +3679,7 @@ ChromaAnimationAPI.FillZeroColorRGB(int animationId, int frameId, int red, int g
 <a name="FillZeroColorRGBName"></a>
 **FillZeroColorRGBName**
 
-Fill the specified frame with RGB color where the animation color is zero.
+Fill the specified frame with RGB color where the animation color is zero. 
 Animation is referenced by name.
 
 ```charp
@@ -3555,8 +3702,8 @@ double result = ChromaAnimationAPI.FillZeroColorRGBNameD(string path, double fra
 <a name="Get1DColor"></a>
 **Get1DColor**
 
-Get the animation color for a frame given the `1D` `led`. The `led` should
-be greater than or equal to 0 and less than the `MaxLeds`. Animation is
+Get the animation color for a frame given the `1D` `led`. The `led` should 
+be greater than or equal to 0 and less than the `MaxLeds`. Animation is 
 referenced by id.
 
 ```charp
@@ -3568,8 +3715,8 @@ int result = ChromaAnimationAPI.Get1DColor(int animationId, int frameId, int led
 <a name="Get1DColorName"></a>
 **Get1DColorName**
 
-Get the animation color for a frame given the `1D` `led`. The `led` should
-be greater than or equal to 0 and less than the `MaxLeds`. Animation is
+Get the animation color for a frame given the `1D` `led`. The `led` should 
+be greater than or equal to 0 and less than the `MaxLeds`. Animation is 
 referenced by name.
 
 ```charp
@@ -3592,9 +3739,9 @@ double result = ChromaAnimationAPI.Get1DColorNameD(string path, double frameId, 
 <a name="Get2DColor"></a>
 **Get2DColor**
 
-Get the animation color for a frame given the `2D` `row` and `column`. The
-`row` should be greater than or equal to 0 and less than the `MaxRow`.
-The `column` should be greater than or equal to 0 and less than the `MaxColumn`.
+Get the animation color for a frame given the `2D` `row` and `column`. The 
+`row` should be greater than or equal to 0 and less than the `MaxRow`. 
+The `column` should be greater than or equal to 0 and less than the `MaxColumn`. 
 Animation is referenced by id.
 
 ```charp
@@ -3606,9 +3753,9 @@ int result = ChromaAnimationAPI.Get2DColor(int animationId, int frameId, int row
 <a name="Get2DColorName"></a>
 **Get2DColorName**
 
-Get the animation color for a frame given the `2D` `row` and `column`. The
-`row` should be greater than or equal to 0 and less than the `MaxRow`.
-The `column` should be greater than or equal to 0 and less than the `MaxColumn`.
+Get the animation color for a frame given the `2D` `row` and `column`. The 
+`row` should be greater than or equal to 0 and less than the `MaxRow`. 
+The `column` should be greater than or equal to 0 and less than the `MaxColumn`. 
 Animation is referenced by name.
 
 ```charp
@@ -3664,9 +3811,9 @@ double result = ChromaAnimationAPI.GetAnimationD(string name);
 <a name="GetAnimationId"></a>
 **GetAnimationId**
 
-`PluginGetAnimationId` will return the `animationId` given the `index` of
-the loaded animation. The `index` is zero-based and less than the number
-returned by `PluginGetAnimationCount`. Use `PluginGetAnimationName` to
+`PluginGetAnimationId` will return the `animationId` given the `index` of 
+the loaded animation. The `index` is zero-based and less than the number 
+returned by `PluginGetAnimationCount`. Use `PluginGetAnimationName` to 
 get the name of the animation.
 
 ```charp
@@ -3678,8 +3825,8 @@ int result = ChromaAnimationAPI.GetAnimationId(int index);
 <a name="GetAnimationName"></a>
 **GetAnimationName**
 
-`PluginGetAnimationName` takes an `animationId` and returns the name of
-the animation of the `.chroma` animation file. If a name is not available
+`PluginGetAnimationName` takes an `animationId` and returns the name of 
+the animation of the `.chroma` animation file. If a name is not available 
 then an empty string will be returned.
 
 ```charp
@@ -3724,9 +3871,9 @@ double result = ChromaAnimationAPI.GetCurrentFrameNameD(string path);
 <a name="GetDevice"></a>
 **GetDevice**
 
-Returns the `EChromaSDKDevice1DEnum` or `EChromaSDKDevice2DEnum` of a `Chroma`
-animation respective to the `deviceType`, as an integer upon success. Returns
--1 upon failure.
+Returns the `EChromaSDKDevice1DEnum` or `EChromaSDKDevice2DEnum` of a `Chroma` 
+animation respective to the `deviceType`, as an integer upon success. Returns 
+negative one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.GetDevice(int animationId);
@@ -3737,9 +3884,9 @@ int result = ChromaAnimationAPI.GetDevice(int animationId);
 <a name="GetDeviceName"></a>
 **GetDeviceName**
 
-Returns the `EChromaSDKDevice1DEnum` or `EChromaSDKDevice2DEnum` of a `Chroma`
-animation respective to the `deviceType`, as an integer upon success. Returns
--1 upon failure.
+Returns the `EChromaSDKDevice1DEnum` or `EChromaSDKDevice2DEnum` of a `Chroma` 
+animation respective to the `deviceType`, as an integer upon success. Returns 
+negative one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.GetDeviceName(string path);
@@ -3761,8 +3908,8 @@ double result = ChromaAnimationAPI.GetDeviceNameD(string path);
 <a name="GetDeviceType"></a>
 **GetDeviceType**
 
-Returns the `EChromaSDKDeviceTypeEnum` of a `Chroma` animation as an integer
-upon success. Returns -1 upon failure.
+Returns the `EChromaSDKDeviceTypeEnum` of a `Chroma` animation as an integer 
+upon success. Returns negative one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.GetDeviceType(int animationId);
@@ -3773,8 +3920,8 @@ int result = ChromaAnimationAPI.GetDeviceType(int animationId);
 <a name="GetDeviceTypeName"></a>
 **GetDeviceTypeName**
 
-Returns the `EChromaSDKDeviceTypeEnum` of a `Chroma` animation as an integer
-upon success. Returns -1 upon failure.
+Returns the `EChromaSDKDeviceTypeEnum` of a `Chroma` animation as an integer 
+upon success. Returns negative one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.GetDeviceTypeName(string path);
@@ -3796,15 +3943,18 @@ double result = ChromaAnimationAPI.GetDeviceTypeNameD(string path);
 <a name="GetFrame"></a>
 **GetFrame**
 
-Gets the frame colors and duration (in seconds) for a `Chroma` animation.
-The `color` is expected to be an array of the expected dimensions for the
-`deviceType/device`. The `length` parameter is the size of the `color`
-array. For `EChromaSDKDevice1DEnum` the array size should be `MAX LEDS`.
-For `EChromaSDKDevice2DEnum` the array size should be `MAX ROW` * `MAX
-COLUMN`. Returns the animation id upon success. Returns -1 upon failure.
+Get the frame colors and duration (in seconds) for a `Chroma` animation 
+referenced by id. The `color` is expected to be an array of the expected 
+dimensions for the `deviceType/device`. The `length` parameter is the size 
+of the `color` array. For `EChromaSDKDevice1DEnum` the array size should 
+be `MAX LEDS`. For `EChromaSDKDevice2DEnum` the array size should be `MAX 
+ROW` times `MAX COLUMN`. Keys are populated only for EChromaSDKDevice2DEnum::DE_Keyboard 
+and EChromaSDKDevice2DEnum::DE_KeyboardExtended. Keys will only use the 
+EChromaSDKDevice2DEnum::DE_Keyboard `MAX_ROW` times `MAX_COLUMN` keysLength. 
+Returns the animation id upon success. Returns negative one upon failure.
 
 ```charp
-int result = ChromaAnimationAPI.GetFrame(int animationId, int frameIndex, out float duration, int[] colors, int length);
+int result = ChromaAnimationAPI.GetFrame(int animationId, int frameIndex, out float duration, int[] colors, int length, int[] keys, int keysLength);
 ```
 
 ---
@@ -3812,8 +3962,8 @@ int result = ChromaAnimationAPI.GetFrame(int animationId, int frameIndex, out fl
 <a name="GetFrameCount"></a>
 **GetFrameCount**
 
-Returns the frame count of a `Chroma` animation upon success. Returns -1
-upon failure.
+Returns the frame count of a `Chroma` animation upon success. Returns negative 
+one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.GetFrameCount(int animationId);
@@ -3824,8 +3974,8 @@ int result = ChromaAnimationAPI.GetFrameCount(int animationId);
 <a name="GetFrameCountName"></a>
 **GetFrameCountName**
 
-Returns the frame count of a `Chroma` animation upon success. Returns -1
-upon failure.
+Returns the frame count of a `Chroma` animation upon success. Returns negative 
+one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.GetFrameCountName(string path);
@@ -3840,6 +3990,25 @@ D suffix for limited data types.
 
 ```charp
 double result = ChromaAnimationAPI.GetFrameCountNameD(string path);
+```
+
+---
+
+<a name="GetFrameName"></a>
+**GetFrameName**
+
+Get the frame colors and duration (in seconds) for a `Chroma` animation 
+referenced by name. The `color` is expected to be an array of the expected 
+dimensions for the `deviceType/device`. The `length` parameter is the size 
+of the `color` array. For `EChromaSDKDevice1DEnum` the array size should 
+be `MAX LEDS`. For `EChromaSDKDevice2DEnum` the array size should be `MAX 
+ROW` times `MAX COLUMN`. Keys are populated only for EChromaSDKDevice2DEnum::DE_Keyboard 
+and EChromaSDKDevice2DEnum::DE_KeyboardExtended. Keys will only use the 
+EChromaSDKDevice2DEnum::DE_Keyboard `MAX_ROW` times `MAX_COLUMN` keysLength. 
+Returns the animation id upon success. Returns negative one upon failure.
+
+```charp
+int result = ChromaAnimationAPI.GetFrameName(string path, int frameIndex, out float duration, int[] colors, int length, int[] keys, int keysLength);
 ```
 
 ---
@@ -3880,9 +4049,9 @@ int result = ChromaAnimationAPI.GetKeyColorName(string path, int frameId, int rz
 <a name="GetLibraryLoadedState"></a>
 **GetLibraryLoadedState**
 
-Returns `RZRESULT_SUCCESS` if the plugin has been initialized successfully.
-Returns `RZRESULT_DLL_NOT_FOUND` if core Chroma library is not found. Returns
-`RZRESULT_DLL_INVALID_SIGNATURE` if core Chroma library has an invalid
+Returns `RZRESULT_SUCCESS` if the plugin has been initialized successfully. 
+Returns `RZRESULT_DLL_NOT_FOUND` if core Chroma library is not found. Returns 
+`RZRESULT_DLL_INVALID_SIGNATURE` if core Chroma library has an invalid 
 signature.
 
 ```charp
@@ -3905,8 +4074,8 @@ double result = ChromaAnimationAPI.GetLibraryLoadedStateD();
 <a name="GetMaxColumn"></a>
 **GetMaxColumn**
 
-Returns the `MAX COLUMN` given the `EChromaSDKDevice2DEnum` device as an
-integer upon success. Returns -1 upon failure.
+Returns the `MAX COLUMN` given the `EChromaSDKDevice2DEnum` device as an 
+integer upon success. Returns negative one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.GetMaxColumn(Device2D device);
@@ -3928,8 +4097,8 @@ double result = ChromaAnimationAPI.GetMaxColumnD(double device);
 <a name="GetMaxLeds"></a>
 **GetMaxLeds**
 
-Returns the MAX LEDS given the `EChromaSDKDevice1DEnum` device as an integer
-upon success. Returns -1 upon failure.
+Returns the MAX LEDS given the `EChromaSDKDevice1DEnum` device as an integer 
+upon success. Returns negative one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.GetMaxLeds(Device1D device);
@@ -3951,8 +4120,8 @@ double result = ChromaAnimationAPI.GetMaxLedsD(double device);
 <a name="GetMaxRow"></a>
 **GetMaxRow**
 
-Returns the `MAX ROW` given the `EChromaSDKDevice2DEnum` device as an integer
-upon success. Returns -1 upon failure.
+Returns the `MAX ROW` given the `EChromaSDKDevice2DEnum` device as an integer 
+upon success. Returns negative one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.GetMaxRow(Device2D device);
@@ -3985,9 +4154,9 @@ int result = ChromaAnimationAPI.GetPlayingAnimationCount();
 <a name="GetPlayingAnimationId"></a>
 **GetPlayingAnimationId**
 
-`PluginGetPlayingAnimationId` will return the `animationId` given the `index`
-of the playing animation. The `index` is zero-based and less than the number
-returned by `PluginGetPlayingAnimationCount`. Use `PluginGetAnimationName`
+`PluginGetPlayingAnimationId` will return the `animationId` given the `index` 
+of the playing animation. The `index` is zero-based and less than the number 
+returned by `PluginGetPlayingAnimationCount`. Use `PluginGetAnimationName` 
 to get the name of the animation.
 
 ```charp
@@ -4054,7 +4223,7 @@ double result = ChromaAnimationAPI.HasAnimationLoopNameD(string path);
 <a name="Init"></a>
 **Init**
 
-Initialize the ChromaSDK. Zero indicates  success, otherwise failure. Many
+Initialize the ChromaSDK. Zero indicates success, otherwise failure. Many 
 API methods auto initialize the ChromaSDK if not already initialized.
 
 ```charp
@@ -4077,8 +4246,8 @@ double result = ChromaAnimationAPI.InitD();
 <a name="InitSDK"></a>
 **InitSDK**
 
-Initialize the ChromaSDK. AppInfo populates the details in Synapse. Zero
-indicates  success, otherwise failure. Many API methods auto initialize
+Initialize the ChromaSDK. AppInfo populates the details in Synapse. Zero 
+indicates success, otherwise failure. Many API methods auto initialize 
 the ChromaSDK if not already initialized.
 
 ```charp
@@ -4090,7 +4259,7 @@ int result = ChromaAnimationAPI.InitSDK(ref ChromaSDK.APPINFOTYPE appInfo);
 <a name="InsertDelay"></a>
 **InsertDelay**
 
-Insert an animation delay by duplicating the frame by the delay number of
+Insert an animation delay by duplicating the frame by the delay number of 
 times. Animation is referenced by id.
 
 ```charp
@@ -4102,7 +4271,7 @@ ChromaAnimationAPI.InsertDelay(int animationId, int frameId, int delay);
 <a name="InsertDelayName"></a>
 **InsertDelayName**
 
-Insert an animation delay by duplicating the frame by the delay number of
+Insert an animation delay by duplicating the frame by the delay number of 
 times. Animation is referenced by name.
 
 ```charp
@@ -4125,7 +4294,7 @@ double result = ChromaAnimationAPI.InsertDelayNameD(string path, double frameId,
 <a name="InsertFrame"></a>
 **InsertFrame**
 
-Duplicate the source frame index at the target frame index. Animation is
+Duplicate the source frame index at the target frame index. Animation is 
 referenced by id.
 
 ```charp
@@ -4137,7 +4306,7 @@ ChromaAnimationAPI.InsertFrame(int animationId, int sourceFrame, int targetFrame
 <a name="InsertFrameName"></a>
 **InsertFrameName**
 
-Duplicate the source frame index at the target frame index. Animation is
+Duplicate the source frame index at the target frame index. Animation is 
 referenced by name.
 
 ```charp
@@ -4160,7 +4329,7 @@ double result = ChromaAnimationAPI.InsertFrameNameD(string path, double sourceFr
 <a name="InvertColors"></a>
 **InvertColors**
 
-Invert all the colors at the specified frame. Animation is referenced by
+Invert all the colors at the specified frame. Animation is referenced by 
 id.
 
 ```charp
@@ -4205,7 +4374,7 @@ double result = ChromaAnimationAPI.InvertColorsAllFramesNameD(string path);
 <a name="InvertColorsName"></a>
 **InvertColorsName**
 
-Invert all the colors at the specified frame. Animation is referenced by
+Invert all the colors at the specified frame. Animation is referenced by 
 name.
 
 ```charp
@@ -4261,7 +4430,7 @@ double result = ChromaAnimationAPI.IsAnimationPausedNameD(string path);
 <a name="IsDialogOpen"></a>
 **IsDialogOpen**
 
-The editor dialog is a non-blocking modal window, this method returns true
+The editor dialog is a non-blocking modal window, this method returns true 
 if the modal window is open, otherwise false.
 
 ```charp
@@ -4284,7 +4453,7 @@ double result = ChromaAnimationAPI.IsDialogOpenD();
 <a name="IsInitialized"></a>
 **IsInitialized**
 
-Returns true if the plugin has been initialized. Returns false if the plugin
+Returns true if the plugin has been initialized. Returns false if the plugin 
 is uninitialized.
 
 ```charp
@@ -4329,9 +4498,9 @@ double result = ChromaAnimationAPI.IsPlatformSupportedD();
 <a name="IsPlaying"></a>
 **IsPlaying**
 
-`PluginIsPlayingName` automatically handles initializing the `ChromaSDK`.
-The named `.chroma` animation file will be automatically opened. The method
-will return whether the animation is playing or not. Animation is referenced
+`PluginIsPlayingName` automatically handles initializing the `ChromaSDK`. 
+The named `.chroma` animation file will be automatically opened. The method 
+will return whether the animation is playing or not. Animation is referenced 
 by id.
 
 ```charp
@@ -4354,9 +4523,9 @@ double result = ChromaAnimationAPI.IsPlayingD(double animationId);
 <a name="IsPlayingName"></a>
 **IsPlayingName**
 
-`PluginIsPlayingName` automatically handles initializing the `ChromaSDK`.
-The named `.chroma` animation file will be automatically opened. The method
-will return whether the animation is playing or not. Animation is referenced
+`PluginIsPlayingName` automatically handles initializing the `ChromaSDK`. 
+The named `.chroma` animation file will be automatically opened. The method 
+will return whether the animation is playing or not. Animation is referenced 
 by name.
 
 ```charp
@@ -4379,8 +4548,8 @@ double result = ChromaAnimationAPI.IsPlayingNameD(string path);
 <a name="IsPlayingType"></a>
 **IsPlayingType**
 
-`PluginIsPlayingType` automatically handles initializing the `ChromaSDK`.
-If any animation is playing for the `deviceType` and `device` combination,
+`PluginIsPlayingType` automatically handles initializing the `ChromaSDK`. 
+If any animation is playing for the `deviceType` and `device` combination, 
 the method will return true, otherwise false.
 
 ```charp
@@ -4425,8 +4594,8 @@ int result = ChromaAnimationAPI.LerpColor(int from, int to, float t);
 <a name="LoadAnimation"></a>
 **LoadAnimation**
 
-Loads `Chroma` effects so that the animation can be played immediately.
-Returns the animation id upon success. Returns -1 upon failure.
+Loads `Chroma` effects so that the animation can be played immediately. 
+Returns the animation id upon success. Returns negative one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.LoadAnimation(int animationId);
@@ -4470,8 +4639,8 @@ ChromaAnimationAPI.LoadComposite(string name);
 <a name="MakeBlankFrames"></a>
 **MakeBlankFrames**
 
-Make a blank animation for the length of the frame count. Frame duration
-defaults to the duration. The frame color defaults to color. Animation
+Make a blank animation for the length of the frame count. Frame duration 
+defaults to the duration. The frame color defaults to color. Animation 
 is referenced by id.
 
 ```charp
@@ -4483,8 +4652,8 @@ ChromaAnimationAPI.MakeBlankFrames(int animationId, int frameCount, float durati
 <a name="MakeBlankFramesName"></a>
 **MakeBlankFramesName**
 
-Make a blank animation for the length of the frame count. Frame duration
-defaults to the duration. The frame color defaults to color. Animation
+Make a blank animation for the length of the frame count. Frame duration 
+defaults to the duration. The frame color defaults to color. Animation 
 is referenced by name.
 
 ```charp
@@ -4507,8 +4676,8 @@ double result = ChromaAnimationAPI.MakeBlankFramesNameD(string path, double fram
 <a name="MakeBlankFramesRandom"></a>
 **MakeBlankFramesRandom**
 
-Make a blank animation for the length of the frame count. Frame duration
-defaults to the duration. The frame color is random. Animation is referenced
+Make a blank animation for the length of the frame count. Frame duration 
+defaults to the duration. The frame color is random. Animation is referenced 
 by id.
 
 ```charp
@@ -4520,8 +4689,8 @@ ChromaAnimationAPI.MakeBlankFramesRandom(int animationId, int frameCount, float 
 <a name="MakeBlankFramesRandomBlackAndWhite"></a>
 **MakeBlankFramesRandomBlackAndWhite**
 
-Make a blank animation for the length of the frame count. Frame duration
-defaults to the duration. The frame color is random black and white. Animation
+Make a blank animation for the length of the frame count. Frame duration 
+defaults to the duration. The frame color is random black and white. Animation 
 is referenced by id.
 
 ```charp
@@ -4533,8 +4702,8 @@ ChromaAnimationAPI.MakeBlankFramesRandomBlackAndWhite(int animationId, int frame
 <a name="MakeBlankFramesRandomBlackAndWhiteName"></a>
 **MakeBlankFramesRandomBlackAndWhiteName**
 
-Make a blank animation for the length of the frame count. Frame duration
-defaults to the duration. The frame color is random black and white. Animation
+Make a blank animation for the length of the frame count. Frame duration 
+defaults to the duration. The frame color is random black and white. Animation 
 is referenced by name.
 
 ```charp
@@ -4557,8 +4726,8 @@ double result = ChromaAnimationAPI.MakeBlankFramesRandomBlackAndWhiteNameD(strin
 <a name="MakeBlankFramesRandomName"></a>
 **MakeBlankFramesRandomName**
 
-Make a blank animation for the length of the frame count. Frame duration
-defaults to the duration. The frame color is random. Animation is referenced
+Make a blank animation for the length of the frame count. Frame duration 
+defaults to the duration. The frame color is random. Animation is referenced 
 by name.
 
 ```charp
@@ -4581,8 +4750,8 @@ double result = ChromaAnimationAPI.MakeBlankFramesRandomNameD(string path, doubl
 <a name="MakeBlankFramesRGB"></a>
 **MakeBlankFramesRGB**
 
-Make a blank animation for the length of the frame count. Frame duration
-defaults to the duration. The frame color defaults to color. Animation
+Make a blank animation for the length of the frame count. Frame duration 
+defaults to the duration. The frame color defaults to color. Animation 
 is referenced by id.
 
 ```charp
@@ -4594,8 +4763,8 @@ ChromaAnimationAPI.MakeBlankFramesRGB(int animationId, int frameCount, float dur
 <a name="MakeBlankFramesRGBName"></a>
 **MakeBlankFramesRGBName**
 
-Make a blank animation for the length of the frame count. Frame duration
-defaults to the duration. The frame color defaults to color. Animation
+Make a blank animation for the length of the frame count. Frame duration 
+defaults to the duration. The frame color defaults to color. Animation 
 is referenced by name.
 
 ```charp
@@ -4618,8 +4787,8 @@ double result = ChromaAnimationAPI.MakeBlankFramesRGBNameD(string path, double f
 <a name="MirrorHorizontally"></a>
 **MirrorHorizontally**
 
-Flips the color grid horizontally for all `Chroma` animation frames. Returns
-the animation id upon success. Returns -1 upon failure.
+Flips the color grid horizontally for all `Chroma` animation frames. Returns 
+the animation id upon success. Returns negative one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.MirrorHorizontally(int animationId);
@@ -4630,9 +4799,9 @@ int result = ChromaAnimationAPI.MirrorHorizontally(int animationId);
 <a name="MirrorVertically"></a>
 **MirrorVertically**
 
-Flips the color grid vertically for all `Chroma` animation frames. This
-method has no effect for `EChromaSDKDevice1DEnum` devices. Returns the
-animation id upon success. Returns -1 upon failure.
+Flips the color grid vertically for all `Chroma` animation frames. This 
+method has no effect for `EChromaSDKDevice1DEnum` devices. Returns the 
+animation id upon success. Returns negative one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.MirrorVertically(int animationId);
@@ -4643,8 +4812,8 @@ int result = ChromaAnimationAPI.MirrorVertically(int animationId);
 <a name="MultiplyColorLerpAllFrames"></a>
 **MultiplyColorLerpAllFrames**
 
-Multiply the color intensity with the lerp result from color 1 to color
-2 using the frame index divided by the frame count for the `t` parameter.
+Multiply the color intensity with the lerp result from color 1 to color 
+2 using the frame index divided by the frame count for the `t` parameter. 
 Animation is referenced in id.
 
 ```charp
@@ -4656,8 +4825,8 @@ ChromaAnimationAPI.MultiplyColorLerpAllFrames(int animationId, int color1, int c
 <a name="MultiplyColorLerpAllFramesName"></a>
 **MultiplyColorLerpAllFramesName**
 
-Multiply the color intensity with the lerp result from color 1 to color
-2 using the frame index divided by the frame count for the `t` parameter.
+Multiply the color intensity with the lerp result from color 1 to color 
+2 using the frame index divided by the frame count for the `t` parameter. 
 Animation is referenced in name.
 
 ```charp
@@ -4680,9 +4849,9 @@ double result = ChromaAnimationAPI.MultiplyColorLerpAllFramesNameD(string path, 
 <a name="MultiplyIntensity"></a>
 **MultiplyIntensity**
 
-Multiply all the colors in the frame by the intensity value. The valid the
-intensity range is from 0.0 to 255.0. RGB components are multiplied equally.
-An intensity of 0.5 would half the color value. Black colors in the frame
+Multiply all the colors in the frame by the intensity value. The valid the 
+intensity range is from 0.0 to 255.0. RGB components are multiplied equally. 
+An intensity of 0.5 would half the color value. Black colors in the frame 
 will not be affected by this method.
 
 ```charp
@@ -4694,9 +4863,9 @@ ChromaAnimationAPI.MultiplyIntensity(int animationId, int frameId, float intensi
 <a name="MultiplyIntensityAllFrames"></a>
 **MultiplyIntensityAllFrames**
 
-Multiply all the colors for all frames by the intensity value. The valid
-the intensity range is from 0.0 to 255.0. RGB components are multiplied
-equally. An intensity of 0.5 would half the color value. Black colors in
+Multiply all the colors for all frames by the intensity value. The valid 
+the intensity range is from 0.0 to 255.0. RGB components are multiplied 
+equally. An intensity of 0.5 would half the color value. Black colors in 
 the frame will not be affected by this method.
 
 ```charp
@@ -4708,9 +4877,9 @@ ChromaAnimationAPI.MultiplyIntensityAllFrames(int animationId, float intensity);
 <a name="MultiplyIntensityAllFramesName"></a>
 **MultiplyIntensityAllFramesName**
 
-Multiply all the colors for all frames by the intensity value. The valid
-the intensity range is from 0.0 to 255.0. RGB components are multiplied
-equally. An intensity of 0.5 would half the color value. Black colors in
+Multiply all the colors for all frames by the intensity value. The valid 
+the intensity range is from 0.0 to 255.0. RGB components are multiplied 
+equally. An intensity of 0.5 would half the color value. Black colors in 
 the frame will not be affected by this method.
 
 ```charp
@@ -4733,7 +4902,7 @@ double result = ChromaAnimationAPI.MultiplyIntensityAllFramesNameD(string path, 
 <a name="MultiplyIntensityAllFramesRGB"></a>
 **MultiplyIntensityAllFramesRGB**
 
-Multiply all frames by the RBG color intensity. Animation is referenced
+Multiply all frames by the RBG color intensity. Animation is referenced 
 by id.
 
 ```charp
@@ -4745,7 +4914,7 @@ ChromaAnimationAPI.MultiplyIntensityAllFramesRGB(int animationId, int red, int g
 <a name="MultiplyIntensityAllFramesRGBName"></a>
 **MultiplyIntensityAllFramesRGBName**
 
-Multiply all frames by the RBG color intensity. Animation is referenced
+Multiply all frames by the RBG color intensity. Animation is referenced 
 by name.
 
 ```charp
@@ -4768,7 +4937,7 @@ double result = ChromaAnimationAPI.MultiplyIntensityAllFramesRGBNameD(string pat
 <a name="MultiplyIntensityColor"></a>
 **MultiplyIntensityColor**
 
-Multiply the specific frame by the RBG color intensity. Animation is referenced
+Multiply the specific frame by the RBG color intensity. Animation is referenced 
 by id.
 
 ```charp
@@ -4780,7 +4949,7 @@ ChromaAnimationAPI.MultiplyIntensityColor(int animationId, int frameId, int colo
 <a name="MultiplyIntensityColorAllFrames"></a>
 **MultiplyIntensityColorAllFrames**
 
-Multiply all frames by the RBG color intensity. Animation is referenced
+Multiply all frames by the RBG color intensity. Animation is referenced 
 by id.
 
 ```charp
@@ -4792,7 +4961,7 @@ ChromaAnimationAPI.MultiplyIntensityColorAllFrames(int animationId, int color);
 <a name="MultiplyIntensityColorAllFramesName"></a>
 **MultiplyIntensityColorAllFramesName**
 
-Multiply all frames by the RBG color intensity. Animation is referenced
+Multiply all frames by the RBG color intensity. Animation is referenced 
 by name.
 
 ```charp
@@ -4815,7 +4984,7 @@ double result = ChromaAnimationAPI.MultiplyIntensityColorAllFramesNameD(string p
 <a name="MultiplyIntensityColorName"></a>
 **MultiplyIntensityColorName**
 
-Multiply the specific frame by the RBG color intensity. Animation is referenced
+Multiply the specific frame by the RBG color intensity. Animation is referenced 
 by name.
 
 ```charp
@@ -4838,9 +5007,9 @@ double result = ChromaAnimationAPI.MultiplyIntensityColorNameD(string path, doub
 <a name="MultiplyIntensityName"></a>
 **MultiplyIntensityName**
 
-Multiply all the colors in the frame by the intensity value. The valid the
-intensity range is from 0.0 to 255.0. RGB components are multiplied equally.
-An intensity of 0.5 would half the color value. Black colors in the frame
+Multiply all the colors in the frame by the intensity value. The valid the 
+intensity range is from 0.0 to 255.0. RGB components are multiplied equally. 
+An intensity of 0.5 would half the color value. Black colors in the frame 
 will not be affected by this method.
 
 ```charp
@@ -4863,7 +5032,7 @@ double result = ChromaAnimationAPI.MultiplyIntensityNameD(string path, double fr
 <a name="MultiplyIntensityRGB"></a>
 **MultiplyIntensityRGB**
 
-Multiply the specific frame by the RBG color intensity. Animation is referenced
+Multiply the specific frame by the RBG color intensity. Animation is referenced 
 by id.
 
 ```charp
@@ -4875,7 +5044,7 @@ ChromaAnimationAPI.MultiplyIntensityRGB(int animationId, int frameId, int red, i
 <a name="MultiplyIntensityRGBName"></a>
 **MultiplyIntensityRGBName**
 
-Multiply the specific frame by the RBG color intensity. Animation is referenced
+Multiply the specific frame by the RBG color intensity. Animation is referenced 
 by name.
 
 ```charp
@@ -4898,8 +5067,8 @@ double result = ChromaAnimationAPI.MultiplyIntensityRGBNameD(string path, double
 <a name="MultiplyNonZeroTargetColorLerp"></a>
 **MultiplyNonZeroTargetColorLerp**
 
-Multiply the specific frame by the color lerp result between color 1 and
-2 using the frame color value as the `t` value. Animation is referenced
+Multiply the specific frame by the color lerp result between color 1 and 
+2 using the frame color value as the `t` value. Animation is referenced 
 by id.
 
 ```charp
@@ -4911,7 +5080,7 @@ ChromaAnimationAPI.MultiplyNonZeroTargetColorLerp(int animationId, int frameId, 
 <a name="MultiplyNonZeroTargetColorLerpAllFrames"></a>
 **MultiplyNonZeroTargetColorLerpAllFrames**
 
-Multiply all frames by the color lerp result between color 1 and 2 using
+Multiply all frames by the color lerp result between color 1 and 2 using 
 the frame color value as the `t` value. Animation is referenced by id.
 
 ```charp
@@ -4923,7 +5092,7 @@ ChromaAnimationAPI.MultiplyNonZeroTargetColorLerpAllFrames(int animationId, int 
 <a name="MultiplyNonZeroTargetColorLerpAllFramesName"></a>
 **MultiplyNonZeroTargetColorLerpAllFramesName**
 
-Multiply all frames by the color lerp result between color 1 and 2 using
+Multiply all frames by the color lerp result between color 1 and 2 using 
 the frame color value as the `t` value. Animation is referenced by name.
 
 ```charp
@@ -4946,8 +5115,8 @@ double result = ChromaAnimationAPI.MultiplyNonZeroTargetColorLerpAllFramesNameD(
 <a name="MultiplyNonZeroTargetColorLerpAllFramesRGB"></a>
 **MultiplyNonZeroTargetColorLerpAllFramesRGB**
 
-Multiply the specific frame by the color lerp result between RGB 1 and 2
-using the frame color value as the `t` value. Animation is referenced by
+Multiply the specific frame by the color lerp result between RGB 1 and 2 
+using the frame color value as the `t` value. Animation is referenced by 
 id.
 
 ```charp
@@ -4959,8 +5128,8 @@ ChromaAnimationAPI.MultiplyNonZeroTargetColorLerpAllFramesRGB(int animationId, i
 <a name="MultiplyNonZeroTargetColorLerpAllFramesRGBName"></a>
 **MultiplyNonZeroTargetColorLerpAllFramesRGBName**
 
-Multiply the specific frame by the color lerp result between RGB 1 and 2
-using the frame color value as the `t` value. Animation is referenced by
+Multiply the specific frame by the color lerp result between RGB 1 and 2 
+using the frame color value as the `t` value. Animation is referenced by 
 name.
 
 ```charp
@@ -4983,8 +5152,8 @@ double result = ChromaAnimationAPI.MultiplyNonZeroTargetColorLerpAllFramesRGBNam
 <a name="MultiplyTargetColorLerp"></a>
 **MultiplyTargetColorLerp**
 
-Multiply the specific frame by the color lerp result between color 1 and
-2 using the frame color value as the `t` value. Animation is referenced
+Multiply the specific frame by the color lerp result between color 1 and 
+2 using the frame color value as the `t` value. Animation is referenced 
 by id.
 
 ```charp
@@ -4996,7 +5165,7 @@ ChromaAnimationAPI.MultiplyTargetColorLerp(int animationId, int frameId, int col
 <a name="MultiplyTargetColorLerpAllFrames"></a>
 **MultiplyTargetColorLerpAllFrames**
 
-Multiply all frames by the color lerp result between color 1 and 2 using
+Multiply all frames by the color lerp result between color 1 and 2 using 
 the frame color value as the `t` value. Animation is referenced by id.
 
 ```charp
@@ -5008,7 +5177,7 @@ ChromaAnimationAPI.MultiplyTargetColorLerpAllFrames(int animationId, int color1,
 <a name="MultiplyTargetColorLerpAllFramesName"></a>
 **MultiplyTargetColorLerpAllFramesName**
 
-Multiply all frames by the color lerp result between color 1 and 2 using
+Multiply all frames by the color lerp result between color 1 and 2 using 
 the frame color value as the `t` value. Animation is referenced by name.
 
 ```charp
@@ -5031,7 +5200,7 @@ double result = ChromaAnimationAPI.MultiplyTargetColorLerpAllFramesNameD(string 
 <a name="MultiplyTargetColorLerpAllFramesRGB"></a>
 **MultiplyTargetColorLerpAllFramesRGB**
 
-Multiply all frames by the color lerp result between RGB 1 and 2 using the
+Multiply all frames by the color lerp result between RGB 1 and 2 using the 
 frame color value as the `t` value. Animation is referenced by id.
 
 ```charp
@@ -5043,7 +5212,7 @@ ChromaAnimationAPI.MultiplyTargetColorLerpAllFramesRGB(int animationId, int red1
 <a name="MultiplyTargetColorLerpAllFramesRGBName"></a>
 **MultiplyTargetColorLerpAllFramesRGBName**
 
-Multiply all frames by the color lerp result between RGB 1 and 2 using the
+Multiply all frames by the color lerp result between RGB 1 and 2 using the 
 frame color value as the `t` value. Animation is referenced by name.
 
 ```charp
@@ -5066,8 +5235,8 @@ double result = ChromaAnimationAPI.MultiplyTargetColorLerpAllFramesRGBNameD(stri
 <a name="MultiplyTargetColorLerpName"></a>
 **MultiplyTargetColorLerpName**
 
-Multiply the specific frame by the color lerp result between color 1 and
-2 using the frame color value as the `t` value. Animation is referenced
+Multiply the specific frame by the color lerp result between color 1 and 
+2 using the frame color value as the `t` value. Animation is referenced 
 by name.
 
 ```charp
@@ -5079,8 +5248,8 @@ ChromaAnimationAPI.MultiplyTargetColorLerpName(string path, int frameId, int col
 <a name="OffsetColors"></a>
 **OffsetColors**
 
-Offset all colors in the frame using the RGB offset. Use the range of -255
-to 255 for red, green, and blue parameters. Negative values remove color.
+Offset all colors in the frame using the RGB offset. Use the range of -255 
+to 255 for red, green, and blue parameters. Negative values remove color. 
 Positive values add color.
 
 ```charp
@@ -5092,8 +5261,8 @@ ChromaAnimationAPI.OffsetColors(int animationId, int frameId, int red, int green
 <a name="OffsetColorsAllFrames"></a>
 **OffsetColorsAllFrames**
 
-Offset all colors for all frames using the RGB offset. Use the range of
--255 to 255 for red, green, and blue parameters. Negative values remove
+Offset all colors for all frames using the RGB offset. Use the range of 
+-255 to 255 for red, green, and blue parameters. Negative values remove 
 color. Positive values add color.
 
 ```charp
@@ -5105,8 +5274,8 @@ ChromaAnimationAPI.OffsetColorsAllFrames(int animationId, int red, int green, in
 <a name="OffsetColorsAllFramesName"></a>
 **OffsetColorsAllFramesName**
 
-Offset all colors for all frames using the RGB offset. Use the range of
--255 to 255 for red, green, and blue parameters. Negative values remove
+Offset all colors for all frames using the RGB offset. Use the range of 
+-255 to 255 for red, green, and blue parameters. Negative values remove 
 color. Positive values add color.
 
 ```charp
@@ -5129,8 +5298,8 @@ double result = ChromaAnimationAPI.OffsetColorsAllFramesNameD(string path, doubl
 <a name="OffsetColorsName"></a>
 **OffsetColorsName**
 
-Offset all colors in the frame using the RGB offset. Use the range of -255
-to 255 for red, green, and blue parameters. Negative values remove color.
+Offset all colors in the frame using the RGB offset. Use the range of -255 
+to 255 for red, green, and blue parameters. Negative values remove color. 
 Positive values add color.
 
 ```charp
@@ -5153,9 +5322,9 @@ double result = ChromaAnimationAPI.OffsetColorsNameD(string path, double frameId
 <a name="OffsetNonZeroColors"></a>
 **OffsetNonZeroColors**
 
-This method will only update colors in the animation that are not already
-set to black. Offset a subset of colors in the frame using the RGB offset.
-Use the range of -255 to 255 for red, green, and blue parameters. Negative
+This method will only update colors in the animation that are not already 
+set to black. Offset a subset of colors in the frame using the RGB offset. 
+Use the range of -255 to 255 for red, green, and blue parameters. Negative 
 values remove color. Positive values add color.
 
 ```charp
@@ -5167,9 +5336,9 @@ ChromaAnimationAPI.OffsetNonZeroColors(int animationId, int frameId, int red, in
 <a name="OffsetNonZeroColorsAllFrames"></a>
 **OffsetNonZeroColorsAllFrames**
 
-This method will only update colors in the animation that are not already
-set to black. Offset a subset of colors for all frames using the RGB offset.
-Use the range of -255 to 255 for red, green, and blue parameters. Negative
+This method will only update colors in the animation that are not already 
+set to black. Offset a subset of colors for all frames using the RGB offset. 
+Use the range of -255 to 255 for red, green, and blue parameters. Negative 
 values remove color. Positive values add color.
 
 ```charp
@@ -5181,9 +5350,9 @@ ChromaAnimationAPI.OffsetNonZeroColorsAllFrames(int animationId, int red, int gr
 <a name="OffsetNonZeroColorsAllFramesName"></a>
 **OffsetNonZeroColorsAllFramesName**
 
-This method will only update colors in the animation that are not already
-set to black. Offset a subset of colors for all frames using the RGB offset.
-Use the range of -255 to 255 for red, green, and blue parameters. Negative
+This method will only update colors in the animation that are not already 
+set to black. Offset a subset of colors for all frames using the RGB offset. 
+Use the range of -255 to 255 for red, green, and blue parameters. Negative 
 values remove color. Positive values add color.
 
 ```charp
@@ -5206,9 +5375,9 @@ double result = ChromaAnimationAPI.OffsetNonZeroColorsAllFramesNameD(string path
 <a name="OffsetNonZeroColorsName"></a>
 **OffsetNonZeroColorsName**
 
-This method will only update colors in the animation that are not already
-set to black. Offset a subset of colors in the frame using the RGB offset.
-Use the range of -255 to 255 for red, green, and blue parameters. Negative
+This method will only update colors in the animation that are not already 
+set to black. Offset a subset of colors in the frame using the RGB offset. 
+Use the range of -255 to 255 for red, green, and blue parameters. Negative 
 values remove color. Positive values add color.
 
 ```charp
@@ -5231,9 +5400,9 @@ double result = ChromaAnimationAPI.OffsetNonZeroColorsNameD(string path, double 
 <a name="OpenAnimation"></a>
 **OpenAnimation**
 
-Opens a `Chroma` animation file so that it can be played. Returns an animation
-id >= 0 upon success. Returns -1 if there was a failure. The animation
-id is used in most of the API methods.
+Opens a `Chroma` animation file so that it can be played. Returns an animation 
+id >= 0 upon success. Returns negative one if there was a failure. The 
+animation id is used in most of the API methods.
 
 ```charp
 int result = ChromaAnimationAPI.OpenAnimation(string path);
@@ -5255,11 +5424,11 @@ double result = ChromaAnimationAPI.OpenAnimationD(string path);
 <a name="OpenAnimationFromMemory"></a>
 **OpenAnimationFromMemory**
 
-Opens a `Chroma` animation data from memory so that it can be played. `Data`
-is a pointer to byte array of the loaded animation in memory. `Name` will
-be assigned to the animation when loaded. Returns an animation id >= 0
-upon success. Returns -1 if there was a failure. The animation id is used
-in most of the API methods.
+Opens a `Chroma` animation data from memory so that it can be played. `Data` 
+is a pointer to BYTE array of the loaded animation in memory. `Name` will 
+be assigned to the animation when loaded. Returns an animation id >= 0 
+upon success. Returns negative one if there was a failure. The animation 
+id is used in most of the API methods.
 
 ```charp
 int result = ChromaAnimationAPI.OpenAnimationFromMemory(byte[] data, string name);
@@ -5270,8 +5439,8 @@ int result = ChromaAnimationAPI.OpenAnimationFromMemory(byte[] data, string name
 <a name="OpenEditorDialog"></a>
 **OpenEditorDialog**
 
-Opens a `Chroma` animation file with the `.chroma` extension. Returns zero
-upon success. Returns -1 if there was a failure.
+Opens a `Chroma` animation file with the `.chroma` extension. Returns zero 
+upon success. Returns negative one if there was a failure.
 
 ```charp
 int result = ChromaAnimationAPI.OpenEditorDialog(string path);
@@ -5282,7 +5451,7 @@ int result = ChromaAnimationAPI.OpenEditorDialog(string path);
 <a name="OpenEditorDialogAndPlay"></a>
 **OpenEditorDialogAndPlay**
 
-Open the named animation in the editor dialog and play the animation at
+Open the named animation in the editor dialog and play the animation at 
 start.
 
 ```charp
@@ -5316,8 +5485,9 @@ double result = ChromaAnimationAPI.OpenEditorDialogD(string path);
 <a name="OverrideFrameDuration"></a>
 **OverrideFrameDuration**
 
-Sets the `duration` for all grames in the `Chroma` animation to the `duration`
-parameter. Returns the animation id upon success. Returns -1 upon failure.
+Sets the `duration` for all grames in the `Chroma` animation to the `duration` 
+parameter. Returns the animation id upon success. Returns negative one 
+upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.OverrideFrameDuration(int animationId, float duration);
@@ -5339,7 +5509,7 @@ double result = ChromaAnimationAPI.OverrideFrameDurationD(double animationId, do
 <a name="OverrideFrameDurationName"></a>
 **OverrideFrameDurationName**
 
-Override the duration of all frames with the `duration` value. Animation
+Override the duration of all frames with the `duration` value. Animation 
 is referenced by name.
 
 ```charp
@@ -5384,8 +5554,9 @@ double result = ChromaAnimationAPI.PauseAnimationNameD(string path);
 <a name="PlayAnimation"></a>
 **PlayAnimation**
 
-Plays the `Chroma` animation. This will load the animation, if not loaded
-previously. Returns the animation id upon success. Returns -1 upon failure.
+Plays the `Chroma` animation. This will load the animation, if not loaded 
+previously. Returns the animation id upon success. Returns negative one 
+upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.PlayAnimation(int animationId);
@@ -5407,8 +5578,8 @@ double result = ChromaAnimationAPI.PlayAnimationD(double animationId);
 <a name="PlayAnimationFrame"></a>
 **PlayAnimationFrame**
 
-`PluginPlayAnimationFrame` automatically handles initializing the `ChromaSDK`.
-The method will play the animation given the `animationId` with looping
+`PluginPlayAnimationFrame` automatically handles initializing the `ChromaSDK`. 
+The method will play the animation given the `animationId` with looping 
 `on` or `off` starting at the `frameId`.
 
 ```charp
@@ -5420,8 +5591,8 @@ ChromaAnimationAPI.PlayAnimationFrame(int animationId, int frameId, bool loop);
 <a name="PlayAnimationFrameName"></a>
 **PlayAnimationFrameName**
 
-`PluginPlayAnimationFrameName` automatically handles initializing the `ChromaSDK`.
-The named `.chroma` animation file will be automatically opened. The animation
+`PluginPlayAnimationFrameName` automatically handles initializing the `ChromaSDK`. 
+The named `.chroma` animation file will be automatically opened. The animation 
 will play with looping `on` or `off` starting at the `frameId`.
 
 ```charp
@@ -5444,8 +5615,8 @@ double result = ChromaAnimationAPI.PlayAnimationFrameNameD(string path, double f
 <a name="PlayAnimationLoop"></a>
 **PlayAnimationLoop**
 
-`PluginPlayAnimationLoop` automatically handles initializing the `ChromaSDK`.
-The method will play the animation given the `animationId` with looping
+`PluginPlayAnimationLoop` automatically handles initializing the `ChromaSDK`. 
+The method will play the animation given the `animationId` with looping 
 `on` or `off`.
 
 ```charp
@@ -5457,8 +5628,8 @@ ChromaAnimationAPI.PlayAnimationLoop(int animationId, bool loop);
 <a name="PlayAnimationName"></a>
 **PlayAnimationName**
 
-`PluginPlayAnimationName` automatically handles initializing the `ChromaSDK`.
-The named `.chroma` animation file will be automatically opened. The animation
+`PluginPlayAnimationName` automatically handles initializing the `ChromaSDK`. 
+The named `.chroma` animation file will be automatically opened. The animation 
 will play with looping `on` or `off`.
 
 ```charp
@@ -5481,8 +5652,8 @@ double result = ChromaAnimationAPI.PlayAnimationNameD(string path, double loop);
 <a name="PlayComposite"></a>
 **PlayComposite**
 
-`PluginPlayComposite` automatically handles initializing the `ChromaSDK`.
-The named animation files for the `.chroma` set will be automatically opened.
+`PluginPlayComposite` automatically handles initializing the `ChromaSDK`. 
+The named animation files for the `.chroma` set will be automatically opened. 
 The set of animations will play with looping `on` or `off`.
 
 ```charp
@@ -5505,8 +5676,8 @@ double result = ChromaAnimationAPI.PlayCompositeD(string name, double loop);
 <a name="PreviewFrame"></a>
 **PreviewFrame**
 
-Displays the `Chroma` animation frame on `Chroma` hardware given the `frameIndex`.
-Returns the animation id upon success. Returns -1 upon failure.
+Displays the `Chroma` animation frame on `Chroma` hardware given the `frameIndex`. 
+Returns the animation id upon success. Returns negative one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.PreviewFrame(int animationId, int frameIndex);
@@ -5528,7 +5699,7 @@ double result = ChromaAnimationAPI.PreviewFrameD(double animationId, double fram
 <a name="PreviewFrameName"></a>
 **PreviewFrameName**
 
-Displays the `Chroma` animation frame on `Chroma` hardware given the `frameIndex`.
+Displays the `Chroma` animation frame on `Chroma` hardware given the `frameIndex`. 
 Animaton is referenced by name.
 
 ```charp
@@ -5540,7 +5711,7 @@ ChromaAnimationAPI.PreviewFrameName(string path, int frameIndex);
 <a name="ReduceFrames"></a>
 **ReduceFrames**
 
-Reduce the frames of the animation by removing every nth element. Animation
+Reduce the frames of the animation by removing every nth element. Animation 
 is referenced by id.
 
 ```charp
@@ -5552,7 +5723,7 @@ ChromaAnimationAPI.ReduceFrames(int animationId, int n);
 <a name="ReduceFramesName"></a>
 **ReduceFramesName**
 
-Reduce the frames of the animation by removing every nth element. Animation
+Reduce the frames of the animation by removing every nth element. Animation 
 is referenced by name.
 
 ```charp
@@ -5575,8 +5746,8 @@ double result = ChromaAnimationAPI.ReduceFramesNameD(string path, double n);
 <a name="ResetAnimation"></a>
 **ResetAnimation**
 
-Resets the `Chroma` animation to 1 blank frame. Returns the animation id
-upon success. Returns -1 upon failure.
+Resets the `Chroma` animation to 1 blank frame. Returns the animation id 
+upon success. Returns negative one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.ResetAnimation(int animationId);
@@ -5620,9 +5791,9 @@ double result = ChromaAnimationAPI.ResumeAnimationNameD(string path, double loop
 <a name="Reverse"></a>
 **Reverse**
 
-Reverse the animation frame order of the `Chroma` animation. Returns the
-animation id upon success. Returns -1 upon failure. Animation is referenced
-by id.
+Reverse the animation frame order of the `Chroma` animation. Returns the 
+animation id upon success. Returns negative one upon failure. Animation 
+is referenced by id.
 
 ```charp
 int result = ChromaAnimationAPI.Reverse(int animationId);
@@ -5633,7 +5804,7 @@ int result = ChromaAnimationAPI.Reverse(int animationId);
 <a name="ReverseAllFrames"></a>
 **ReverseAllFrames**
 
-Reverse the animation frame order of the `Chroma` animation. Animation is
+Reverse the animation frame order of the `Chroma` animation. Animation is 
 referenced by id.
 
 ```charp
@@ -5645,7 +5816,7 @@ ChromaAnimationAPI.ReverseAllFrames(int animationId);
 <a name="ReverseAllFramesName"></a>
 **ReverseAllFramesName**
 
-Reverse the animation frame order of the `Chroma` animation. Animation is
+Reverse the animation frame order of the `Chroma` animation. Animation is 
 referenced by name.
 
 ```charp
@@ -5690,8 +5861,8 @@ int result = ChromaAnimationAPI.SaveAnimationName(string sourceAnimation, string
 <a name="Set1DColor"></a>
 **Set1DColor**
 
-Set the animation color for a frame given the `1D` `led`. The `led` should
-be greater than or equal to 0 and less than the `MaxLeds`. The animation
+Set the animation color for a frame given the `1D` `led`. The `led` should 
+be greater than or equal to 0 and less than the `MaxLeds`. The animation 
 is referenced by id.
 
 ```charp
@@ -5703,8 +5874,8 @@ ChromaAnimationAPI.Set1DColor(int animationId, int frameId, int led, int color);
 <a name="Set1DColorName"></a>
 **Set1DColorName**
 
-Set the animation color for a frame given the `1D` `led`. The `led` should
-be greater than or equal to 0 and less than the `MaxLeds`. The animation
+Set the animation color for a frame given the `1D` `led`. The `led` should 
+be greater than or equal to 0 and less than the `MaxLeds`. The animation 
 is referenced by name.
 
 ```charp
@@ -5727,9 +5898,9 @@ double result = ChromaAnimationAPI.Set1DColorNameD(string path, double frameId, 
 <a name="Set2DColor"></a>
 **Set2DColor**
 
-Set the animation color for a frame given the `2D` `row` and `column`. The
-`row` should be greater than or equal to 0 and less than the `MaxRow`.
-The `column` should be greater than or equal to 0 and less than the `MaxColumn`.
+Set the animation color for a frame given the `2D` `row` and `column`. The 
+`row` should be greater than or equal to 0 and less than the `MaxRow`. 
+The `column` should be greater than or equal to 0 and less than the `MaxColumn`. 
 The animation is referenced by id.
 
 ```charp
@@ -5741,9 +5912,9 @@ ChromaAnimationAPI.Set2DColor(int animationId, int frameId, int row, int column,
 <a name="Set2DColorName"></a>
 **Set2DColorName**
 
-Set the animation color for a frame given the `2D` `row` and `column`. The
-`row` should be greater than or equal to 0 and less than the `MaxRow`.
-The `column` should be greater than or equal to 0 and less than the `MaxColumn`.
+Set the animation color for a frame given the `2D` `row` and `column`. The 
+`row` should be greater than or equal to 0 and less than the `MaxRow`. 
+The `column` should be greater than or equal to 0 and less than the `MaxColumn`. 
 The animation is referenced by name.
 
 ```charp
@@ -5766,7 +5937,7 @@ double result = ChromaAnimationAPI.Set2DColorNameD(string path, double frameId, 
 <a name="SetChromaCustomColorAllFrames"></a>
 **SetChromaCustomColorAllFrames**
 
-When custom color is set, the custom key mode will be used. The animation
+When custom color is set, the custom key mode will be used. The animation 
 is referenced by id.
 
 ```charp
@@ -5778,7 +5949,7 @@ ChromaAnimationAPI.SetChromaCustomColorAllFrames(int animationId);
 <a name="SetChromaCustomColorAllFramesName"></a>
 **SetChromaCustomColorAllFramesName**
 
-When custom color is set, the custom key mode will be used. The animation
+When custom color is set, the custom key mode will be used. The animation 
 is referenced by name.
 
 ```charp
@@ -5801,8 +5972,8 @@ double result = ChromaAnimationAPI.SetChromaCustomColorAllFramesNameD(string pat
 <a name="SetChromaCustomFlag"></a>
 **SetChromaCustomFlag**
 
-Set the Chroma custom key color flag on all frames. `True` changes the layout
-from grid to key. `True` changes the layout from key to grid. Animation
+Set the Chroma custom key color flag on all frames. `True` changes the layout 
+from grid to key. `True` changes the layout from key to grid. Animation 
 is referenced by id.
 
 ```charp
@@ -5814,8 +5985,8 @@ ChromaAnimationAPI.SetChromaCustomFlag(int animationId, bool flag);
 <a name="SetChromaCustomFlagName"></a>
 **SetChromaCustomFlagName**
 
-Set the Chroma custom key color flag on all frames. `True` changes the layout
-from grid to key. `True` changes the layout from key to grid. Animation
+Set the Chroma custom key color flag on all frames. `True` changes the layout 
+from grid to key. `True` changes the layout from key to grid. Animation 
 is referenced by name.
 
 ```charp
@@ -5882,9 +6053,9 @@ int result = ChromaAnimationAPI.SetCustomColorFlag2D(int device, int[] colors);
 <a name="SetDevice"></a>
 **SetDevice**
 
-Changes the `deviceType` and `device` of a `Chroma` animation. If the device
-is changed, the `Chroma` animation will be reset with 1 blank frame. Returns
-the animation id upon success. Returns -1 upon failure.
+Changes the `deviceType` and `device` of a `Chroma` animation. If the device 
+is changed, the `Chroma` animation will be reset with 1 blank frame. Returns 
+the animation id upon success. Returns negative one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.SetDevice(int animationId, int deviceType, int device);
@@ -5917,7 +6088,7 @@ int result = ChromaAnimationAPI.SetEffectCustom1D(int device, int[] colors);
 <a name="SetEffectCustom2D"></a>
 **SetEffectCustom2D**
 
-SetEffectCustom2D will display the referenced colors immediately
+SetEffectCustom2D will display the referenced colors immediately.
 
 ```charp
 int result = ChromaAnimationAPI.SetEffectCustom2D(int device, int[] colors);
@@ -5928,11 +6099,12 @@ int result = ChromaAnimationAPI.SetEffectCustom2D(int device, int[] colors);
 <a name="SetEffectKeyboardCustom2D"></a>
 **SetEffectKeyboardCustom2D**
 
-SetEffectKeyboardCustom2D will display the referenced custom keyboard colors
-immediately
+SetEffectKeyboardCustom2D will display the referenced custom keyboard colors 
+immediately. Colors represent a visual grid layout. Keys represent the 
+hotkeys for any layout.
 
 ```charp
-int result = ChromaAnimationAPI.SetEffectKeyboardCustom2D(int device, int[] colors);
+int result = ChromaAnimationAPI.SetEffectKeyboardCustom2D(int device, int[] colors, int[] keys);
 ```
 
 ---
@@ -5940,7 +6112,7 @@ int result = ChromaAnimationAPI.SetEffectKeyboardCustom2D(int device, int[] colo
 <a name="SetIdleAnimation"></a>
 **SetIdleAnimation**
 
-When the idle animation is used, the named animation will play when no other
+When the idle animation is used, the named animation will play when no other 
 animations are playing. Reference the animation by id.
 
 ```charp
@@ -5952,7 +6124,7 @@ ChromaAnimationAPI.SetIdleAnimation(int animationId);
 <a name="SetIdleAnimationName"></a>
 **SetIdleAnimationName**
 
-When the idle animation is used, the named animation will play when no other
+When the idle animation is used, the named animation will play when no other 
 animations are playing. Reference the animation by name.
 
 ```charp
@@ -5975,7 +6147,7 @@ ChromaAnimationAPI.SetKeyColor(int animationId, int frameId, int rzkey, int colo
 <a name="SetKeyColorAllFrames"></a>
 **SetKeyColorAllFrames**
 
-Set the key to the specified key color for all frames. Animation is referenced
+Set the key to the specified key color for all frames. Animation is referenced 
 by id.
 
 ```charp
@@ -5987,7 +6159,7 @@ ChromaAnimationAPI.SetKeyColorAllFrames(int animationId, int rzkey, int color);
 <a name="SetKeyColorAllFramesName"></a>
 **SetKeyColorAllFramesName**
 
-Set the key to the specified key color for all frames. Animation is referenced
+Set the key to the specified key color for all frames. Animation is referenced 
 by name.
 
 ```charp
@@ -6010,7 +6182,7 @@ double result = ChromaAnimationAPI.SetKeyColorAllFramesNameD(string path, double
 <a name="SetKeyColorAllFramesRGB"></a>
 **SetKeyColorAllFramesRGB**
 
-Set the key to the specified key color for all frames. Animation is referenced
+Set the key to the specified key color for all frames. Animation is referenced 
 by id.
 
 ```charp
@@ -6022,7 +6194,7 @@ ChromaAnimationAPI.SetKeyColorAllFramesRGB(int animationId, int rzkey, int red, 
 <a name="SetKeyColorAllFramesRGBName"></a>
 **SetKeyColorAllFramesRGBName**
 
-Set the key to the specified key color for all frames. Animation is referenced
+Set the key to the specified key color for all frames. Animation is referenced 
 by name.
 
 ```charp
@@ -6067,7 +6239,7 @@ double result = ChromaAnimationAPI.SetKeyColorNameD(string path, double frameId,
 <a name="SetKeyColorRGB"></a>
 **SetKeyColorRGB**
 
-Set the key to the specified key color for the specified frame. Animation
+Set the key to the specified key color for the specified frame. Animation 
 is referenced by id.
 
 ```charp
@@ -6079,7 +6251,7 @@ ChromaAnimationAPI.SetKeyColorRGB(int animationId, int frameId, int rzkey, int r
 <a name="SetKeyColorRGBName"></a>
 **SetKeyColorRGBName**
 
-Set the key to the specified key color for the specified frame. Animation
+Set the key to the specified key color for the specified frame. Animation 
 is referenced by name.
 
 ```charp
@@ -6102,7 +6274,7 @@ double result = ChromaAnimationAPI.SetKeyColorRGBNameD(string path, double frame
 <a name="SetKeyNonZeroColor"></a>
 **SetKeyNonZeroColor**
 
-Set animation key to a static color for the given frame if the existing
+Set animation key to a static color for the given frame if the existing 
 color is not already black.
 
 ```charp
@@ -6114,7 +6286,7 @@ ChromaAnimationAPI.SetKeyNonZeroColor(int animationId, int frameId, int rzkey, i
 <a name="SetKeyNonZeroColorName"></a>
 **SetKeyNonZeroColorName**
 
-Set animation key to a static color for the given frame if the existing
+Set animation key to a static color for the given frame if the existing 
 color is not already black.
 
 ```charp
@@ -6137,7 +6309,7 @@ double result = ChromaAnimationAPI.SetKeyNonZeroColorNameD(string path, double f
 <a name="SetKeyNonZeroColorRGB"></a>
 **SetKeyNonZeroColorRGB**
 
-Set the key to the specified key color for the specified frame where color
+Set the key to the specified key color for the specified frame where color 
 is not black. Animation is referenced by id.
 
 ```charp
@@ -6149,7 +6321,7 @@ ChromaAnimationAPI.SetKeyNonZeroColorRGB(int animationId, int frameId, int rzkey
 <a name="SetKeyNonZeroColorRGBName"></a>
 **SetKeyNonZeroColorRGBName**
 
-Set the key to the specified key color for the specified frame where color
+Set the key to the specified key color for the specified frame where color 
 is not black. Animation is referenced by name.
 
 ```charp
@@ -6183,7 +6355,7 @@ ChromaAnimationAPI.SetKeyRowColumnColorName(string path, int frameId, int row, i
 <a name="SetKeysColor"></a>
 **SetKeysColor**
 
-Set an array of animation keys to a static color for the given frame. Animation
+Set an array of animation keys to a static color for the given frame. Animation 
 is referenced by id.
 
 ```charp
@@ -6195,7 +6367,7 @@ ChromaAnimationAPI.SetKeysColor(int animationId, int frameId, int[] rzkeys, int 
 <a name="SetKeysColorAllFrames"></a>
 **SetKeysColorAllFrames**
 
-Set an array of animation keys to a static color for all frames. Animation
+Set an array of animation keys to a static color for all frames. Animation 
 is referenced by id.
 
 ```charp
@@ -6207,7 +6379,7 @@ ChromaAnimationAPI.SetKeysColorAllFrames(int animationId, int[] rzkeys, int keyC
 <a name="SetKeysColorAllFramesName"></a>
 **SetKeysColorAllFramesName**
 
-Set an array of animation keys to a static color for all frames. Animation
+Set an array of animation keys to a static color for all frames. Animation 
 is referenced by name.
 
 ```charp
@@ -6219,7 +6391,7 @@ ChromaAnimationAPI.SetKeysColorAllFramesName(string path, int[] rzkeys, int keyC
 <a name="SetKeysColorAllFramesRGB"></a>
 **SetKeysColorAllFramesRGB**
 
-Set an array of animation keys to a static color for all frames. Animation
+Set an array of animation keys to a static color for all frames. Animation 
 is referenced by id.
 
 ```charp
@@ -6231,7 +6403,7 @@ ChromaAnimationAPI.SetKeysColorAllFramesRGB(int animationId, int[] rzkeys, int k
 <a name="SetKeysColorAllFramesRGBName"></a>
 **SetKeysColorAllFramesRGBName**
 
-Set an array of animation keys to a static color for all frames. Animation
+Set an array of animation keys to a static color for all frames. Animation 
 is referenced by name.
 
 ```charp
@@ -6254,7 +6426,7 @@ ChromaAnimationAPI.SetKeysColorName(string path, int frameId, int[] rzkeys, int 
 <a name="SetKeysColorRGB"></a>
 **SetKeysColorRGB**
 
-Set an array of animation keys to a static color for the given frame. Animation
+Set an array of animation keys to a static color for the given frame. Animation 
 is referenced by id.
 
 ```charp
@@ -6266,7 +6438,7 @@ ChromaAnimationAPI.SetKeysColorRGB(int animationId, int frameId, int[] rzkeys, i
 <a name="SetKeysColorRGBName"></a>
 **SetKeysColorRGBName**
 
-Set an array of animation keys to a static color for the given frame. Animation
+Set an array of animation keys to a static color for the given frame. Animation 
 is referenced by name.
 
 ```charp
@@ -6278,7 +6450,7 @@ ChromaAnimationAPI.SetKeysColorRGBName(string path, int frameId, int[] rzkeys, i
 <a name="SetKeysNonZeroColor"></a>
 **SetKeysNonZeroColor**
 
-Set an array of animation keys to a static color for the given frame if
+Set an array of animation keys to a static color for the given frame if 
 the existing color is not already black.
 
 ```charp
@@ -6290,7 +6462,7 @@ ChromaAnimationAPI.SetKeysNonZeroColor(int animationId, int frameId, int[] rzkey
 <a name="SetKeysNonZeroColorAllFrames"></a>
 **SetKeysNonZeroColorAllFrames**
 
-Set an array of animation keys to a static color for the given frame where
+Set an array of animation keys to a static color for the given frame where 
 the color is not black. Animation is referenced by id.
 
 ```charp
@@ -6302,7 +6474,7 @@ ChromaAnimationAPI.SetKeysNonZeroColorAllFrames(int animationId, int[] rzkeys, i
 <a name="SetKeysNonZeroColorAllFramesName"></a>
 **SetKeysNonZeroColorAllFramesName**
 
-Set an array of animation keys to a static color for all frames if the existing
+Set an array of animation keys to a static color for all frames if the existing 
 color is not already black. Reference animation by name.
 
 ```charp
@@ -6314,7 +6486,7 @@ ChromaAnimationAPI.SetKeysNonZeroColorAllFramesName(string path, int[] rzkeys, i
 <a name="SetKeysNonZeroColorName"></a>
 **SetKeysNonZeroColorName**
 
-Set an array of animation keys to a static color for the given frame if
+Set an array of animation keys to a static color for the given frame if 
 the existing color is not already black. Reference animation by name.
 
 ```charp
@@ -6326,7 +6498,7 @@ ChromaAnimationAPI.SetKeysNonZeroColorName(string path, int frameId, int[] rzkey
 <a name="SetKeysNonZeroColorRGB"></a>
 **SetKeysNonZeroColorRGB**
 
-Set an array of animation keys to a static color for the given frame where
+Set an array of animation keys to a static color for the given frame where 
 the color is not black. Animation is referenced by id.
 
 ```charp
@@ -6338,7 +6510,7 @@ ChromaAnimationAPI.SetKeysNonZeroColorRGB(int animationId, int frameId, int[] rz
 <a name="SetKeysNonZeroColorRGBName"></a>
 **SetKeysNonZeroColorRGBName**
 
-Set an array of animation keys to a static color for the given frame where
+Set an array of animation keys to a static color for the given frame where 
 the color is not black. Animation is referenced by name.
 
 ```charp
@@ -6350,7 +6522,7 @@ ChromaAnimationAPI.SetKeysNonZeroColorRGBName(string path, int frameId, int[] rz
 <a name="SetKeysZeroColor"></a>
 **SetKeysZeroColor**
 
-Set an array of animation keys to a static color for the given frame where
+Set an array of animation keys to a static color for the given frame where 
 the color is black. Animation is referenced by id.
 
 ```charp
@@ -6362,7 +6534,7 @@ ChromaAnimationAPI.SetKeysZeroColor(int animationId, int frameId, int[] rzkeys, 
 <a name="SetKeysZeroColorAllFrames"></a>
 **SetKeysZeroColorAllFrames**
 
-Set an array of animation keys to a static color for all frames where the
+Set an array of animation keys to a static color for all frames where the 
 color is black. Animation is referenced by id.
 
 ```charp
@@ -6374,7 +6546,7 @@ ChromaAnimationAPI.SetKeysZeroColorAllFrames(int animationId, int[] rzkeys, int 
 <a name="SetKeysZeroColorAllFramesName"></a>
 **SetKeysZeroColorAllFramesName**
 
-Set an array of animation keys to a static color for all frames where the
+Set an array of animation keys to a static color for all frames where the 
 color is black. Animation is referenced by name.
 
 ```charp
@@ -6386,7 +6558,7 @@ ChromaAnimationAPI.SetKeysZeroColorAllFramesName(string path, int[] rzkeys, int 
 <a name="SetKeysZeroColorAllFramesRGB"></a>
 **SetKeysZeroColorAllFramesRGB**
 
-Set an array of animation keys to a static color for all frames where the
+Set an array of animation keys to a static color for all frames where the 
 color is black. Animation is referenced by id.
 
 ```charp
@@ -6398,7 +6570,7 @@ ChromaAnimationAPI.SetKeysZeroColorAllFramesRGB(int animationId, int[] rzkeys, i
 <a name="SetKeysZeroColorAllFramesRGBName"></a>
 **SetKeysZeroColorAllFramesRGBName**
 
-Set an array of animation keys to a static color for all frames where the
+Set an array of animation keys to a static color for all frames where the 
 color is black. Animation is referenced by name.
 
 ```charp
@@ -6410,7 +6582,7 @@ ChromaAnimationAPI.SetKeysZeroColorAllFramesRGBName(string path, int[] rzkeys, i
 <a name="SetKeysZeroColorName"></a>
 **SetKeysZeroColorName**
 
-Set an array of animation keys to a static color for the given frame where
+Set an array of animation keys to a static color for the given frame where 
 the color is black. Animation is referenced by name.
 
 ```charp
@@ -6422,7 +6594,7 @@ ChromaAnimationAPI.SetKeysZeroColorName(string path, int frameId, int[] rzkeys, 
 <a name="SetKeysZeroColorRGB"></a>
 **SetKeysZeroColorRGB**
 
-Set an array of animation keys to a static color for the given frame where
+Set an array of animation keys to a static color for the given frame where 
 the color is black. Animation is referenced by id.
 
 ```charp
@@ -6434,7 +6606,7 @@ ChromaAnimationAPI.SetKeysZeroColorRGB(int animationId, int frameId, int[] rzkey
 <a name="SetKeysZeroColorRGBName"></a>
 **SetKeysZeroColorRGBName**
 
-Set an array of animation keys to a static color for the given frame where
+Set an array of animation keys to a static color for the given frame where 
 the color is black. Animation is referenced by name.
 
 ```charp
@@ -6446,7 +6618,7 @@ ChromaAnimationAPI.SetKeysZeroColorRGBName(string path, int frameId, int[] rzkey
 <a name="SetKeyZeroColor"></a>
 **SetKeyZeroColor**
 
-Set animation key to a static color for the given frame where the color
+Set animation key to a static color for the given frame where the color 
 is black. Animation is referenced by id.
 
 ```charp
@@ -6458,7 +6630,7 @@ ChromaAnimationAPI.SetKeyZeroColor(int animationId, int frameId, int rzkey, int 
 <a name="SetKeyZeroColorName"></a>
 **SetKeyZeroColorName**
 
-Set animation key to a static color for the given frame where the color
+Set animation key to a static color for the given frame where the color 
 is black. Animation is referenced by name.
 
 ```charp
@@ -6481,7 +6653,7 @@ double result = ChromaAnimationAPI.SetKeyZeroColorNameD(string path, double fram
 <a name="SetKeyZeroColorRGB"></a>
 **SetKeyZeroColorRGB**
 
-Set animation key to a static color for the given frame where the color
+Set animation key to a static color for the given frame where the color 
 is black. Animation is referenced by id.
 
 ```charp
@@ -6493,7 +6665,7 @@ ChromaAnimationAPI.SetKeyZeroColorRGB(int animationId, int frameId, int rzkey, i
 <a name="SetKeyZeroColorRGBName"></a>
 **SetKeyZeroColorRGBName**
 
-Set animation key to a static color for the given frame where the color
+Set animation key to a static color for the given frame where the color 
 is black. Animation is referenced by name.
 
 ```charp
@@ -6516,8 +6688,8 @@ double result = ChromaAnimationAPI.SetKeyZeroColorRGBNameD(string path, double f
 <a name="SetLogDelegate"></a>
 **SetLogDelegate**
 
-Invokes the setup for a debug logging callback so that `stdout` is redirected
-to the callback. This is used by `Unity` so that debug messages can appear
+Invokes the setup for a debug logging callback so that `stdout` is redirected 
+to the callback. This is used by `Unity` so that debug messages can appear 
 in the console window.
 
 ```charp
@@ -6595,8 +6767,8 @@ ChromaAnimationAPI.StopAll();
 <a name="StopAnimation"></a>
 **StopAnimation**
 
-Stops animation playback if in progress. Returns the animation id upon success.
-Returns -1 upon failure.
+Stops animation playback if in progress. Returns the animation id upon success. 
+Returns negative one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.StopAnimation(int animationId);
@@ -6618,8 +6790,8 @@ double result = ChromaAnimationAPI.StopAnimationD(double animationId);
 <a name="StopAnimationName"></a>
 **StopAnimationName**
 
-`PluginStopAnimationName` automatically handles initializing the `ChromaSDK`.
-The named `.chroma` animation file will be automatically opened. The animation
+`PluginStopAnimationName` automatically handles initializing the `ChromaSDK`. 
+The named `.chroma` animation file will be automatically opened. The animation 
 will stop if playing.
 
 ```charp
@@ -6642,8 +6814,8 @@ double result = ChromaAnimationAPI.StopAnimationNameD(string path);
 <a name="StopAnimationType"></a>
 **StopAnimationType**
 
-`PluginStopAnimationType` automatically handles initializing the `ChromaSDK`.
-If any animation is playing for the `deviceType` and `device` combination,
+`PluginStopAnimationType` automatically handles initializing the `ChromaSDK`. 
+If any animation is playing for the `deviceType` and `device` combination, 
 it will be stopped.
 
 ```charp
@@ -6666,8 +6838,8 @@ double result = ChromaAnimationAPI.StopAnimationTypeD(double deviceType, double 
 <a name="StopComposite"></a>
 **StopComposite**
 
-`PluginStopComposite` automatically handles initializing the `ChromaSDK`.
-The named animation files for the `.chroma` set will be automatically opened.
+`PluginStopComposite` automatically handles initializing the `ChromaSDK`. 
+The named animation files for the `.chroma` set will be automatically opened. 
 The set of animations will be stopped if playing.
 
 ```charp
@@ -6698,10 +6870,22 @@ int result = ChromaAnimationAPI.SubtractColor(int color1, int color2);
 
 ---
 
+<a name="SubtractNonZeroAllKeys"></a>
+**SubtractNonZeroAllKeys**
+
+Subtract the source color from the target color for the frame where the 
+target color is not black. Source and target are referenced by id.
+
+```charp
+ChromaAnimationAPI.SubtractNonZeroAllKeys(int sourceAnimationId, int targetAnimationId, int frameId);
+```
+
+---
+
 <a name="SubtractNonZeroAllKeysAllFrames"></a>
 **SubtractNonZeroAllKeysAllFrames**
 
-Subtract the source color from the target color for all frames where the
+Subtract the source color from the target color for all frames where the 
 target color is not black. Source and target are referenced by id.
 
 ```charp
@@ -6713,7 +6897,7 @@ ChromaAnimationAPI.SubtractNonZeroAllKeysAllFrames(int sourceAnimationId, int ta
 <a name="SubtractNonZeroAllKeysAllFramesName"></a>
 **SubtractNonZeroAllKeysAllFramesName**
 
-Subtract the source color from the target color for all frames where the
+Subtract the source color from the target color for all frames where the 
 target color is not black. Source and target are referenced by name.
 
 ```charp
@@ -6736,8 +6920,8 @@ double result = ChromaAnimationAPI.SubtractNonZeroAllKeysAllFramesNameD(string s
 <a name="SubtractNonZeroAllKeysAllFramesOffset"></a>
 **SubtractNonZeroAllKeysAllFramesOffset**
 
-Subtract the source color from the target color for all frames where the
-target color is not black starting at offset for the length of the source.
+Subtract the source color from the target color for all frames where the 
+target color is not black starting at offset for the length of the source. 
 Source and target are referenced by id.
 
 ```charp
@@ -6749,8 +6933,8 @@ ChromaAnimationAPI.SubtractNonZeroAllKeysAllFramesOffset(int sourceAnimationId, 
 <a name="SubtractNonZeroAllKeysAllFramesOffsetName"></a>
 **SubtractNonZeroAllKeysAllFramesOffsetName**
 
-Subtract the source color from the target color for all frames where the
-target color is not black starting at offset for the length of the source.
+Subtract the source color from the target color for all frames where the 
+target color is not black starting at offset for the length of the source. 
 Source and target are referenced by name.
 
 ```charp
@@ -6770,10 +6954,22 @@ double result = ChromaAnimationAPI.SubtractNonZeroAllKeysAllFramesOffsetNameD(st
 
 ---
 
+<a name="SubtractNonZeroAllKeysName"></a>
+**SubtractNonZeroAllKeysName**
+
+Subtract the source color from the target color for the frame where the 
+target color is not black. Source and target are referenced by name.
+
+```charp
+ChromaAnimationAPI.SubtractNonZeroAllKeysName(string sourceAnimation, string targetAnimation, int frameId);
+```
+
+---
+
 <a name="SubtractNonZeroAllKeysOffset"></a>
 **SubtractNonZeroAllKeysOffset**
 
-Subtract the source color from the target where color is not black for the
+Subtract the source color from the target where color is not black for the 
 source frame and target offset frame, reference source and target by id.
 
 ```charp
@@ -6785,7 +6981,7 @@ ChromaAnimationAPI.SubtractNonZeroAllKeysOffset(int sourceAnimationId, int targe
 <a name="SubtractNonZeroAllKeysOffsetName"></a>
 **SubtractNonZeroAllKeysOffsetName**
 
-Subtract the source color from the target where color is not black for the
+Subtract the source color from the target where color is not black for the 
 source frame and target offset frame, reference source and target by name.
 
 ```charp
@@ -6808,7 +7004,7 @@ double result = ChromaAnimationAPI.SubtractNonZeroAllKeysOffsetNameD(string sour
 <a name="SubtractNonZeroTargetAllKeysAllFrames"></a>
 **SubtractNonZeroTargetAllKeysAllFrames**
 
-Subtract the source color from the target color where the target color is
+Subtract the source color from the target color where the target color is 
 not black for all frames. Reference source and target by id.
 
 ```charp
@@ -6820,7 +7016,7 @@ ChromaAnimationAPI.SubtractNonZeroTargetAllKeysAllFrames(int sourceAnimationId, 
 <a name="SubtractNonZeroTargetAllKeysAllFramesName"></a>
 **SubtractNonZeroTargetAllKeysAllFramesName**
 
-Subtract the source color from the target color where the target color is
+Subtract the source color from the target color where the target color is 
 not black for all frames. Reference source and target by name.
 
 ```charp
@@ -6843,8 +7039,8 @@ double result = ChromaAnimationAPI.SubtractNonZeroTargetAllKeysAllFramesNameD(st
 <a name="SubtractNonZeroTargetAllKeysAllFramesOffset"></a>
 **SubtractNonZeroTargetAllKeysAllFramesOffset**
 
-Subtract the source color from the target color where the target color is
-not black for all frames starting at the target offset for the length of
+Subtract the source color from the target color where the target color is 
+not black for all frames starting at the target offset for the length of 
 the source. Reference source and target by id.
 
 ```charp
@@ -6856,8 +7052,8 @@ ChromaAnimationAPI.SubtractNonZeroTargetAllKeysAllFramesOffset(int sourceAnimati
 <a name="SubtractNonZeroTargetAllKeysAllFramesOffsetName"></a>
 **SubtractNonZeroTargetAllKeysAllFramesOffsetName**
 
-Subtract the source color from the target color where the target color is
-not black for all frames starting at the target offset for the length of
+Subtract the source color from the target color where the target color is 
+not black for all frames starting at the target offset for the length of 
 the source. Reference source and target by name.
 
 ```charp
@@ -6880,8 +7076,8 @@ double result = ChromaAnimationAPI.SubtractNonZeroTargetAllKeysAllFramesOffsetNa
 <a name="SubtractNonZeroTargetAllKeysOffset"></a>
 **SubtractNonZeroTargetAllKeysOffset**
 
-Subtract the source color from the target color where the target color is
-not black from the source frame to the target offset frame. Reference source
+Subtract the source color from the target color where the target color is 
+not black from the source frame to the target offset frame. Reference source 
 and target by id.
 
 ```charp
@@ -6893,8 +7089,8 @@ ChromaAnimationAPI.SubtractNonZeroTargetAllKeysOffset(int sourceAnimationId, int
 <a name="SubtractNonZeroTargetAllKeysOffsetName"></a>
 **SubtractNonZeroTargetAllKeysOffsetName**
 
-Subtract the source color from the target color where the target color is
-not black from the source frame to the target offset frame. Reference source
+Subtract the source color from the target color where the target color is 
+not black from the source frame to the target offset frame. Reference source 
 and target by name.
 
 ```charp
@@ -6917,8 +7113,8 @@ double result = ChromaAnimationAPI.SubtractNonZeroTargetAllKeysOffsetNameD(strin
 <a name="SubtractThresholdColorsMinMaxAllFramesRGB"></a>
 **SubtractThresholdColorsMinMaxAllFramesRGB**
 
-Subtract all frames with the min RGB color where the animation color is
-less than the min threshold AND with the max RGB color where the animation
+Subtract all frames with the min RGB color where the animation color is 
+less than the min threshold AND with the max RGB color where the animation 
 is more than the max threshold. Animation is referenced by id.
 
 ```charp
@@ -6930,8 +7126,8 @@ ChromaAnimationAPI.SubtractThresholdColorsMinMaxAllFramesRGB(int animationId, in
 <a name="SubtractThresholdColorsMinMaxAllFramesRGBName"></a>
 **SubtractThresholdColorsMinMaxAllFramesRGBName**
 
-Subtract all frames with the min RGB color where the animation color is
-less than the min threshold AND with the max RGB color where the animation
+Subtract all frames with the min RGB color where the animation color is 
+less than the min threshold AND with the max RGB color where the animation 
 is more than the max threshold. Animation is referenced by name.
 
 ```charp
@@ -6954,8 +7150,8 @@ double result = ChromaAnimationAPI.SubtractThresholdColorsMinMaxAllFramesRGBName
 <a name="SubtractThresholdColorsMinMaxRGB"></a>
 **SubtractThresholdColorsMinMaxRGB**
 
-Subtract the specified frame with the min RGB color where the animation
-color is less than the min threshold AND with the max RGB color where the
+Subtract the specified frame with the min RGB color where the animation 
+color is less than the min threshold AND with the max RGB color where the 
 animation is more than the max threshold. Animation is referenced by id.
 
 ```charp
@@ -6967,8 +7163,8 @@ ChromaAnimationAPI.SubtractThresholdColorsMinMaxRGB(int animationId, int frameId
 <a name="SubtractThresholdColorsMinMaxRGBName"></a>
 **SubtractThresholdColorsMinMaxRGBName**
 
-Subtract the specified frame with the min RGB color where the animation
-color is less than the min threshold AND with the max RGB color where the
+Subtract the specified frame with the min RGB color where the animation 
+color is less than the min threshold AND with the max RGB color where the 
 animation is more than the max threshold. Animation is referenced by name.
 
 ```charp
@@ -6991,9 +7187,8 @@ double result = ChromaAnimationAPI.SubtractThresholdColorsMinMaxRGBNameD(string 
 <a name="TrimEndFrames"></a>
 **TrimEndFrames**
 
-Trim the end of the animation. The length of the animation will be the lastFrameId
-
-* 1. Reference the animation by id.
+Trim the end of the animation. The length of the animation will be the lastFrameId 
+plus one. Reference the animation by id.
 
 ```charp
 ChromaAnimationAPI.TrimEndFrames(int animationId, int lastFrameId);
@@ -7004,9 +7199,8 @@ ChromaAnimationAPI.TrimEndFrames(int animationId, int lastFrameId);
 <a name="TrimEndFramesName"></a>
 **TrimEndFramesName**
 
-Trim the end of the animation. The length of the animation will be the lastFrameId
-
-* 1. Reference the animation by name.
+Trim the end of the animation. The length of the animation will be the lastFrameId 
+plus one. Reference the animation by name.
 
 ```charp
 ChromaAnimationAPI.TrimEndFramesName(string path, int lastFrameId);
@@ -7061,7 +7255,7 @@ double result = ChromaAnimationAPI.TrimFrameNameD(string path, double frameId);
 <a name="TrimStartFrames"></a>
 **TrimStartFrames**
 
-Trim the start of the animation starting at frame 0 for the number of frames.
+Trim the start of the animation starting at frame 0 for the number of frames. 
 Reference the animation by id.
 
 ```charp
@@ -7073,7 +7267,7 @@ ChromaAnimationAPI.TrimStartFrames(int animationId, int numberOfFrames);
 <a name="TrimStartFramesName"></a>
 **TrimStartFramesName**
 
-Trim the start of the animation starting at frame 0 for the number of frames.
+Trim the start of the animation starting at frame 0 for the number of frames. 
 Reference the animation by name.
 
 ```charp
@@ -7096,7 +7290,8 @@ double result = ChromaAnimationAPI.TrimStartFramesNameD(string path, double numb
 <a name="Uninit"></a>
 **Uninit**
 
-Uninitializes the `ChromaSDK`. Returns 0 upon success. Returns -1 upon failure.
+Uninitializes the `ChromaSDK`. Returns 0 upon success. Returns negative 
+one upon failure.
 
 ```charp
 int result = ChromaAnimationAPI.Uninit();
@@ -7118,8 +7313,9 @@ double result = ChromaAnimationAPI.UninitD();
 <a name="UnloadAnimation"></a>
 **UnloadAnimation**
 
-Unloads `Chroma` effects to free up resources. Returns the animation id
-upon success. Returns -1 upon failure. Reference the animation by id.
+Unloads `Chroma` effects to free up resources. Returns the animation id 
+upon success. Returns negative one upon failure. Reference the animation 
+by id.
 
 ```charp
 int result = ChromaAnimationAPI.UnloadAnimation(int animationId);
@@ -7152,7 +7348,7 @@ ChromaAnimationAPI.UnloadAnimationName(string path);
 <a name="UnloadComposite"></a>
 **UnloadComposite**
 
-Unload the the composite set of animation effects. Reference the animation
+Unload the the composite set of animation effects. Reference the animation 
 by name.
 
 ```charp
@@ -7186,17 +7382,17 @@ ChromaAnimationAPI.UnloadLibraryStreamingPlugin();
 <a name="UpdateFrame"></a>
 **UpdateFrame**
 
-Updates the `frameIndex` of the `Chroma` animation and sets the `duration`
-(in seconds). The `color` is expected to be an array of the dimensions
-for the `deviceType/device`. The `length` parameter is the size of the
-`color` array. For `EChromaSDKDevice1DEnum` the array size should be `MAX
-LEDS`. For `EChromaSDKDevice2DEnum` the array size should be `MAX ROW`
-
-* `MAX COLUMN`. Returns the animation id upon success. Returns -1 upon
-failure.
+Updates the `frameIndex` of the `Chroma` animation referenced by id and 
+sets the `duration` (in seconds). The `color` is expected to be an array 
+of the dimensions for the `deviceType/device`. The `length` parameter is 
+the size of the `color` array. For `EChromaSDKDevice1DEnum` the array size 
+should be `MAX LEDS`. For `EChromaSDKDevice2DEnum` the array size should 
+be `MAX ROW` times `MAX COLUMN`. Keys are populated only for EChromaSDKDevice2DEnum::DE_Keyboard 
+and EChromaSDKDevice2DEnum::DE_KeyboardExtended. Keys will only use the 
+EChromaSDKDevice2DEnum::DE_Keyboard `MAX_ROW` times `MAX_COLUMN` keysLength.
 
 ```charp
-int result = ChromaAnimationAPI.UpdateFrame(int animationId, int frameIndex, float duration, int[] colors, int length);
+int result = ChromaAnimationAPI.UpdateFrame(int animationId, int frameIndex, float duration, int[] colors, int length, int[] keys, int keysLength);
 ```
 
 ---
@@ -7204,17 +7400,30 @@ int result = ChromaAnimationAPI.UpdateFrame(int animationId, int frameIndex, flo
 <a name="UpdateFrameName"></a>
 **UpdateFrameName**
 
-Updates the `frameIndex` of the `Chroma` animation and sets the `duration`
-(in seconds). The `color` is expected to be an array of the dimensions
-for the `deviceType/device`. The `length` parameter is the size of the
-`color` array. For `EChromaSDKDevice1DEnum` the array size should be `MAX
-LEDS`. For `EChromaSDKDevice2DEnum` the array size should be `MAX ROW`
-
-* `MAX COLUMN`. Returns the animation id upon success. Returns -1 upon
-failure.
+Update the `frameIndex` of the `Chroma` animation referenced by name and 
+sets the `duration` (in seconds). The `color` is expected to be an array 
+of the dimensions for the `deviceType/device`. The `length` parameter is 
+the size of the `color` array. For `EChromaSDKDevice1DEnum` the array size 
+should be `MAX LEDS`. For `EChromaSDKDevice2DEnum` the array size should 
+be `MAX ROW` times `MAX COLUMN`. Keys are populated only for EChromaSDKDevice2DEnum::DE_Keyboard 
+and EChromaSDKDevice2DEnum::DE_KeyboardExtended. Keys will only use the 
+EChromaSDKDevice2DEnum::DE_Keyboard `MAX_ROW` times `MAX_COLUMN` keysLength. 
+Returns the animation id upon success. Returns negative one upon failure.
 
 ```charp
-int result = ChromaAnimationAPI.UpdateFrameName(string path, int frameIndex, float duration, int[] colors, int length);
+int result = ChromaAnimationAPI.UpdateFrameName(string path, int frameIndex, float duration, int[] colors, int length, int[] keys, int keysLength);
+```
+
+---
+
+<a name="UseForwardChromaEvents"></a>
+**UseForwardChromaEvents**
+
+On by default, `UseForwardChromaEvents` sends the animation name to `CoreSetEventName` 
+automatically when `PlayAnimationName` is called.
+
+```charp
+ChromaAnimationAPI.UseForwardChromaEvents(bool flag);
 ```
 
 ---
@@ -7222,10 +7431,10 @@ int result = ChromaAnimationAPI.UpdateFrameName(string path, int frameIndex, flo
 <a name="UseIdleAnimation"></a>
 **UseIdleAnimation**
 
-When the idle animation flag is true, when no other animations are playing,
-the idle animation will be used. The idle animation will not be affected
-by the API calls to PluginIsPlaying, PluginStopAnimationType, PluginGetPlayingAnimationId,
-and PluginGetPlayingAnimationCount. Then the idle animation flag is false,
+When the idle animation flag is true, when no other animations are playing, 
+the idle animation will be used. The idle animation will not be affected 
+by the API calls to PluginIsPlaying, PluginStopAnimationType, PluginGetPlayingAnimationId, 
+and PluginGetPlayingAnimationCount. Then the idle animation flag is false, 
 the idle animation is disabled. `Device` uses `EChromaSDKDeviceEnum` enums.
 
 ```charp
@@ -7248,7 +7457,7 @@ ChromaAnimationAPI.UseIdleAnimations(bool flag);
 <a name="UsePreloading"></a>
 **UsePreloading**
 
-Set preloading animation flag, which is set to true by default. Reference
+Set preloading animation flag, which is set to true by default. Reference 
 animation by id.
 
 ```charp
@@ -7260,7 +7469,7 @@ ChromaAnimationAPI.UsePreloading(int animationId, bool flag);
 <a name="UsePreloadingName"></a>
 **UsePreloadingName**
 
-Set preloading animation flag, which is set to true by default. Reference
+Set preloading animation flag, which is set to true by default. Reference 
 animation by name.
 
 ```charp
