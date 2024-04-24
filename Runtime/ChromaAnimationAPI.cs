@@ -2129,17 +2129,17 @@ namespace ChromaSDK
 		/// <summary>
 		/// Direct access to low level API.
 		/// </summary>
-		public static int CoreIsActive(BOOL& active)
+		public static int CoreIsActive(out bool active)
 		{
-			int result = PluginCoreIsActive(active);
+			int result = PluginCoreIsActive(out active);
 			return result;
 		}
 		/// <summary>
 		/// Direct access to low level API.
 		/// </summary>
-		public static int CoreIsConnected(ChromaSDK::DEVICE_INFO_TYPE& deviceInfo)
+		public static int CoreIsConnected(ref DEVICE_INFO_TYPE deviceInfo)
 		{
-			int result = PluginCoreIsConnected(deviceInfo);
+			int result = PluginCoreIsConnected(ref deviceInfo);
 			return result;
 		}
 		/// <summary>
@@ -2158,22 +2158,24 @@ namespace ChromaSDK
 			int result = PluginCoreSetEffect(effectId);
 			return result;
 		}
-		/// <summary>
-		/// Direct access to low level API.
-		/// </summary>
-		public static int CoreSetEventName(LPCTSTR name)
-		{
-			int result = PluginCoreSetEventName(name);
-			return result;
-		}
-		/// <summary>
-		/// Begin broadcasting Chroma RGB data using the stored stream key as the endpoint. 
-		/// Intended for Cloud Gaming Platforms, restore the streaming key when the 
-		/// game instance is launched to continue streaming. streamId is a null terminated 
-		/// string streamKey is a null terminated string StreamGetStatus() should return 
-		/// the READY status to use this method.
-		/// </summary>
-		public static bool CoreStreamBroadcast(string streamId, string streamKey)
+        /// <summary>
+        /// Direct access to low level API.
+        /// </summary>
+        public static int CoreSetEventName(string name)
+        {
+            IntPtr lp_Name = GetUnicodeIntPtr(name);
+            int result = PluginCoreSetEventName(lp_Name);
+            FreeIntPtr(lp_Name);
+            return result;
+        }
+        /// <summary>
+        /// Begin broadcasting Chroma RGB data using the stored stream key as the endpoint. 
+        /// Intended for Cloud Gaming Platforms, restore the streaming key when the 
+        /// game instance is launched to continue streaming. streamId is a null terminated 
+        /// string streamKey is a null terminated string StreamGetStatus() should return 
+        /// the READY status to use this method.
+        /// </summary>
+        public static bool CoreStreamBroadcast(string streamId, string streamKey)
 		{
 			string str_StreamId = streamId;
 			IntPtr lp_StreamId = GetAsciiIntPtr(str_StreamId);
@@ -7399,13 +7401,13 @@ namespace ChromaSDK
 		/// EXPORT_API RZRESULT PluginCoreIsActive(BOOL& Active);
 		/// </summary>
 		[DllImport(DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int PluginCoreIsActive(BOOL& active);
+		private static extern int PluginCoreIsActive(out bool active);
 		/// <summary>
 		/// Direct access to low level API.
 		/// EXPORT_API RZRESULT PluginCoreIsConnected(ChromaSDK::DEVICE_INFO_TYPE& DeviceInfo);
 		/// </summary>
 		[DllImport(DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int PluginCoreIsConnected(out DEVICE_INFO_TYPE deviceInfo);
+		private static extern int PluginCoreIsConnected(ref DEVICE_INFO_TYPE deviceInfo);
 		/// <summary>
 		/// Direct access to low level API.
 		/// EXPORT_API RZRESULT PluginCoreQueryDevice(RZDEVICEID DeviceId, ChromaSDK::DEVICE_INFO_TYPE& DeviceInfo);
@@ -7423,7 +7425,7 @@ namespace ChromaSDK
 		/// EXPORT_API RZRESULT PluginCoreSetEventName(LPCTSTR Name);
 		/// </summary>
 		[DllImport(DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int PluginCoreSetEventName(LPCTSTR name);
+		private static extern int PluginCoreSetEventName(IntPtr name);
 		/// <summary>
 		/// Begin broadcasting Chroma RGB data using the stored stream key as the endpoint. 
 		/// Intended for Cloud Gaming Platforms, restore the streaming key when the 
