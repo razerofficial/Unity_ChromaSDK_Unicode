@@ -5,9 +5,9 @@
   "description": "Razer Chroma SDK for Unity",
   "unity": "2021.3",
   "unityRelease": "15f1",
-  "documentationUrl": "https://github.com/razerofficial/Unity_ChromaSDK",
-  "changelogUrl": "https://github.com/razerofficial/Unity_ChromaSDK?#changelog",
-  "licensesUrl": "https://github.com/razerofficial/Unity_ChromaSDK?#licensing",
+  "documentationUrl": "https://github.com/razerofficial/Unity_ChromaSDK_Unicode",
+  "changelogUrl": "https://github.com/razerofficial/Unity_ChromaSDK_Unicode?#changelog",
+  "licensesUrl": "https://github.com/razerofficial/Unity_ChromaSDK_Unicode?#licensing",
   "dependencies": {
     "com.unity.textmeshpro": "3.0.6"
   },
