@@ -671,6 +671,8 @@ The `ChromaAnimationAPI` class provides a wrapper for the Chroma Editor Library.
 * [GetFrameCount](#GetFrameCount)
 * [GetFrameCountName](#GetFrameCountName)
 * [GetFrameCountNameD](#GetFrameCountNameD)
+* [GetFrameDuration](#GetFrameDuration)
+* [GetFrameDurationName](#GetFrameDurationName)
 * [GetFrameName](#GetFrameName)
 * [GetKeyColor](#GetKeyColor)
 * [GetKeyColorD](#GetKeyColorD)
@@ -687,6 +689,8 @@ The `ChromaAnimationAPI` class provides a wrapper for the Chroma Editor Library.
 * [GetPlayingAnimationId](#GetPlayingAnimationId)
 * [GetRGB](#GetRGB)
 * [GetRGBD](#GetRGBD)
+* [GetTotalDuration](#GetTotalDuration)
+* [GetTotalDurationName](#GetTotalDurationName)
 * [HasAnimationLoop](#HasAnimationLoop)
 * [HasAnimationLoopName](#HasAnimationLoopName)
 * [HasAnimationLoopNameD](#HasAnimationLoopNameD)
@@ -4006,7 +4010,7 @@ EChromaSDKDevice2DEnum::DE_Keyboard `MAX_ROW` times `MAX_COLUMN` keysLength.
 Returns the animation id upon success. Returns negative one upon failure.
 
 ```charp
-int result = ChromaAnimationAPI.GetFrame(int animationId, int frameIndex, out float duration, int[] colors, int length, int[] keys, int keysLength);
+int result = ChromaAnimationAPI.GetFrame(int animationId, int frameId, out float duration, int[] colors, int length, int[] keys, int keysLength);
 ```
 
 ---
@@ -4046,6 +4050,30 @@ double result = ChromaAnimationAPI.GetFrameCountNameD(string path);
 
 ---
 
+<a name="GetFrameDuration"></a>
+**GetFrameDuration**
+
+Returns the duration of an animation frame in seconds upon success. Returns 
+zero upon failure.
+
+```charp
+float result = ChromaAnimationAPI.GetFrameDuration(int animationId, int frameId);
+```
+
+---
+
+<a name="GetFrameDurationName"></a>
+**GetFrameDurationName**
+
+Returns the duration of an animation frame in seconds upon success. Returns 
+zero upon failure.
+
+```charp
+float result = ChromaAnimationAPI.GetFrameDurationName(string path, int frameId);
+```
+
+---
+
 <a name="GetFrameName"></a>
 **GetFrameName**
 
@@ -4060,7 +4088,7 @@ EChromaSDKDevice2DEnum::DE_Keyboard `MAX_ROW` times `MAX_COLUMN` keysLength.
 Returns the animation id upon success. Returns negative one upon failure.
 
 ```charp
-int result = ChromaAnimationAPI.GetFrameName(string path, int frameIndex, out float duration, int[] colors, int length, int[] keys, int keysLength);
+int result = ChromaAnimationAPI.GetFrameName(string path, int frameId, out float duration, int[] colors, int length, int[] keys, int keysLength);
 ```
 
 ---
@@ -4235,6 +4263,30 @@ D suffix for limited data types.
 
 ```charp
 double result = ChromaAnimationAPI.GetRGBD(double red, double green, double blue);
+```
+
+---
+
+<a name="GetTotalDuration"></a>
+**GetTotalDuration**
+
+Returns the total duration of an animation in seconds upon success. Returns 
+zero upon failure.
+
+```charp
+float result = ChromaAnimationAPI.GetTotalDuration(int animationId);
+```
+
+---
+
+<a name="GetTotalDurationName"></a>
+**GetTotalDurationName**
+
+Returns the total duration of an animation in seconds upon success. Returns 
+zero upon failure.
+
+```charp
+float result = ChromaAnimationAPI.GetTotalDurationName(string path);
 ```
 
 ---
@@ -5728,11 +5780,11 @@ double result = ChromaAnimationAPI.PlayCompositeD(string name, double loop);
 <a name="PreviewFrame"></a>
 **PreviewFrame**
 
-Displays the `Chroma` animation frame on `Chroma` hardware given the `frameIndex`. 
+Displays the `Chroma` animation frame on `Chroma` hardware given the `frameId`. 
 Returns the animation id upon success. Returns negative one upon failure.
 
 ```charp
-int result = ChromaAnimationAPI.PreviewFrame(int animationId, int frameIndex);
+int result = ChromaAnimationAPI.PreviewFrame(int animationId, int frameId);
 ```
 
 ---
@@ -5743,7 +5795,7 @@ int result = ChromaAnimationAPI.PreviewFrame(int animationId, int frameIndex);
 D suffix for limited data types.
 
 ```charp
-double result = ChromaAnimationAPI.PreviewFrameD(double animationId, double frameIndex);
+double result = ChromaAnimationAPI.PreviewFrameD(double animationId, double frameId);
 ```
 
 ---
@@ -5751,11 +5803,11 @@ double result = ChromaAnimationAPI.PreviewFrameD(double animationId, double fram
 <a name="PreviewFrameName"></a>
 **PreviewFrameName**
 
-Displays the `Chroma` animation frame on `Chroma` hardware given the `frameIndex`. 
+Displays the `Chroma` animation frame on `Chroma` hardware given the `frameId`. 
 Animaton is referenced by name.
 
 ```charp
-ChromaAnimationAPI.PreviewFrameName(string path, int frameIndex);
+ChromaAnimationAPI.PreviewFrameName(string path, int frameId);
 ```
 
 ---
@@ -7434,17 +7486,17 @@ ChromaAnimationAPI.UnloadLibraryStreamingPlugin();
 <a name="UpdateFrame"></a>
 **UpdateFrame**
 
-Updates the `frameIndex` of the `Chroma` animation referenced by id and 
-sets the `duration` (in seconds). The `color` is expected to be an array 
-of the dimensions for the `deviceType/device`. The `length` parameter is 
-the size of the `color` array. For `EChromaSDKDevice1DEnum` the array size 
+Updates the `frameId` of the `Chroma` animation referenced by id and sets 
+the `duration` (in seconds). The `color` is expected to be an array of 
+the dimensions for the `deviceType/device`. The `length` parameter is the 
+size of the `color` array. For `EChromaSDKDevice1DEnum` the array size 
 should be `MAX LEDS`. For `EChromaSDKDevice2DEnum` the array size should 
 be `MAX ROW` times `MAX COLUMN`. Keys are populated only for EChromaSDKDevice2DEnum::DE_Keyboard 
 and EChromaSDKDevice2DEnum::DE_KeyboardExtended. Keys will only use the 
 EChromaSDKDevice2DEnum::DE_Keyboard `MAX_ROW` times `MAX_COLUMN` keysLength.
 
 ```charp
-int result = ChromaAnimationAPI.UpdateFrame(int animationId, int frameIndex, float duration, int[] colors, int length, int[] keys, int keysLength);
+int result = ChromaAnimationAPI.UpdateFrame(int animationId, int frameId, float duration, int[] colors, int length, int[] keys, int keysLength);
 ```
 
 ---
@@ -7452,10 +7504,10 @@ int result = ChromaAnimationAPI.UpdateFrame(int animationId, int frameIndex, flo
 <a name="UpdateFrameName"></a>
 **UpdateFrameName**
 
-Update the `frameIndex` of the `Chroma` animation referenced by name and 
-sets the `duration` (in seconds). The `color` is expected to be an array 
-of the dimensions for the `deviceType/device`. The `length` parameter is 
-the size of the `color` array. For `EChromaSDKDevice1DEnum` the array size 
+Update the `frameId` of the `Chroma` animation referenced by name and sets 
+the `duration` (in seconds). The `color` is expected to be an array of 
+the dimensions for the `deviceType/device`. The `length` parameter is the 
+size of the `color` array. For `EChromaSDKDevice1DEnum` the array size 
 should be `MAX LEDS`. For `EChromaSDKDevice2DEnum` the array size should 
 be `MAX ROW` times `MAX COLUMN`. Keys are populated only for EChromaSDKDevice2DEnum::DE_Keyboard 
 and EChromaSDKDevice2DEnum::DE_KeyboardExtended. Keys will only use the 
@@ -7463,7 +7515,7 @@ EChromaSDKDevice2DEnum::DE_Keyboard `MAX_ROW` times `MAX_COLUMN` keysLength.
 Returns the animation id upon success. Returns negative one upon failure.
 
 ```charp
-int result = ChromaAnimationAPI.UpdateFrameName(string path, int frameIndex, float duration, int[] colors, int length, int[] keys, int keysLength);
+int result = ChromaAnimationAPI.UpdateFrameName(string path, int frameId, float duration, int[] colors, int length, int[] keys, int keysLength);
 ```
 
 ---
