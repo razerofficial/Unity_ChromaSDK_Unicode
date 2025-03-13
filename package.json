@@ -1,6 +1,6 @@
 {
   "name": "com.razer.chromasdk",
-  "version": "1.0.11",
+  "version": "2.0.1",
   "displayName": "Razer Chroma SDK",
   "description": "Razer Chroma SDK for Unity",
   "unity": "2021.3",

@@ -144,26 +144,33 @@ public class Chromatic : MonoBehaviour
     {
         if (_mToggleInitChromaSDK.isOn)
         {
-            APPINFOTYPE appInfo = new APPINFOTYPE();
-            appInfo.Title = "Unity Sample Scene - Chromatic";
-            appInfo.Description = "A sample application using Razer Chroma SDK";
+            if (!ChromaAnimationAPI.IsChromaSDKAvailable())
+            {
+                _mInitResult = RazerErrors.RZRESULT_DLL_NOT_FOUND;
+            }
+            else
+            {
+                APPINFOTYPE appInfo = new APPINFOTYPE();
+                appInfo.Title = "Unity Sample Scene - Chromatic";
+                appInfo.Description = "A sample application using Razer Chroma SDK";
 
-            appInfo.Author_Name = "Razer";
-            appInfo.Author_Contact = "https://developer.razer.com/chroma";
+                appInfo.Author_Name = "Razer";
+                appInfo.Author_Contact = "https://developer.razer.com/chroma";
 
-            //appInfo.SupportedDevice = 
-            //    0x01 | // Keyboards
-            //    0x02 | // Mice
-            //    0x04 | // Headset
-            //    0x08 | // Mousepads
-            //    0x10 | // Keypads
-            //    0x20   // ChromaLink devices
-            appInfo.SupportedDevice = (0x01 | 0x02 | 0x04 | 0x08 | 0x10 | 0x20);
-            //    0x01 | // Utility. (To specifiy this is an utility application)
-            //    0x02   // Game. (To specifiy this is a game);
-            appInfo.Category = 1;
+                //appInfo.SupportedDevice = 
+                //    0x01 | // Keyboards
+                //    0x02 | // Mice
+                //    0x04 | // Headset
+                //    0x08 | // Mousepads
+                //    0x10 | // Keypads
+                //    0x20   // ChromaLink devices
+                appInfo.SupportedDevice = (0x01 | 0x02 | 0x04 | 0x08 | 0x10 | 0x20);
+                //    0x01 | // Utility. (To specifiy this is an utility application)
+                //    0x02   // Game. (To specifiy this is a game);
+                appInfo.Category = 1;
 
-            _mInitResult = ChromaAnimationAPI.InitSDK(ref appInfo);
+                _mInitResult = ChromaAnimationAPI.InitSDK(ref appInfo);
+            }
 
             if (_mInitResult == RazerErrors.RZRESULT_SUCCESS)
             {

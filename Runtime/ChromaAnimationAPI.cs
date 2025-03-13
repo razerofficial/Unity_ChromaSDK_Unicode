@@ -303,11 +303,23 @@ namespace ChromaSDK
             try
             {
                 String fileName;
+
 #if UNITY_64
-                fileName = @"C:\Program Files\Razer Chroma SDK\bin\RzChromatic64.dll";
+                // Get SysWOW64 folder
+                fileName = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+                    "System32",
+                    "RzChromatic64.dll"
+                );
 #else
-                fileName = @"C:\Program Files (x86)\Razer Chroma SDK\bin\RzChromatic.dll";
+                // Get system32 folder
+                fileName = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+                    "SysWOW64",
+                    "RzChromatic.dll"
+                );
 #endif
+
                 FileInfo fi = new FileInfo(fileName);
                 if (!fi.Exists)
                 {
@@ -356,10 +368,10 @@ namespace ChromaSDK
                 // Anything less than the min version returns false
 
                 // major, minor, build, revision ref: https://learn.microsoft.com/en-us/dotnet/api/system.reflection.assemblyversionattribute.-ctor?source=recommendations&view=net-7.0
-                const int minMajor = 1;
+                const int minMajor = 2;
                 const int minMinor = 0;
                 const int minBuild = 0;
-                const int minRevision = 6;
+                const int minRevision = 0;
 
                 if (major < minMajor) // Less than minMajor
                 {
