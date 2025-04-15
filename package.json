@@ -1,13 +1,13 @@
 {
   "name": "com.razer.chromasdk",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "displayName": "Razer Chroma SDK",
   "description": "Razer Chroma SDK for Unity",
   "unity": "2021.3",
   "unityRelease": "15f1",
-  "documentationUrl": "https://github.com/razerofficial/Unity_ChromaSDK_Unicode",
-  "changelogUrl": "https://github.com/razerofficial/Unity_ChromaSDK_Unicode?#changelog",
-  "licensesUrl": "https://github.com/razerofficial/Unity_ChromaSDK_Unicode?#licensing",
+  "documentationUrl": "https://github.com/razerofficial/Unity_ChromaSDK_Unicode/tree/UNICODE_WITHOUT_DLL",
+  "changelogUrl": "https://github.com/razerofficial/Unity_ChromaSDK_Unicode/tree/UNICODE_WITHOUT_DLL?#changelog",
+  "licensesUrl": "https://github.com/razerofficial/Unity_ChromaSDK_Unicode/tree/UNICODE_WITHOUT_DLL?#licensing",
   "dependencies": {
     "com.unity.textmeshpro": "3.0.6"
   },

@@ -244,17 +244,17 @@ namespace ChromaSDK
 
 #if PLATFORM_XBOXONE
     #if UNITY_EDITOR
-        const string DLL_NAME = "CChromaEditorLibrary";
+        const string DLL_NAME = "RzChromatic";
     #else
-        const string DLL_NAME = "XDKChromaEditorLibrary";
+        const string DLL_NAME = "RzChromatic";
     #endif
 #else
     #if UNITY_3 || UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4 || UNITY_3_5
-        const string DLL_NAME = "CChromaEditorLibrary3";
+        const string DLL_NAME = "RzChromatic";
     #elif UNITY_64 || UNITY_EDITOR
-        const string DLL_NAME = "CChromaEditorLibrary64";
+        const string DLL_NAME = "RzChromatic64";
     #else
-        const string DLL_NAME = "CChromaEditorLibrary";
+        const string DLL_NAME = "RzChromatic";
     #endif
 #endif
 
