@@ -239,7 +239,7 @@ namespace ChromaSDK
         }
     }
 
-    public class ChromaAnimationAPI
+    public static class ChromaAnimationAPI
     {
 
 #if PLATFORM_XBOXONE
@@ -291,15 +291,12 @@ namespace ChromaSDK
 
 #endif
 
-        /// <summary>
-        /// Check if the ChromaSDK DLL exists before calling API Methods
-        /// </summary>
-        /// <returns></returns>
-        public static bool IsChromaSDKAvailable()
-        {
-#if PLATFORM_XBOXONE
-			return true;
-#endif
+		static bool _sIsChromaticAvailable = false;
+
+        static ChromaAnimationAPI()
+		{
+            _sIsChromaticAvailable = false;
+
             try
             {
                 String fileName;
@@ -323,7 +320,7 @@ namespace ChromaSDK
                 FileInfo fi = new FileInfo(fileName);
                 if (!fi.Exists)
                 {
-                    return false;
+                    return;
                 }
 
 #if ENABLE_IL2CPP
@@ -338,31 +335,31 @@ namespace ChromaSDK
                 String[] versionParts = fileVersion.Split(".".ToCharArray());
                 if (versionParts.Length < 4)
                 {
-                    return false;
+                    return;
                 }
 
                 int major;
                 if (!int.TryParse(versionParts[0], out major))
                 {
-                    return false;
+                    return;
                 }
 
                 int minor;
                 if (!int.TryParse(versionParts[1], out minor))
                 {
-                    return false;
+                    return;
                 }
 
                 int build;
                 if (!int.TryParse(versionParts[2], out build))
                 {
-                    return false;
+                    return;
                 }
 
                 int revision;
                 if (!int.TryParse(versionParts[3], out revision))
                 {
-                    return false;
+                    return;
                 }
 
                 // Anything less than the min version returns false
@@ -370,36 +367,44 @@ namespace ChromaSDK
                 // major, minor, build, revision ref: https://learn.microsoft.com/en-us/dotnet/api/system.reflection.assemblyversionattribute.-ctor?source=recommendations&view=net-7.0
                 const int minMajor = 2;
                 const int minMinor = 0;
-                const int minBuild = 0;
+                const int minBuild = 2;
                 const int minRevision = 0;
 
                 if (major < minMajor) // Less than minMajor
                 {
-                    return false;
+                    return;
                 }
 
                 if (major == minMajor && minor < minMinor) // Less than minMinor
                 {
-                    return false;
+                    return;
                 }
 
                 if (major == minMajor && minor == minMinor && build < minBuild) // Less than minBuild
                 {
-                    return false;
+                    return;
                 }
 
                 if (major == minMajor && minor == minMinor && build == minBuild && revision < minRevision) // Less than minRevision
                 {
-                    return false;
+                    return;
                 }
 
-                return true; // production version or better
+                _sIsChromaticAvailable = true; // production version or better
             }
             catch (Exception ex)
             {
                 Debug.LogError(string.Format("The ChromaSDK is not available! Exception={0}", ex));
             }
-            return false;
+        }
+
+        /// <summary>
+        /// Check if the ChromaSDK DLL exists before calling API Methods
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsChromaSDKAvailable()
+        {
+			return _sIsChromaticAvailable;
         }
 
 #region Data Structures
@@ -743,16 +748,25 @@ namespace ChromaSDK
         {
             return string.Format("{0}/{1}", _sStreamingAssetPath, animation);
         }
-#endregion
+		#endregion
 
 
 		#region Public API Methods
+		private static bool _sInitialized = false;
 		public static string _sStreamingAssetPath = string.Empty;
 		/// <summary>
 		/// Return the sum of colors
 		/// </summary>
 		public static int AddColor(int color1, int color2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			int result = PluginAddColor(color1, color2);
 			return result;
 		}
@@ -766,7 +780,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static int AddFrame(int animationId, float duration, int[] colors, int length)
 		{
-			int result = PluginAddFrame(animationId, duration, colors, length);
+            if (!_sIsChromaticAvailable)
+            {
+                return -1;
+            }
+            if (!_sInitialized)
+            {
+                return -1;
+            }
+            int result = PluginAddFrame(animationId, duration, colors, length);
 			return result;
 		}
 		/// <summary>
@@ -775,7 +797,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void AddNonZeroAllKeys(int sourceAnimationId, int targetAnimationId, int frameId)
 		{
-			PluginAddNonZeroAllKeys(sourceAnimationId, targetAnimationId, frameId);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            PluginAddNonZeroAllKeys(sourceAnimationId, targetAnimationId, frameId);
 		}
 		/// <summary>
 		/// Add source color to target where color is not black for all frames, reference 
@@ -783,7 +813,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void AddNonZeroAllKeysAllFrames(int sourceAnimationId, int targetAnimationId)
 		{
-			PluginAddNonZeroAllKeysAllFrames(sourceAnimationId, targetAnimationId);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            PluginAddNonZeroAllKeysAllFrames(sourceAnimationId, targetAnimationId);
 		}
 		/// <summary>
 		/// Add source color to target where color is not black for all frames, reference 
@@ -791,7 +829,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void AddNonZeroAllKeysAllFramesName(string sourceAnimation, string targetAnimation)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -804,7 +850,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static double AddNonZeroAllKeysAllFramesNameD(string sourceAnimation, string targetAnimation)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+                return -1;
+            }
+            if (!_sInitialized)
+            {
+                return -1;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -820,7 +874,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void AddNonZeroAllKeysAllFramesOffset(int sourceAnimationId, int targetAnimationId, int offset)
 		{
-			PluginAddNonZeroAllKeysAllFramesOffset(sourceAnimationId, targetAnimationId, offset);
+            if (!_sIsChromaticAvailable)
+            {
+                return;
+            }
+            if (!_sInitialized)
+            {
+                return;
+            }
+            PluginAddNonZeroAllKeysAllFramesOffset(sourceAnimationId, targetAnimationId, offset);
 		}
 		/// <summary>
 		/// Add source color to target where color is not black for all frames starting 
@@ -829,7 +891,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void AddNonZeroAllKeysAllFramesOffsetName(string sourceAnimation, string targetAnimation, int offset)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+                return;
+            }
+            if (!_sInitialized)
+            {
+                return;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -842,7 +912,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static double AddNonZeroAllKeysAllFramesOffsetNameD(string sourceAnimation, string targetAnimation, double offset)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+                return -1;
+            }
+            if (!_sInitialized)
+            {
+                return -1;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -857,7 +935,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void AddNonZeroAllKeysName(string sourceAnimation, string targetAnimation, int frameId)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -871,7 +957,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void AddNonZeroAllKeysOffset(int sourceAnimationId, int targetAnimationId, int frameId, int offset)
 		{
-			PluginAddNonZeroAllKeysOffset(sourceAnimationId, targetAnimationId, frameId, offset);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            PluginAddNonZeroAllKeysOffset(sourceAnimationId, targetAnimationId, frameId, offset);
 		}
 		/// <summary>
 		/// Add source color to target where color is not black for the source frame 
@@ -879,7 +973,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void AddNonZeroAllKeysOffsetName(string sourceAnimation, string targetAnimation, int frameId, int offset)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -892,7 +994,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static double AddNonZeroAllKeysOffsetNameD(string sourceAnimation, string targetAnimation, double frameId, double offset)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+                return -1;
+            }
+            if (!_sInitialized)
+            {
+                return -1;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -907,7 +1017,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void AddNonZeroTargetAllKeysAllFrames(int sourceAnimationId, int targetAnimationId)
 		{
-			PluginAddNonZeroTargetAllKeysAllFrames(sourceAnimationId, targetAnimationId);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            PluginAddNonZeroTargetAllKeysAllFrames(sourceAnimationId, targetAnimationId);
 		}
 		/// <summary>
 		/// Add source color to target where the target color is not black for all frames, 
@@ -915,7 +1033,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void AddNonZeroTargetAllKeysAllFramesName(string sourceAnimation, string targetAnimation)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -928,7 +1054,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static double AddNonZeroTargetAllKeysAllFramesNameD(string sourceAnimation, string targetAnimation)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+                return -1;
+            }
+            if (!_sInitialized)
+            {
+                return -1;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -944,7 +1078,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void AddNonZeroTargetAllKeysAllFramesOffset(int sourceAnimationId, int targetAnimationId, int offset)
 		{
-			PluginAddNonZeroTargetAllKeysAllFramesOffset(sourceAnimationId, targetAnimationId, offset);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            PluginAddNonZeroTargetAllKeysAllFramesOffset(sourceAnimationId, targetAnimationId, offset);
 		}
 		/// <summary>
 		/// Add source color to target where the target color is not black for all frames 
@@ -953,7 +1095,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void AddNonZeroTargetAllKeysAllFramesOffsetName(string sourceAnimation, string targetAnimation, int offset)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -966,7 +1116,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static double AddNonZeroTargetAllKeysAllFramesOffsetNameD(string sourceAnimation, string targetAnimation, double offset)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+                return -1;
+            }
+            if (!_sInitialized)
+            {
+                return -1;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -981,7 +1139,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void AddNonZeroTargetAllKeysOffset(int sourceAnimationId, int targetAnimationId, int frameId, int offset)
 		{
-			PluginAddNonZeroTargetAllKeysOffset(sourceAnimationId, targetAnimationId, frameId, offset);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            PluginAddNonZeroTargetAllKeysOffset(sourceAnimationId, targetAnimationId, frameId, offset);
 		}
 		/// <summary>
 		/// Add source color to target where target color is not blank from the source 
@@ -990,7 +1156,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void AddNonZeroTargetAllKeysOffsetName(string sourceAnimation, string targetAnimation, int frameId, int offset)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -1003,7 +1177,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static double AddNonZeroTargetAllKeysOffsetNameD(string sourceAnimation, string targetAnimation, double frameId, double offset)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+                return -1;
+            }
+            if (!_sInitialized)
+            {
+                return -1;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -1018,7 +1200,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void AppendAllFrames(int sourceAnimationId, int targetAnimationId)
 		{
-			PluginAppendAllFrames(sourceAnimationId, targetAnimationId);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            PluginAppendAllFrames(sourceAnimationId, targetAnimationId);
 		}
 		/// <summary>
 		/// Append all source frames to the target animation, reference source and target 
@@ -1026,7 +1216,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void AppendAllFramesName(string sourceAnimation, string targetAnimation)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -1039,7 +1237,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static double AppendAllFramesNameD(string sourceAnimation, string targetAnimation)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+                return -1;
+            }
+            if (!_sInitialized)
+            {
+                return -1;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -1053,7 +1259,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void ClearAll()
 		{
-			PluginClearAll();
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            PluginClearAll();
 		}
 		/// <summary>
 		/// `PluginClearAnimationType` will issue a `CLEAR` effect for the given device. 
@@ -1061,7 +1275,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void ClearAnimationType(int deviceType, int device)
 		{
-			PluginClearAnimationType(deviceType, device);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            PluginClearAnimationType(deviceType, device);
 		}
 		/// <summary>
 		/// `PluginCloseAll` closes all open animations so they can be reloaded from 
@@ -1069,7 +1291,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CloseAll()
 		{
-			PluginCloseAll();
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            PluginCloseAll();
 		}
 		/// <summary>
 		/// Closes the `Chroma` animation to free up resources referenced by id. Returns 
@@ -1080,7 +1310,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CloseAnimation(int animationId)
 		{
-			int result = PluginCloseAnimation(animationId);
+            if (!_sIsChromaticAvailable)
+            {
+                return -1;
+            }
+            if (!_sInitialized)
+            {
+                return -1;
+            }
+            int result = PluginCloseAnimation(animationId);
 			return result;
 		}
 		/// <summary>
@@ -1088,7 +1326,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CloseAnimationD(double animationId)
 		{
-			double result = PluginCloseAnimationD(animationId);
+            if (!_sIsChromaticAvailable)
+            {
+                return -1;
+            }
+            if (!_sInitialized)
+            {
+                return -1;
+            }
+            double result = PluginCloseAnimationD(animationId);
 			return result;
 		}
 		/// <summary>
@@ -1097,7 +1343,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CloseAnimationName(string path)
 		{
-			string str_Path = GetStreamingPath(path);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginCloseAnimationName(lp_Path);
 			FreeIntPtr(lp_Path);
@@ -1107,7 +1361,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CloseAnimationNameD(string path)
 		{
-			string str_Path = GetStreamingPath(path);
+            if (!_sIsChromaticAvailable)
+            {
+                return -1;
+            }
+            if (!_sInitialized)
+            {
+                return -1;
+            }
+            string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginCloseAnimationNameD(lp_Path);
 			FreeIntPtr(lp_Path);
@@ -1119,7 +1381,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CloseComposite(string name)
 		{
-			string str_Name = GetStreamingPath(name);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            string str_Name = GetStreamingPath(name);
 			IntPtr lp_Name = GetUnicodeIntPtr(str_Name);
 			PluginCloseComposite(lp_Name);
 			FreeIntPtr(lp_Name);
@@ -1129,7 +1399,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CloseCompositeD(string name)
 		{
-			string str_Name = GetStreamingPath(name);
+            if (!_sIsChromaticAvailable)
+            {
+                return -1;
+            }
+            if (!_sInitialized)
+            {
+                return -1;
+            }
+            string str_Name = GetStreamingPath(name);
 			IntPtr lp_Name = GetUnicodeIntPtr(str_Name);
 			double result = PluginCloseCompositeD(lp_Name);
 			FreeIntPtr(lp_Name);
@@ -1141,7 +1419,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyAllKeys(int sourceAnimationId, int targetAnimationId, int frameId)
 		{
-			PluginCopyAllKeys(sourceAnimationId, targetAnimationId, frameId);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            PluginCopyAllKeys(sourceAnimationId, targetAnimationId, frameId);
 		}
 		/// <summary>
 		/// Copy source animation to target animation for the given frame. Source and 
@@ -1149,7 +1435,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyAllKeysName(string sourceAnimation, string targetAnimation, int frameId)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -1163,7 +1457,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CopyAnimation(int sourceAnimationId, string targetAnimation)
 		{
-			string str_TargetAnimation = GetStreamingPath(targetAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+                return -1;
+            }
+            if (!_sInitialized)
+            {
+                return -1;
+            }
+            string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
 			int result = PluginCopyAnimation(sourceAnimationId, lp_TargetAnimation);
 			FreeIntPtr(lp_TargetAnimation);
@@ -1175,7 +1477,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyAnimationName(string sourceAnimation, string targetAnimation)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -1188,7 +1498,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyAnimationNameD(string sourceAnimation, string targetAnimation)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+                return -1;
+            }
+            if (!_sInitialized)
+            {
+                return -1;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -1203,7 +1521,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyBlueChannelAllFrames(int animationId, float redIntensity, float greenIntensity)
 		{
-			PluginCopyBlueChannelAllFrames(animationId, redIntensity, greenIntensity);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            PluginCopyBlueChannelAllFrames(animationId, redIntensity, greenIntensity);
 		}
 		/// <summary>
 		/// Copy blue channel to other channels for all frames. Intensity range is 0.0 
@@ -1211,7 +1537,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyBlueChannelAllFramesName(string path, float redIntensity, float greenIntensity)
 		{
-			string str_Path = GetStreamingPath(path);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginCopyBlueChannelAllFramesName(lp_Path, redIntensity, greenIntensity);
 			FreeIntPtr(lp_Path);
@@ -1221,7 +1555,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyBlueChannelAllFramesNameD(string path, double redIntensity, double greenIntensity)
 		{
-			string str_Path = GetStreamingPath(path);
+            if (!_sIsChromaticAvailable)
+            {
+                return -1;
+            }
+            if (!_sInitialized)
+            {
+                return -1;
+            }
+            string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginCopyBlueChannelAllFramesNameD(lp_Path, redIntensity, greenIntensity);
 			FreeIntPtr(lp_Path);
@@ -1233,7 +1575,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyGreenChannelAllFrames(int animationId, float redIntensity, float blueIntensity)
 		{
-			PluginCopyGreenChannelAllFrames(animationId, redIntensity, blueIntensity);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            PluginCopyGreenChannelAllFrames(animationId, redIntensity, blueIntensity);
 		}
 		/// <summary>
 		/// Copy green channel to other channels for all frames. Intensity range is 
@@ -1241,7 +1591,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyGreenChannelAllFramesName(string path, float redIntensity, float blueIntensity)
 		{
-			string str_Path = GetStreamingPath(path);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginCopyGreenChannelAllFramesName(lp_Path, redIntensity, blueIntensity);
 			FreeIntPtr(lp_Path);
@@ -1251,7 +1609,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyGreenChannelAllFramesNameD(string path, double redIntensity, double blueIntensity)
 		{
-			string str_Path = GetStreamingPath(path);
+            if (!_sIsChromaticAvailable)
+            {
+                return -1;
+            }
+            if (!_sInitialized)
+            {
+                return -1;
+            }
+            string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginCopyGreenChannelAllFramesNameD(lp_Path, redIntensity, blueIntensity);
 			FreeIntPtr(lp_Path);
@@ -1263,7 +1629,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyKeyColor(int sourceAnimationId, int targetAnimationId, int frameId, int rzkey)
 		{
-			PluginCopyKeyColor(sourceAnimationId, targetAnimationId, frameId, rzkey);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            PluginCopyKeyColor(sourceAnimationId, targetAnimationId, frameId, rzkey);
 		}
 		/// <summary>
 		/// Copy animation key color from the source animation to the target animation 
@@ -1271,7 +1645,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyKeyColorAllFrames(int sourceAnimationId, int targetAnimationId, int rzkey)
 		{
-			PluginCopyKeyColorAllFrames(sourceAnimationId, targetAnimationId, rzkey);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            PluginCopyKeyColorAllFrames(sourceAnimationId, targetAnimationId, rzkey);
 		}
 		/// <summary>
 		/// Copy animation key color from the source animation to the target animation 
@@ -1279,7 +1661,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyKeyColorAllFramesName(string sourceAnimation, string targetAnimation, int rzkey)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -1292,7 +1682,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyKeyColorAllFramesNameD(string sourceAnimation, string targetAnimation, double rzkey)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+                return -1;
+            }
+            if (!_sInitialized)
+            {
+                return -1;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -1308,7 +1706,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyKeyColorAllFramesOffset(int sourceAnimationId, int targetAnimationId, int rzkey, int offset)
 		{
-			PluginCopyKeyColorAllFramesOffset(sourceAnimationId, targetAnimationId, rzkey, offset);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            PluginCopyKeyColorAllFramesOffset(sourceAnimationId, targetAnimationId, rzkey, offset);
 		}
 		/// <summary>
 		/// Copy animation key color from the source animation to the target animation 
@@ -1317,7 +1723,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyKeyColorAllFramesOffsetName(string sourceAnimation, string targetAnimation, int rzkey, int offset)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -1330,7 +1744,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyKeyColorAllFramesOffsetNameD(string sourceAnimation, string targetAnimation, double rzkey, double offset)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+                return -1;
+            }
+            if (!_sInitialized)
+            {
+                return -1;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -1345,7 +1767,15 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyKeyColorName(string sourceAnimation, string targetAnimation, int frameId, int rzkey)
 		{
-			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
+            if (!_sIsChromaticAvailable)
+            {
+				return;
+            }
+            if (!_sInitialized)
+            {
+				return;
+            }
+            string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
 			IntPtr lp_TargetAnimation = GetUnicodeIntPtr(str_TargetAnimation);
@@ -1358,6 +1788,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyKeyColorNameD(string sourceAnimation, string targetAnimation, double frameId, double rzkey)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1374,6 +1812,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyKeysColor(int sourceAnimationId, int targetAnimationId, int frameId, int[] keys, int size)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyKeysColor(sourceAnimationId, targetAnimationId, frameId, keys, size);
 		}
 		/// <summary>
@@ -1383,6 +1829,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyKeysColorAllFrames(int sourceAnimationId, int targetAnimationId, int[] keys, int size)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyKeysColorAllFrames(sourceAnimationId, targetAnimationId, keys, size);
 		}
 		/// <summary>
@@ -1392,6 +1846,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyKeysColorAllFramesName(string sourceAnimation, string targetAnimation, int[] keys, int size)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1407,6 +1869,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyKeysColorName(string sourceAnimation, string targetAnimation, int frameId, int[] keys, int size)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1422,6 +1892,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyKeysColorOffset(int sourceAnimationId, int targetAnimationId, int sourceFrameId, int targetFrameId, int[] keys, int size)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyKeysColorOffset(sourceAnimationId, targetAnimationId, sourceFrameId, targetFrameId, keys, size);
 		}
 		/// <summary>
@@ -1431,6 +1909,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyKeysColorOffsetName(string sourceAnimation, string targetAnimation, int sourceFrameId, int targetFrameId, int[] keys, int size)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1445,6 +1931,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroAllKeys(int sourceAnimationId, int targetAnimationId, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyNonZeroAllKeys(sourceAnimationId, targetAnimationId, frameId);
 		}
 		/// <summary>
@@ -1453,6 +1947,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroAllKeysAllFrames(int sourceAnimationId, int targetAnimationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyNonZeroAllKeysAllFrames(sourceAnimationId, targetAnimationId);
 		}
 		/// <summary>
@@ -1461,6 +1963,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroAllKeysAllFramesName(string sourceAnimation, string targetAnimation)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1474,6 +1984,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyNonZeroAllKeysAllFramesNameD(string sourceAnimation, string targetAnimation)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1490,6 +2008,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroAllKeysAllFramesOffset(int sourceAnimationId, int targetAnimationId, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyNonZeroAllKeysAllFramesOffset(sourceAnimationId, targetAnimationId, offset);
 		}
 		/// <summary>
@@ -1499,6 +2025,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroAllKeysAllFramesOffsetName(string sourceAnimation, string targetAnimation, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1512,6 +2046,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyNonZeroAllKeysAllFramesOffsetNameD(string sourceAnimation, string targetAnimation, double offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1527,6 +2069,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroAllKeysName(string sourceAnimation, string targetAnimation, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1540,6 +2090,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyNonZeroAllKeysNameD(string sourceAnimation, string targetAnimation, double frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1556,6 +2114,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroAllKeysOffset(int sourceAnimationId, int targetAnimationId, int frameId, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyNonZeroAllKeysOffset(sourceAnimationId, targetAnimationId, frameId, offset);
 		}
 		/// <summary>
@@ -1565,6 +2131,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroAllKeysOffsetName(string sourceAnimation, string targetAnimation, int frameId, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1578,6 +2152,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyNonZeroAllKeysOffsetNameD(string sourceAnimation, string targetAnimation, double frameId, double offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1593,6 +2175,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroKeyColor(int sourceAnimationId, int targetAnimationId, int frameId, int rzkey)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyNonZeroKeyColor(sourceAnimationId, targetAnimationId, frameId, rzkey);
 		}
 		/// <summary>
@@ -1601,6 +2191,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroKeyColorName(string sourceAnimation, string targetAnimation, int frameId, int rzkey)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1614,6 +2212,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyNonZeroKeyColorNameD(string sourceAnimation, string targetAnimation, double frameId, double rzkey)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1630,6 +2236,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroTargetAllKeys(int sourceAnimationId, int targetAnimationId, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyNonZeroTargetAllKeys(sourceAnimationId, targetAnimationId, frameId);
 		}
 		/// <summary>
@@ -1639,6 +2253,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroTargetAllKeysAllFrames(int sourceAnimationId, int targetAnimationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyNonZeroTargetAllKeysAllFrames(sourceAnimationId, targetAnimationId);
 		}
 		/// <summary>
@@ -1648,6 +2270,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroTargetAllKeysAllFramesName(string sourceAnimation, string targetAnimation)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1661,6 +2291,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyNonZeroTargetAllKeysAllFramesNameD(string sourceAnimation, string targetAnimation)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1677,6 +2315,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroTargetAllKeysAllFramesOffset(int sourceAnimationId, int targetAnimationId, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyNonZeroTargetAllKeysAllFramesOffset(sourceAnimationId, targetAnimationId, offset);
 		}
 		/// <summary>
@@ -1687,6 +2333,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroTargetAllKeysAllFramesOffsetName(string sourceAnimation, string targetAnimation, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1700,6 +2354,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyNonZeroTargetAllKeysAllFramesOffsetNameD(string sourceAnimation, string targetAnimation, double offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1716,6 +2378,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroTargetAllKeysName(string sourceAnimation, string targetAnimation, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1729,6 +2399,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyNonZeroTargetAllKeysNameD(string sourceAnimation, string targetAnimation, double frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1745,6 +2423,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroTargetAllKeysOffset(int sourceAnimationId, int targetAnimationId, int frameId, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyNonZeroTargetAllKeysOffset(sourceAnimationId, targetAnimationId, frameId, offset);
 		}
 		/// <summary>
@@ -1754,6 +2440,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroTargetAllKeysOffsetName(string sourceAnimation, string targetAnimation, int frameId, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1767,6 +2461,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyNonZeroTargetAllKeysOffsetNameD(string sourceAnimation, string targetAnimation, double frameId, double offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1783,6 +2485,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroTargetZeroAllKeysAllFrames(int sourceAnimationId, int targetAnimationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyNonZeroTargetZeroAllKeysAllFrames(sourceAnimationId, targetAnimationId);
 		}
 		/// <summary>
@@ -1792,6 +2502,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyNonZeroTargetZeroAllKeysAllFramesName(string sourceAnimation, string targetAnimation)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1805,6 +2523,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyNonZeroTargetZeroAllKeysAllFramesNameD(string sourceAnimation, string targetAnimation)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1820,6 +2546,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyRedChannelAllFrames(int animationId, float greenIntensity, float blueIntensity)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyRedChannelAllFrames(animationId, greenIntensity, blueIntensity);
 		}
 		/// <summary>
@@ -1828,6 +2562,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyRedChannelAllFramesName(string path, float greenIntensity, float blueIntensity)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginCopyRedChannelAllFramesName(lp_Path, greenIntensity, blueIntensity);
@@ -1838,6 +2580,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyRedChannelAllFramesNameD(string path, double greenIntensity, double blueIntensity)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginCopyRedChannelAllFramesNameD(lp_Path, greenIntensity, blueIntensity);
@@ -1850,6 +2600,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyZeroAllKeys(int sourceAnimationId, int targetAnimationId, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyZeroAllKeys(sourceAnimationId, targetAnimationId, frameId);
 		}
 		/// <summary>
@@ -1858,6 +2616,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyZeroAllKeysAllFrames(int sourceAnimationId, int targetAnimationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyZeroAllKeysAllFrames(sourceAnimationId, targetAnimationId);
 		}
 		/// <summary>
@@ -1866,6 +2632,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyZeroAllKeysAllFramesName(string sourceAnimation, string targetAnimation)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1879,6 +2653,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyZeroAllKeysAllFramesNameD(string sourceAnimation, string targetAnimation)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1895,6 +2677,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyZeroAllKeysAllFramesOffset(int sourceAnimationId, int targetAnimationId, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyZeroAllKeysAllFramesOffset(sourceAnimationId, targetAnimationId, offset);
 		}
 		/// <summary>
@@ -1904,6 +2694,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyZeroAllKeysAllFramesOffsetName(string sourceAnimation, string targetAnimation, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1917,6 +2715,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyZeroAllKeysAllFramesOffsetNameD(string sourceAnimation, string targetAnimation, double offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1932,6 +2738,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyZeroAllKeysName(string sourceAnimation, string targetAnimation, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1947,6 +2761,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyZeroAllKeysOffset(int sourceAnimationId, int targetAnimationId, int frameId, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyZeroAllKeysOffset(sourceAnimationId, targetAnimationId, frameId, offset);
 		}
 		/// <summary>
@@ -1956,6 +2778,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyZeroAllKeysOffsetName(string sourceAnimation, string targetAnimation, int frameId, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1970,6 +2800,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyZeroKeyColor(int sourceAnimationId, int targetAnimationId, int frameId, int rzkey)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyZeroKeyColor(sourceAnimationId, targetAnimationId, frameId, rzkey);
 		}
 		/// <summary>
@@ -1978,6 +2816,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyZeroKeyColorName(string sourceAnimation, string targetAnimation, int frameId, int rzkey)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -1991,6 +2837,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyZeroKeyColorNameD(string sourceAnimation, string targetAnimation, double frameId, double rzkey)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -2006,6 +2860,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyZeroTargetAllKeys(int sourceAnimationId, int targetAnimationId, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyZeroTargetAllKeys(sourceAnimationId, targetAnimationId, frameId);
 		}
 		/// <summary>
@@ -2014,6 +2876,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyZeroTargetAllKeysAllFrames(int sourceAnimationId, int targetAnimationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginCopyZeroTargetAllKeysAllFrames(sourceAnimationId, targetAnimationId);
 		}
 		/// <summary>
@@ -2022,6 +2892,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyZeroTargetAllKeysAllFramesName(string sourceAnimation, string targetAnimation)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -2035,6 +2913,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double CopyZeroTargetAllKeysAllFramesNameD(string sourceAnimation, string targetAnimation)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -2050,6 +2936,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CopyZeroTargetAllKeysName(string sourceAnimation, string targetAnimation, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -2063,6 +2957,16 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CoreCreateChromaLinkEffect(int effect, IntPtr pParam, out Guid pEffectId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+                pEffectId = Guid.Empty;
+                return -1;
+			}
+			if (!_sInitialized)
+			{
+                pEffectId = Guid.Empty;
+                return -1;
+			}
 			int result = PluginCoreCreateChromaLinkEffect(effect, pParam, out pEffectId);
 			return result;
 		}
@@ -2071,6 +2975,16 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CoreCreateEffect(Guid deviceId, EFFECT_TYPE effect, IntPtr pParam, out Guid pEffectId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+                pEffectId = Guid.Empty;
+                return -1;
+			}
+			if (!_sInitialized)
+			{
+                pEffectId = Guid.Empty;
+                return -1;
+			}
 			int result = PluginCoreCreateEffect(deviceId, (int)effect, pParam, out pEffectId);
 			return result;
 		}
@@ -2079,6 +2993,16 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CoreCreateHeadsetEffect(int effect, IntPtr pParam, out Guid pEffectId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+                pEffectId = Guid.Empty;
+                return -1;
+			}
+			if (!_sInitialized)
+			{
+                pEffectId = Guid.Empty;
+                return -1;
+			}
 			int result = PluginCoreCreateHeadsetEffect(effect, pParam, out pEffectId);
 			return result;
 		}
@@ -2087,6 +3011,16 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CoreCreateKeyboardEffect(int effect, IntPtr pParam, out Guid pEffectId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+                pEffectId = Guid.Empty;
+                return -1;
+			}
+			if (!_sInitialized)
+			{
+                pEffectId = Guid.Empty;
+                return -1;
+			}
 			int result = PluginCoreCreateKeyboardEffect(effect, pParam, out pEffectId);
 			return result;
 		}
@@ -2095,6 +3029,16 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CoreCreateKeypadEffect(int effect, IntPtr pParam, out Guid pEffectId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+                pEffectId = Guid.Empty;
+                return -1;
+			}
+			if (!_sInitialized)
+			{
+                pEffectId = Guid.Empty;
+                return -1;
+			}
 			int result = PluginCoreCreateKeypadEffect(effect, pParam, out pEffectId);
 			return result;
 		}
@@ -2103,6 +3047,16 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CoreCreateMouseEffect(int effect, IntPtr pParam, out Guid pEffectId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+                pEffectId = Guid.Empty;
+                return -1;
+			}
+			if (!_sInitialized)
+			{
+                pEffectId = Guid.Empty;
+                return -1;
+			}
 			int result = PluginCoreCreateMouseEffect(effect, pParam, out pEffectId);
 			return result;
 		}
@@ -2111,6 +3065,16 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CoreCreateMousepadEffect(int effect, IntPtr pParam, out Guid pEffectId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+                pEffectId = Guid.Empty;
+                return -1;
+			}
+			if (!_sInitialized)
+			{
+                pEffectId = Guid.Empty;
+                return -1;
+			}
 			int result = PluginCoreCreateMousepadEffect(effect, pParam, out pEffectId);
 			return result;
 		}
@@ -2119,6 +3083,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CoreDeleteEffect(Guid effectId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginCoreDeleteEffect(effectId);
 			return result;
 		}
@@ -2127,7 +3099,19 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CoreInit()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (_sInitialized)
+			{
+				return RazerErrors.RZRESULT_SUCCESS;
+			}
 			int result = PluginCoreInit();
+			if (result == RazerErrors.RZRESULT_SUCCESS)
+			{
+				_sInitialized = true;
+			}
 			return result;
 		}
 		/// <summary>
@@ -2135,7 +3119,19 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CoreInitSDK(ref ChromaSDK.APPINFOTYPE appInfo)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (_sInitialized)
+			{
+				return RazerErrors.RZRESULT_SUCCESS;
+			}
 			int result = PluginCoreInitSDK(ref appInfo);
+			if (result == RazerErrors.RZRESULT_SUCCESS)
+			{
+				_sInitialized = true;
+			}
 			return result;
 		}
 		/// <summary>
@@ -2143,6 +3139,16 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CoreIsActive(out bool active)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				active = false;
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				active = false;
+				return -1;
+			}
 			int result = PluginCoreIsActive(out active);
 			return result;
 		}
@@ -2151,6 +3157,16 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CoreIsConnected(ref DEVICE_INFO_TYPE deviceInfo)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				deviceInfo.Connected = 0;
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				deviceInfo.Connected = 0;
+				return -1;
+			}
 			int result = PluginCoreIsConnected(ref deviceInfo);
 			return result;
 		}
@@ -2159,6 +3175,16 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CoreQueryDevice(Guid deviceId, out DEVICE_INFO_TYPE deviceInfo)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				deviceInfo = new DEVICE_INFO_TYPE();
+                return -1;
+			}
+			if (!_sInitialized)
+			{
+                deviceInfo = new DEVICE_INFO_TYPE();
+                return -1;
+			}
 			int result = PluginCoreQueryDevice(deviceId, out deviceInfo);
 			return result;
 		}
@@ -2167,6 +3193,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CoreSetEffect(Guid effectId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginCoreSetEffect(effectId);
 			return result;
 		}
@@ -2175,6 +3209,14 @@ namespace ChromaSDK
         /// </summary>
         public static int CoreSetEventName(string name)
         {
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
             IntPtr lp_Name = GetUnicodeIntPtr(name);
             int result = PluginCoreSetEventName(lp_Name);
             FreeIntPtr(lp_Name);
@@ -2189,6 +3231,14 @@ namespace ChromaSDK
         /// </summary>
         public static bool CoreStreamBroadcast(string streamId, string streamKey)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return false;
+			}
+			if (!_sInitialized)
+			{
+				return false;
+			}
 			string str_StreamId = streamId;
 			IntPtr lp_StreamId = GetAsciiIntPtr(str_StreamId);
 			string str_StreamKey = streamKey;
@@ -2204,6 +3254,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static bool CoreStreamBroadcastEnd()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return false;
+			}
+			if (!_sInitialized)
+			{
+				return false;
+			}
 			bool result = PluginCoreStreamBroadcastEnd();
 			return result;
 		}
@@ -2221,6 +3279,18 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CoreStreamGetAuthShortcode(ref string shortcode, out byte length, string platform, string title)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				shortcode = "";
+				length = 0;
+				return;
+			}
+			if (!_sInitialized)
+			{
+				shortcode = "";
+				length = 0;
+				return;
+			}
 			string str_Shortcode = shortcode;
 			IntPtr lp_Shortcode = GetAsciiIntPtr(str_Shortcode);
 			string str_Platform = platform;
@@ -2244,6 +3314,18 @@ namespace ChromaSDK
 		/// </summary>
 		public static bool CoreStreamGetFocus(ref string focus, out byte length)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				focus = "";
+				length = 0;
+				return false;
+			}
+			if (!_sInitialized)
+			{
+				focus = "";
+				length = 0;
+				return false;
+			}
 			string str_Focus = focus;
 			IntPtr lp_Focus = GetAsciiIntPtr(str_Focus);
 			bool result = PluginCoreStreamGetFocus(lp_Focus, out length);
@@ -2269,6 +3351,18 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CoreStreamGetId(string shortcode, ref string streamId, out byte length)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				streamId = "";
+				length = 0;
+				return;
+			}
+			if (!_sInitialized)
+			{
+				streamId = "";
+				length = 0;
+				return;
+			}
 			string str_Shortcode = shortcode;
 			IntPtr lp_Shortcode = GetAsciiIntPtr(str_Shortcode);
 			string str_StreamId = streamId;
@@ -2298,6 +3392,18 @@ namespace ChromaSDK
 		/// </summary>
 		public static void CoreStreamGetKey(string shortcode, ref string streamKey, out byte length)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				streamKey = "";
+				length = 0;
+				return;
+			}
+			if (!_sInitialized)
+			{
+				streamKey = "";
+				length = 0;
+				return;
+			}
 			string str_Shortcode = shortcode;
 			IntPtr lp_Shortcode = GetAsciiIntPtr(str_Shortcode);
 			string str_StreamKey = streamKey;
@@ -2315,6 +3421,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static ChromaSDK.Stream.StreamStatusType CoreStreamGetStatus()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return ChromaSDK.Stream.StreamStatusType.SERVICE_OFFLINE;
+			}
+			if (!_sInitialized)
+			{
+				return ChromaSDK.Stream.StreamStatusType.SERVICE_OFFLINE;
+			}
 			ChromaSDK.Stream.StreamStatusType result = PluginCoreStreamGetStatus();
 			return result;
 		}
@@ -2323,6 +3437,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static string CoreStreamGetStatusString(ChromaSDK.Stream.StreamStatusType status)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return "STREAM_STATUS_OFFLINE";
+			}
+			if (!_sInitialized)
+			{
+				return "STREAM_STATUS_OFFLINE";
+			}
 			string result = Marshal.PtrToStringAnsi(PluginCoreStreamGetStatusString(status));
 			return result;
 		}
@@ -2334,6 +3456,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static bool CoreStreamReleaseShortcode(string shortcode)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return false;
+			}
+			if (!_sInitialized)
+			{
+				return false;
+			}
 			string str_Shortcode = shortcode;
 			IntPtr lp_Shortcode = GetAsciiIntPtr(str_Shortcode);
 			bool result = PluginCoreStreamReleaseShortcode(lp_Shortcode);
@@ -2347,6 +3477,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static bool CoreStreamSetFocus(string focus)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return false;
+			}
+			if (!_sInitialized)
+			{
+				return false;
+			}
 			string str_Focus = focus;
 			IntPtr lp_Focus = GetAsciiIntPtr(str_Focus);
 			bool result = PluginCoreStreamSetFocus(lp_Focus);
@@ -2359,6 +3497,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static bool CoreStreamSupportsStreaming()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return false;
+			}
+			if (!_sInitialized)
+			{
+				return false;
+			}
 			bool result = PluginCoreStreamSupportsStreaming();
 			return result;
 		}
@@ -2369,6 +3515,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static bool CoreStreamWatch(string streamId, ulong timestamp)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return false;
+			}
+			if (!_sInitialized)
+			{
+				return false;
+			}
 			string str_StreamId = streamId;
 			IntPtr lp_StreamId = GetAsciiIntPtr(str_StreamId);
 			bool result = PluginCoreStreamWatch(lp_StreamId, timestamp);
@@ -2381,6 +3535,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static bool CoreStreamWatchEnd()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return false;
+			}
+			if (!_sInitialized)
+			{
+				return false;
+			}
 			bool result = PluginCoreStreamWatchEnd();
 			return result;
 		}
@@ -2389,6 +3551,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CoreUnInit()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return RazerErrors.RZRESULT_SUCCESS;
+			}
+			if (!_sInitialized)
+			{
+				return RazerErrors.RZRESULT_SUCCESS;
+			}
 			int result = PluginCoreUnInit();
 			return result;
 		}
@@ -2403,6 +3573,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CreateAnimation(string path, int deviceType, int device)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			int result = PluginCreateAnimation(lp_Path, deviceType, device);
@@ -2419,6 +3597,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CreateAnimationInMemory(int deviceType, int device)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginCreateAnimationInMemory(deviceType, device);
 			return result;
 		}
@@ -2427,6 +3613,16 @@ namespace ChromaSDK
 		/// </summary>
 		public static int CreateEffect(Guid deviceId, EFFECT_TYPE effect, int[] colors, int size, out FChromaSDKGuid effectId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				effectId = new FChromaSDKGuid();
+                return -1;
+			}
+			if (!_sInitialized)
+			{
+                effectId = new FChromaSDKGuid();
+                return -1;
+			}
 			int result = PluginCreateEffect(deviceId, (int)effect, colors, size, out effectId);
 			return result;
 		}
@@ -2435,6 +3631,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int DeleteEffect(Guid effectId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginDeleteEffect(effectId);
 			return result;
 		}
@@ -2444,6 +3648,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void DuplicateFirstFrame(int animationId, int frameCount)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginDuplicateFirstFrame(animationId, frameCount);
 		}
 		/// <summary>
@@ -2452,6 +3664,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void DuplicateFirstFrameName(string path, int frameCount)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginDuplicateFirstFrameName(lp_Path, frameCount);
@@ -2462,6 +3682,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double DuplicateFirstFrameNameD(string path, double frameCount)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginDuplicateFirstFrameNameD(lp_Path, frameCount);
@@ -2475,6 +3703,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void DuplicateFrames(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginDuplicateFrames(animationId);
 		}
 		/// <summary>
@@ -2484,6 +3720,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void DuplicateFramesName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginDuplicateFramesName(lp_Path);
@@ -2494,6 +3738,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double DuplicateFramesNameD(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginDuplicateFramesNameD(lp_Path);
@@ -2506,6 +3758,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void DuplicateMirrorFrames(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginDuplicateMirrorFrames(animationId);
 		}
 		/// <summary>
@@ -2514,6 +3774,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void DuplicateMirrorFramesName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginDuplicateMirrorFramesName(lp_Path);
@@ -2524,6 +3792,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double DuplicateMirrorFramesNameD(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginDuplicateMirrorFramesNameD(lp_Path);
@@ -2536,6 +3812,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FadeEndFrames(int animationId, int fade)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFadeEndFrames(animationId, fade);
 		}
 		/// <summary>
@@ -2544,6 +3828,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FadeEndFramesName(string path, int fade)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFadeEndFramesName(lp_Path, fade);
@@ -2554,6 +3846,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FadeEndFramesNameD(string path, double fade)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFadeEndFramesNameD(lp_Path, fade);
@@ -2566,6 +3866,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FadeStartFrames(int animationId, int fade)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFadeStartFrames(animationId, fade);
 		}
 		/// <summary>
@@ -2574,6 +3882,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FadeStartFramesName(string path, int fade)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFadeStartFramesName(lp_Path, fade);
@@ -2584,6 +3900,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FadeStartFramesNameD(string path, double fade)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFadeStartFramesNameD(lp_Path, fade);
@@ -2596,6 +3920,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillColor(int animationId, int frameId, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillColor(animationId, frameId, color);
 		}
 		/// <summary>
@@ -2604,6 +3936,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillColorAllFrames(int animationId, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillColorAllFrames(animationId, color);
 		}
 		/// <summary>
@@ -2612,6 +3952,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillColorAllFramesName(string path, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillColorAllFramesName(lp_Path, color);
@@ -2622,6 +3970,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillColorAllFramesNameD(string path, double color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillColorAllFramesNameD(lp_Path, color);
@@ -2634,6 +3990,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillColorAllFramesRGB(int animationId, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillColorAllFramesRGB(animationId, red, green, blue);
 		}
 		/// <summary>
@@ -2642,6 +4006,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillColorAllFramesRGBName(string path, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillColorAllFramesRGBName(lp_Path, red, green, blue);
@@ -2652,6 +4024,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillColorAllFramesRGBNameD(string path, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillColorAllFramesRGBNameD(lp_Path, red, green, blue);
@@ -2664,6 +4044,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillColorName(string path, int frameId, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillColorName(lp_Path, frameId, color);
@@ -2674,6 +4062,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillColorNameD(string path, double frameId, double color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillColorNameD(lp_Path, frameId, color);
@@ -2686,6 +4082,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillColorRGB(int animationId, int frameId, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillColorRGB(animationId, frameId, red, green, blue);
 		}
 		/// <summary>
@@ -2694,6 +4098,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillColorRGBName(string path, int frameId, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillColorRGBName(lp_Path, frameId, red, green, blue);
@@ -2704,6 +4116,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillColorRGBNameD(string path, double frameId, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillColorRGBNameD(lp_Path, frameId, red, green, blue);
@@ -2717,6 +4137,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillNonZeroColor(int animationId, int frameId, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillNonZeroColor(animationId, frameId, color);
 		}
 		/// <summary>
@@ -2726,6 +4154,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillNonZeroColorAllFrames(int animationId, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillNonZeroColorAllFrames(animationId, color);
 		}
 		/// <summary>
@@ -2735,6 +4171,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillNonZeroColorAllFramesName(string path, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillNonZeroColorAllFramesName(lp_Path, color);
@@ -2745,6 +4189,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillNonZeroColorAllFramesNameD(string path, double color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillNonZeroColorAllFramesNameD(lp_Path, color);
@@ -2759,6 +4211,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillNonZeroColorAllFramesRGB(int animationId, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillNonZeroColorAllFramesRGB(animationId, red, green, blue);
 		}
 		/// <summary>
@@ -2769,6 +4229,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillNonZeroColorAllFramesRGBName(string path, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillNonZeroColorAllFramesRGBName(lp_Path, red, green, blue);
@@ -2779,6 +4247,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillNonZeroColorAllFramesRGBNameD(string path, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillNonZeroColorAllFramesRGBNameD(lp_Path, red, green, blue);
@@ -2792,6 +4268,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillNonZeroColorName(string path, int frameId, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillNonZeroColorName(lp_Path, frameId, color);
@@ -2802,6 +4286,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillNonZeroColorNameD(string path, double frameId, double color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillNonZeroColorNameD(lp_Path, frameId, color);
@@ -2816,6 +4308,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillNonZeroColorRGB(int animationId, int frameId, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillNonZeroColorRGB(animationId, frameId, red, green, blue);
 		}
 		/// <summary>
@@ -2826,6 +4326,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillNonZeroColorRGBName(string path, int frameId, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillNonZeroColorRGBName(lp_Path, frameId, red, green, blue);
@@ -2836,6 +4344,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillNonZeroColorRGBNameD(string path, double frameId, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillNonZeroColorRGBNameD(lp_Path, frameId, red, green, blue);
@@ -2848,6 +4364,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillRandomColors(int animationId, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillRandomColors(animationId, frameId);
 		}
 		/// <summary>
@@ -2856,6 +4380,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillRandomColorsAllFrames(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillRandomColorsAllFrames(animationId);
 		}
 		/// <summary>
@@ -2864,6 +4396,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillRandomColorsAllFramesName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillRandomColorsAllFramesName(lp_Path);
@@ -2874,6 +4414,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillRandomColorsAllFramesNameD(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillRandomColorsAllFramesNameD(lp_Path);
@@ -2886,6 +4434,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillRandomColorsBlackAndWhite(int animationId, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillRandomColorsBlackAndWhite(animationId, frameId);
 		}
 		/// <summary>
@@ -2894,6 +4450,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillRandomColorsBlackAndWhiteAllFrames(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillRandomColorsBlackAndWhiteAllFrames(animationId);
 		}
 		/// <summary>
@@ -2902,6 +4466,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillRandomColorsBlackAndWhiteAllFramesName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillRandomColorsBlackAndWhiteAllFramesName(lp_Path);
@@ -2912,6 +4484,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillRandomColorsBlackAndWhiteAllFramesNameD(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillRandomColorsBlackAndWhiteAllFramesNameD(lp_Path);
@@ -2924,6 +4504,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillRandomColorsBlackAndWhiteName(string path, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillRandomColorsBlackAndWhiteName(lp_Path, frameId);
@@ -2934,6 +4522,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillRandomColorsBlackAndWhiteNameD(string path, double frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillRandomColorsBlackAndWhiteNameD(lp_Path, frameId);
@@ -2946,6 +4542,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillRandomColorsName(string path, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillRandomColorsName(lp_Path, frameId);
@@ -2956,6 +4560,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillRandomColorsNameD(string path, double frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillRandomColorsNameD(lp_Path, frameId);
@@ -2968,6 +4580,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillThresholdColors(int animationId, int frameId, int threshold, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillThresholdColors(animationId, frameId, threshold, color);
 		}
 		/// <summary>
@@ -2976,6 +4596,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillThresholdColorsAllFrames(int animationId, int threshold, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillThresholdColorsAllFrames(animationId, threshold, color);
 		}
 		/// <summary>
@@ -2984,6 +4612,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillThresholdColorsAllFramesName(string path, int threshold, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillThresholdColorsAllFramesName(lp_Path, threshold, color);
@@ -2994,6 +4630,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillThresholdColorsAllFramesNameD(string path, double threshold, double color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillThresholdColorsAllFramesNameD(lp_Path, threshold, color);
@@ -3006,6 +4650,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillThresholdColorsAllFramesRGB(int animationId, int threshold, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillThresholdColorsAllFramesRGB(animationId, threshold, red, green, blue);
 		}
 		/// <summary>
@@ -3014,6 +4666,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillThresholdColorsAllFramesRGBName(string path, int threshold, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillThresholdColorsAllFramesRGBName(lp_Path, threshold, red, green, blue);
@@ -3024,6 +4684,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillThresholdColorsAllFramesRGBNameD(string path, double threshold, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillThresholdColorsAllFramesRGBNameD(lp_Path, threshold, red, green, blue);
@@ -3037,6 +4705,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillThresholdColorsMinMaxAllFramesRGB(int animationId, int minThreshold, int minRed, int minGreen, int minBlue, int maxThreshold, int maxRed, int maxGreen, int maxBlue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillThresholdColorsMinMaxAllFramesRGB(animationId, minThreshold, minRed, minGreen, minBlue, maxThreshold, maxRed, maxGreen, maxBlue);
 		}
 		/// <summary>
@@ -3046,6 +4722,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillThresholdColorsMinMaxAllFramesRGBName(string path, int minThreshold, int minRed, int minGreen, int minBlue, int maxThreshold, int maxRed, int maxGreen, int maxBlue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillThresholdColorsMinMaxAllFramesRGBName(lp_Path, minThreshold, minRed, minGreen, minBlue, maxThreshold, maxRed, maxGreen, maxBlue);
@@ -3056,6 +4740,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillThresholdColorsMinMaxAllFramesRGBNameD(string path, double minThreshold, double minRed, double minGreen, double minBlue, double maxThreshold, double maxRed, double maxGreen, double maxBlue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillThresholdColorsMinMaxAllFramesRGBNameD(lp_Path, minThreshold, minRed, minGreen, minBlue, maxThreshold, maxRed, maxGreen, maxBlue);
@@ -3069,6 +4761,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillThresholdColorsMinMaxRGB(int animationId, int frameId, int minThreshold, int minRed, int minGreen, int minBlue, int maxThreshold, int maxRed, int maxGreen, int maxBlue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillThresholdColorsMinMaxRGB(animationId, frameId, minThreshold, minRed, minGreen, minBlue, maxThreshold, maxRed, maxGreen, maxBlue);
 		}
 		/// <summary>
@@ -3078,6 +4778,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillThresholdColorsMinMaxRGBName(string path, int frameId, int minThreshold, int minRed, int minGreen, int minBlue, int maxThreshold, int maxRed, int maxGreen, int maxBlue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillThresholdColorsMinMaxRGBName(lp_Path, frameId, minThreshold, minRed, minGreen, minBlue, maxThreshold, maxRed, maxGreen, maxBlue);
@@ -3088,6 +4796,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillThresholdColorsMinMaxRGBNameD(string path, double frameId, double minThreshold, double minRed, double minGreen, double minBlue, double maxThreshold, double maxRed, double maxGreen, double maxBlue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillThresholdColorsMinMaxRGBNameD(lp_Path, frameId, minThreshold, minRed, minGreen, minBlue, maxThreshold, maxRed, maxGreen, maxBlue);
@@ -3100,6 +4816,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillThresholdColorsName(string path, int frameId, int threshold, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillThresholdColorsName(lp_Path, frameId, threshold, color);
@@ -3110,6 +4834,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillThresholdColorsNameD(string path, double frameId, double threshold, double color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillThresholdColorsNameD(lp_Path, frameId, threshold, color);
@@ -3122,6 +4854,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillThresholdColorsRGB(int animationId, int frameId, int threshold, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillThresholdColorsRGB(animationId, frameId, threshold, red, green, blue);
 		}
 		/// <summary>
@@ -3130,6 +4870,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillThresholdColorsRGBName(string path, int frameId, int threshold, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillThresholdColorsRGBName(lp_Path, frameId, threshold, red, green, blue);
@@ -3140,6 +4888,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillThresholdColorsRGBNameD(string path, double frameId, double threshold, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillThresholdColorsRGBNameD(lp_Path, frameId, threshold, red, green, blue);
@@ -3152,6 +4908,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillThresholdRGBColorsAllFramesRGB(int animationId, int redThreshold, int greenThreshold, int blueThreshold, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillThresholdRGBColorsAllFramesRGB(animationId, redThreshold, greenThreshold, blueThreshold, red, green, blue);
 		}
 		/// <summary>
@@ -3160,6 +4924,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillThresholdRGBColorsAllFramesRGBName(string path, int redThreshold, int greenThreshold, int blueThreshold, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillThresholdRGBColorsAllFramesRGBName(lp_Path, redThreshold, greenThreshold, blueThreshold, red, green, blue);
@@ -3170,6 +4942,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillThresholdRGBColorsAllFramesRGBNameD(string path, double redThreshold, double greenThreshold, double blueThreshold, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillThresholdRGBColorsAllFramesRGBNameD(lp_Path, redThreshold, greenThreshold, blueThreshold, red, green, blue);
@@ -3182,6 +4962,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillThresholdRGBColorsRGB(int animationId, int frameId, int redThreshold, int greenThreshold, int blueThreshold, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillThresholdRGBColorsRGB(animationId, frameId, redThreshold, greenThreshold, blueThreshold, red, green, blue);
 		}
 		/// <summary>
@@ -3190,6 +4978,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillThresholdRGBColorsRGBName(string path, int frameId, int redThreshold, int greenThreshold, int blueThreshold, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillThresholdRGBColorsRGBName(lp_Path, frameId, redThreshold, greenThreshold, blueThreshold, red, green, blue);
@@ -3200,6 +4996,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillThresholdRGBColorsRGBNameD(string path, double frameId, double redThreshold, double greenThreshold, double blueThreshold, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillThresholdRGBColorsRGBNameD(lp_Path, frameId, redThreshold, greenThreshold, blueThreshold, red, green, blue);
@@ -3212,6 +5016,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillZeroColor(int animationId, int frameId, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillZeroColor(animationId, frameId, color);
 		}
 		/// <summary>
@@ -3220,6 +5032,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillZeroColorAllFrames(int animationId, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillZeroColorAllFrames(animationId, color);
 		}
 		/// <summary>
@@ -3228,6 +5048,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillZeroColorAllFramesName(string path, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillZeroColorAllFramesName(lp_Path, color);
@@ -3238,6 +5066,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillZeroColorAllFramesNameD(string path, double color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillZeroColorAllFramesNameD(lp_Path, color);
@@ -3250,6 +5086,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillZeroColorAllFramesRGB(int animationId, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillZeroColorAllFramesRGB(animationId, red, green, blue);
 		}
 		/// <summary>
@@ -3258,6 +5102,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillZeroColorAllFramesRGBName(string path, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillZeroColorAllFramesRGBName(lp_Path, red, green, blue);
@@ -3268,6 +5120,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillZeroColorAllFramesRGBNameD(string path, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillZeroColorAllFramesRGBNameD(lp_Path, red, green, blue);
@@ -3280,6 +5140,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillZeroColorName(string path, int frameId, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillZeroColorName(lp_Path, frameId, color);
@@ -3290,6 +5158,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillZeroColorNameD(string path, double frameId, double color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillZeroColorNameD(lp_Path, frameId, color);
@@ -3302,6 +5178,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillZeroColorRGB(int animationId, int frameId, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginFillZeroColorRGB(animationId, frameId, red, green, blue);
 		}
 		/// <summary>
@@ -3310,6 +5194,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void FillZeroColorRGBName(string path, int frameId, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginFillZeroColorRGBName(lp_Path, frameId, red, green, blue);
@@ -3320,6 +5212,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double FillZeroColorRGBNameD(string path, double frameId, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginFillZeroColorRGBNameD(lp_Path, frameId, red, green, blue);
@@ -3333,6 +5233,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int Get1DColor(int animationId, int frameId, int led)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			int result = PluginGet1DColor(animationId, frameId, led);
 			return result;
 		}
@@ -3343,6 +5251,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int Get1DColorName(string path, int frameId, int led)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			int result = PluginGet1DColorName(lp_Path, frameId, led);
@@ -3354,6 +5270,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double Get1DColorNameD(string path, double frameId, double led)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginGet1DColorNameD(lp_Path, frameId, led);
@@ -3368,6 +5292,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int Get2DColor(int animationId, int frameId, int row, int column)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			int result = PluginGet2DColor(animationId, frameId, row, column);
 			return result;
 		}
@@ -3379,6 +5311,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int Get2DColorName(string path, int frameId, int row, int column)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			int result = PluginGet2DColorName(lp_Path, frameId, row, column);
@@ -3390,6 +5330,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double Get2DColorNameD(string path, double frameId, double row, double column)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginGet2DColorNameD(lp_Path, frameId, row, column);
@@ -3401,6 +5349,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetAnimation(string name)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Name = GetStreamingPath(name);
 			IntPtr lp_Name = GetUnicodeIntPtr(str_Name);
 			int result = PluginGetAnimation(lp_Name);
@@ -3412,6 +5368,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetAnimationCount()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			int result = PluginGetAnimationCount();
 			return result;
 		}
@@ -3420,6 +5384,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double GetAnimationD(string name)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Name = GetStreamingPath(name);
 			IntPtr lp_Name = GetUnicodeIntPtr(str_Name);
 			double result = PluginGetAnimationD(lp_Name);
@@ -3434,6 +5406,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetAnimationId(int index)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginGetAnimationId(index);
 			return result;
 		}
@@ -3444,6 +5424,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static string GetAnimationName(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return "";
+			}
+			if (!_sInitialized)
+			{
+				return "";
+			}
 			string result = Marshal.PtrToStringAnsi(PluginGetAnimationName(animationId));
 			return result;
 		}
@@ -3452,6 +5440,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetCurrentFrame(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginGetCurrentFrame(animationId);
 			return result;
 		}
@@ -3460,6 +5456,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetCurrentFrameName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			int result = PluginGetCurrentFrameName(lp_Path);
@@ -3471,6 +5475,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double GetCurrentFrameNameD(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginGetCurrentFrameNameD(lp_Path);
@@ -3484,6 +5496,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetDevice(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginGetDevice(animationId);
 			return result;
 		}
@@ -3494,6 +5514,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetDeviceName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			int result = PluginGetDeviceName(lp_Path);
@@ -3505,6 +5533,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double GetDeviceNameD(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginGetDeviceNameD(lp_Path);
@@ -3517,6 +5553,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetDeviceType(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginGetDeviceType(animationId);
 			return result;
 		}
@@ -3526,6 +5570,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetDeviceTypeName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			int result = PluginGetDeviceTypeName(lp_Path);
@@ -3537,6 +5589,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double GetDeviceTypeNameD(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginGetDeviceTypeNameD(lp_Path);
@@ -3557,6 +5617,16 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetFrame(int animationId, int frameId, out float duration, int[] colors, int length, int[] keys, int keysLength)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				duration = 0;
+                return -1;
+			}
+			if (!_sInitialized)
+			{
+                duration = 0;
+                return -1;
+			}
 			int result = PluginGetFrame(animationId, frameId, out duration, colors, length, keys, keysLength);
 			return result;
 		}
@@ -3566,6 +5636,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetFrameCount(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			int result = PluginGetFrameCount(animationId);
 			return result;
 		}
@@ -3575,6 +5653,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetFrameCountName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			int result = PluginGetFrameCountName(lp_Path);
@@ -3586,6 +5672,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double GetFrameCountNameD(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginGetFrameCountNameD(lp_Path);
@@ -3598,6 +5692,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static float GetFrameDuration(int animationId, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			float result = PluginGetFrameDuration(animationId, frameId);
 			return result;
 		}
@@ -3607,6 +5709,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static float GetFrameDurationName(string path, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			float result = PluginGetFrameDurationName(lp_Path, frameId);
@@ -3627,6 +5737,16 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetFrameName(string path, int frameId, out float duration, int[] colors, int length, int[] keys, int keysLength)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+                duration = 0;
+                return -1;
+			}
+			if (!_sInitialized)
+			{
+                duration = 0;
+                return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			int result = PluginGetFrameName(lp_Path, frameId, out duration, colors, length, keys, keysLength);
@@ -3639,6 +5759,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetKeyColor(int animationId, int frameId, int rzkey)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			int result = PluginGetKeyColor(animationId, frameId, rzkey);
 			return result;
 		}
@@ -3647,6 +5775,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double GetKeyColorD(string path, double frameId, double rzkey)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginGetKeyColorD(lp_Path, frameId, rzkey);
@@ -3659,6 +5795,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetKeyColorName(string path, int frameId, int rzkey)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			int result = PluginGetKeyColorName(lp_Path, frameId, rzkey);
@@ -3673,6 +5817,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetLibraryLoadedState()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginGetLibraryLoadedState();
 			return result;
 		}
@@ -3681,6 +5833,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double GetLibraryLoadedStateD()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			double result = PluginGetLibraryLoadedStateD();
 			return result;
 		}
@@ -3690,6 +5850,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetMaxColumn(Device2D device)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 1;
+			}
+			if (!_sInitialized)
+			{
+				return 1;
+			}
 			int result = PluginGetMaxColumn((int)device);
 			return result;
 		}
@@ -3698,6 +5866,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double GetMaxColumnD(double device)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 1;
+			}
+			if (!_sInitialized)
+			{
+				return 1;
+			}
 			double result = PluginGetMaxColumnD(device);
 			return result;
 		}
@@ -3707,6 +5883,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetMaxLeds(Device1D device)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 1;
+			}
+			if (!_sInitialized)
+			{
+				return 1;
+			}
 			int result = PluginGetMaxLeds((int)device);
 			return result;
 		}
@@ -3715,6 +5899,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double GetMaxLedsD(double device)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 1;
+			}
+			if (!_sInitialized)
+			{
+				return 1;
+			}
 			double result = PluginGetMaxLedsD(device);
 			return result;
 		}
@@ -3724,6 +5916,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetMaxRow(Device2D device)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 1;
+			}
+			if (!_sInitialized)
+			{
+				return 1;
+			}
 			int result = PluginGetMaxRow((int)device);
 			return result;
 		}
@@ -3732,6 +5932,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double GetMaxRowD(double device)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 1;
+			}
+			if (!_sInitialized)
+			{
+				return 1;
+			}
 			double result = PluginGetMaxRowD(device);
 			return result;
 		}
@@ -3741,6 +5949,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetPlayingAnimationCount()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			int result = PluginGetPlayingAnimationCount();
 			return result;
 		}
@@ -3752,6 +5968,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetPlayingAnimationId(int index)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginGetPlayingAnimationId(index);
 			return result;
 		}
@@ -3760,6 +5984,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int GetRGB(int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			int result = PluginGetRGB(red, green, blue);
 			return result;
 		}
@@ -3768,6 +6000,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double GetRGBD(double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			double result = PluginGetRGBD(red, green, blue);
 			return result;
 		}
@@ -3777,6 +6017,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static float GetTotalDuration(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			float result = PluginGetTotalDuration(animationId);
 			return result;
 		}
@@ -3786,6 +6034,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static float GetTotalDurationName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			float result = PluginGetTotalDurationName(lp_Path);
@@ -3797,6 +6053,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static bool HasAnimationLoop(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return false;
+			}
+			if (!_sInitialized)
+			{
+				return false;
+			}
 			bool result = PluginHasAnimationLoop(animationId);
 			return result;
 		}
@@ -3805,6 +6069,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static bool HasAnimationLoopName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return false;
+			}
+			if (!_sInitialized)
+			{
+				return false;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			bool result = PluginHasAnimationLoopName(lp_Path);
@@ -3816,6 +6088,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double HasAnimationLoopNameD(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginHasAnimationLoopNameD(lp_Path);
@@ -3828,7 +6108,19 @@ namespace ChromaSDK
 		/// </summary>
 		public static int Init()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (_sInitialized)
+			{
+				return RazerErrors.RZRESULT_SUCCESS;
+			}
 			int result = PluginInit();
+			if (result == RazerErrors.RZRESULT_SUCCESS)
+			{
+				_sInitialized = true;
+			}
 			return result;
 		}
 		/// <summary>
@@ -3836,7 +6128,19 @@ namespace ChromaSDK
 		/// </summary>
 		public static double InitD()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (_sInitialized)
+			{
+				return RazerErrors.RZRESULT_SUCCESS;
+			}
 			double result = PluginInitD();
+			if (result == RazerErrors.RZRESULT_SUCCESS)
+			{
+				_sInitialized = true;
+			}
 			return result;
 		}
 		/// <summary>
@@ -3846,7 +6150,19 @@ namespace ChromaSDK
 		/// </summary>
 		public static int InitSDK(ref ChromaSDK.APPINFOTYPE appInfo)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (_sInitialized)
+			{
+				return RazerErrors.RZRESULT_SUCCESS;
+			}
 			int result = PluginInitSDK(ref appInfo);
+			if (result == RazerErrors.RZRESULT_SUCCESS)
+			{
+				_sInitialized = true;
+			}
 			return result;
 		}
 		/// <summary>
@@ -3855,6 +6171,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void InsertDelay(int animationId, int frameId, int delay)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginInsertDelay(animationId, frameId, delay);
 		}
 		/// <summary>
@@ -3863,6 +6187,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void InsertDelayName(string path, int frameId, int delay)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginInsertDelayName(lp_Path, frameId, delay);
@@ -3873,6 +6205,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double InsertDelayNameD(string path, double frameId, double delay)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginInsertDelayNameD(lp_Path, frameId, delay);
@@ -3885,6 +6225,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void InsertFrame(int animationId, int sourceFrame, int targetFrame)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginInsertFrame(animationId, sourceFrame, targetFrame);
 		}
 		/// <summary>
@@ -3893,6 +6241,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void InsertFrameName(string path, int sourceFrame, int targetFrame)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginInsertFrameName(lp_Path, sourceFrame, targetFrame);
@@ -3903,6 +6259,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double InsertFrameNameD(string path, double sourceFrame, double targetFrame)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginInsertFrameNameD(lp_Path, sourceFrame, targetFrame);
@@ -3915,6 +6279,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void InvertColors(int animationId, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginInvertColors(animationId, frameId);
 		}
 		/// <summary>
@@ -3922,6 +6294,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void InvertColorsAllFrames(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginInvertColorsAllFrames(animationId);
 		}
 		/// <summary>
@@ -3929,6 +6309,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void InvertColorsAllFramesName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginInvertColorsAllFramesName(lp_Path);
@@ -3939,6 +6327,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double InvertColorsAllFramesNameD(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginInvertColorsAllFramesNameD(lp_Path);
@@ -3951,6 +6347,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void InvertColorsName(string path, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginInvertColorsName(lp_Path, frameId);
@@ -3961,6 +6365,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double InvertColorsNameD(string path, double frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginInvertColorsNameD(lp_Path, frameId);
@@ -3972,6 +6384,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static bool IsAnimationPaused(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return false;
+			}
+			if (!_sInitialized)
+			{
+				return false;
+			}
 			bool result = PluginIsAnimationPaused(animationId);
 			return result;
 		}
@@ -3980,6 +6400,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static bool IsAnimationPausedName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return false;
+			}
+			if (!_sInitialized)
+			{
+				return false;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			bool result = PluginIsAnimationPausedName(lp_Path);
@@ -3991,6 +6419,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double IsAnimationPausedNameD(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginIsAnimationPausedNameD(lp_Path);
@@ -4003,6 +6439,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static bool IsDialogOpen()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return false;
+			}
+			if (!_sInitialized)
+			{
+				return false;
+			}
 			bool result = PluginIsDialogOpen();
 			return result;
 		}
@@ -4011,6 +6455,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double IsDialogOpenD()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			double result = PluginIsDialogOpenD();
 			return result;
 		}
@@ -4020,6 +6472,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static bool IsInitialized()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return false;
+			}
+			if (!_sInitialized)
+			{
+				return false;
+			}
 			bool result = PluginIsInitialized();
 			return result;
 		}
@@ -4028,6 +6488,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double IsInitializedD()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			double result = PluginIsInitializedD();
 			return result;
 		}
@@ -4036,6 +6504,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static bool IsPlatformSupported()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return false;
+			}
+			if (!_sInitialized)
+			{
+				return false;
+			}
 			bool result = PluginIsPlatformSupported();
 			return result;
 		}
@@ -4044,6 +6520,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double IsPlatformSupportedD()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			double result = PluginIsPlatformSupportedD();
 			return result;
 		}
@@ -4055,6 +6539,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static bool IsPlaying(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return false;
+			}
+			if (!_sInitialized)
+			{
+				return false;
+			}
 			bool result = PluginIsPlaying(animationId);
 			return result;
 		}
@@ -4063,6 +6555,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double IsPlayingD(double animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			double result = PluginIsPlayingD(animationId);
 			return result;
 		}
@@ -4074,6 +6574,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static bool IsPlayingName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return false;
+			}
+			if (!_sInitialized)
+			{
+				return false;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			bool result = PluginIsPlayingName(lp_Path);
@@ -4085,6 +6593,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double IsPlayingNameD(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginIsPlayingNameD(lp_Path);
@@ -4098,6 +6614,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static bool IsPlayingType(int deviceType, int device)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return false;
+			}
+			if (!_sInitialized)
+			{
+				return false;
+			}
 			bool result = PluginIsPlayingType(deviceType, device);
 			return result;
 		}
@@ -4106,6 +6630,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double IsPlayingTypeD(double deviceType, double device)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			double result = PluginIsPlayingTypeD(deviceType, device);
 			return result;
 		}
@@ -4114,6 +6646,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static float Lerp(float start, float end, float amt)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			float result = PluginLerp(start, end, amt);
 			return result;
 		}
@@ -4122,6 +6662,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int LerpColor(int from, int to, float t)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			int result = PluginLerpColor(from, to, t);
 			return result;
 		}
@@ -4132,6 +6680,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int LoadAnimation(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginLoadAnimation(animationId);
 			return result;
 		}
@@ -4140,6 +6696,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double LoadAnimationD(double animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			double result = PluginLoadAnimationD(animationId);
 			return result;
 		}
@@ -4148,6 +6712,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void LoadAnimationName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginLoadAnimationName(lp_Path);
@@ -4158,6 +6730,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void LoadComposite(string name)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Name = GetStreamingPath(name);
 			IntPtr lp_Name = GetUnicodeIntPtr(str_Name);
 			PluginLoadComposite(lp_Name);
@@ -4170,6 +6750,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MakeBlankFrames(int animationId, int frameCount, float duration, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginMakeBlankFrames(animationId, frameCount, duration, color);
 		}
 		/// <summary>
@@ -4179,6 +6767,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MakeBlankFramesName(string path, int frameCount, float duration, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginMakeBlankFramesName(lp_Path, frameCount, duration, color);
@@ -4189,6 +6785,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double MakeBlankFramesNameD(string path, double frameCount, double duration, double color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginMakeBlankFramesNameD(lp_Path, frameCount, duration, color);
@@ -4202,6 +6806,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MakeBlankFramesRandom(int animationId, int frameCount, float duration)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginMakeBlankFramesRandom(animationId, frameCount, duration);
 		}
 		/// <summary>
@@ -4211,6 +6823,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MakeBlankFramesRandomBlackAndWhite(int animationId, int frameCount, float duration)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginMakeBlankFramesRandomBlackAndWhite(animationId, frameCount, duration);
 		}
 		/// <summary>
@@ -4220,6 +6840,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MakeBlankFramesRandomBlackAndWhiteName(string path, int frameCount, float duration)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginMakeBlankFramesRandomBlackAndWhiteName(lp_Path, frameCount, duration);
@@ -4230,6 +6858,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double MakeBlankFramesRandomBlackAndWhiteNameD(string path, double frameCount, double duration)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginMakeBlankFramesRandomBlackAndWhiteNameD(lp_Path, frameCount, duration);
@@ -4243,6 +6879,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MakeBlankFramesRandomName(string path, int frameCount, float duration)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginMakeBlankFramesRandomName(lp_Path, frameCount, duration);
@@ -4253,6 +6897,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double MakeBlankFramesRandomNameD(string path, double frameCount, double duration)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginMakeBlankFramesRandomNameD(lp_Path, frameCount, duration);
@@ -4266,6 +6918,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MakeBlankFramesRGB(int animationId, int frameCount, float duration, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginMakeBlankFramesRGB(animationId, frameCount, duration, red, green, blue);
 		}
 		/// <summary>
@@ -4275,6 +6935,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MakeBlankFramesRGBName(string path, int frameCount, float duration, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginMakeBlankFramesRGBName(lp_Path, frameCount, duration, red, green, blue);
@@ -4285,6 +6953,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double MakeBlankFramesRGBNameD(string path, double frameCount, double duration, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginMakeBlankFramesRGBNameD(lp_Path, frameCount, duration, red, green, blue);
@@ -4297,6 +6973,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int MirrorHorizontally(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginMirrorHorizontally(animationId);
 			return result;
 		}
@@ -4307,6 +6991,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int MirrorVertically(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginMirrorVertically(animationId);
 			return result;
 		}
@@ -4317,6 +7009,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyColorLerpAllFrames(int animationId, int color1, int color2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginMultiplyColorLerpAllFrames(animationId, color1, color2);
 		}
 		/// <summary>
@@ -4326,6 +7026,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyColorLerpAllFramesName(string path, int color1, int color2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginMultiplyColorLerpAllFramesName(lp_Path, color1, color2);
@@ -4336,6 +7044,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double MultiplyColorLerpAllFramesNameD(string path, double color1, double color2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginMultiplyColorLerpAllFramesNameD(lp_Path, color1, color2);
@@ -4350,6 +7066,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyIntensity(int animationId, int frameId, float intensity)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginMultiplyIntensity(animationId, frameId, intensity);
 		}
 		/// <summary>
@@ -4360,6 +7084,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyIntensityAllFrames(int animationId, float intensity)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginMultiplyIntensityAllFrames(animationId, intensity);
 		}
 		/// <summary>
@@ -4370,6 +7102,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyIntensityAllFramesName(string path, float intensity)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginMultiplyIntensityAllFramesName(lp_Path, intensity);
@@ -4380,6 +7120,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double MultiplyIntensityAllFramesNameD(string path, double intensity)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginMultiplyIntensityAllFramesNameD(lp_Path, intensity);
@@ -4392,6 +7140,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyIntensityAllFramesRGB(int animationId, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginMultiplyIntensityAllFramesRGB(animationId, red, green, blue);
 		}
 		/// <summary>
@@ -4400,6 +7156,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyIntensityAllFramesRGBName(string path, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginMultiplyIntensityAllFramesRGBName(lp_Path, red, green, blue);
@@ -4410,6 +7174,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double MultiplyIntensityAllFramesRGBNameD(string path, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginMultiplyIntensityAllFramesRGBNameD(lp_Path, red, green, blue);
@@ -4422,6 +7194,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyIntensityColor(int animationId, int frameId, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginMultiplyIntensityColor(animationId, frameId, color);
 		}
 		/// <summary>
@@ -4430,6 +7210,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyIntensityColorAllFrames(int animationId, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginMultiplyIntensityColorAllFrames(animationId, color);
 		}
 		/// <summary>
@@ -4438,6 +7226,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyIntensityColorAllFramesName(string path, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginMultiplyIntensityColorAllFramesName(lp_Path, color);
@@ -4448,6 +7244,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double MultiplyIntensityColorAllFramesNameD(string path, double color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginMultiplyIntensityColorAllFramesNameD(lp_Path, color);
@@ -4460,6 +7264,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyIntensityColorName(string path, int frameId, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginMultiplyIntensityColorName(lp_Path, frameId, color);
@@ -4470,6 +7282,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double MultiplyIntensityColorNameD(string path, double frameId, double color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginMultiplyIntensityColorNameD(lp_Path, frameId, color);
@@ -4484,6 +7304,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyIntensityName(string path, int frameId, float intensity)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginMultiplyIntensityName(lp_Path, frameId, intensity);
@@ -4494,6 +7322,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double MultiplyIntensityNameD(string path, double frameId, double intensity)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginMultiplyIntensityNameD(lp_Path, frameId, intensity);
@@ -4506,6 +7342,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyIntensityRGB(int animationId, int frameId, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginMultiplyIntensityRGB(animationId, frameId, red, green, blue);
 		}
 		/// <summary>
@@ -4514,6 +7358,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyIntensityRGBName(string path, int frameId, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginMultiplyIntensityRGBName(lp_Path, frameId, red, green, blue);
@@ -4524,6 +7376,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double MultiplyIntensityRGBNameD(string path, double frameId, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginMultiplyIntensityRGBNameD(lp_Path, frameId, red, green, blue);
@@ -4537,6 +7397,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyNonZeroTargetColorLerp(int animationId, int frameId, int color1, int color2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginMultiplyNonZeroTargetColorLerp(animationId, frameId, color1, color2);
 		}
 		/// <summary>
@@ -4546,6 +7414,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyNonZeroTargetColorLerpAllFrames(int animationId, int color1, int color2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginMultiplyNonZeroTargetColorLerpAllFrames(animationId, color1, color2);
 		}
 		/// <summary>
@@ -4555,6 +7431,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyNonZeroTargetColorLerpAllFramesName(string path, int color1, int color2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginMultiplyNonZeroTargetColorLerpAllFramesName(lp_Path, color1, color2);
@@ -4565,6 +7449,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double MultiplyNonZeroTargetColorLerpAllFramesNameD(string path, double color1, double color2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginMultiplyNonZeroTargetColorLerpAllFramesNameD(lp_Path, color1, color2);
@@ -4578,6 +7470,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyNonZeroTargetColorLerpAllFramesRGB(int animationId, int red1, int green1, int blue1, int red2, int green2, int blue2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginMultiplyNonZeroTargetColorLerpAllFramesRGB(animationId, red1, green1, blue1, red2, green2, blue2);
 		}
 		/// <summary>
@@ -4587,6 +7487,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyNonZeroTargetColorLerpAllFramesRGBName(string path, int red1, int green1, int blue1, int red2, int green2, int blue2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginMultiplyNonZeroTargetColorLerpAllFramesRGBName(lp_Path, red1, green1, blue1, red2, green2, blue2);
@@ -4597,6 +7505,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double MultiplyNonZeroTargetColorLerpAllFramesRGBNameD(string path, double red1, double green1, double blue1, double red2, double green2, double blue2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginMultiplyNonZeroTargetColorLerpAllFramesRGBNameD(lp_Path, red1, green1, blue1, red2, green2, blue2);
@@ -4610,6 +7526,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyTargetColorLerp(int animationId, int frameId, int color1, int color2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginMultiplyTargetColorLerp(animationId, frameId, color1, color2);
 		}
 		/// <summary>
@@ -4619,6 +7543,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyTargetColorLerpAllFrames(int animationId, int color1, int color2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginMultiplyTargetColorLerpAllFrames(animationId, color1, color2);
 		}
 		/// <summary>
@@ -4628,6 +7560,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyTargetColorLerpAllFramesName(string path, int color1, int color2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginMultiplyTargetColorLerpAllFramesName(lp_Path, color1, color2);
@@ -4638,6 +7578,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double MultiplyTargetColorLerpAllFramesNameD(string path, double color1, double color2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginMultiplyTargetColorLerpAllFramesNameD(lp_Path, color1, color2);
@@ -4650,6 +7598,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyTargetColorLerpAllFramesRGB(int animationId, int red1, int green1, int blue1, int red2, int green2, int blue2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginMultiplyTargetColorLerpAllFramesRGB(animationId, red1, green1, blue1, red2, green2, blue2);
 		}
 		/// <summary>
@@ -4658,6 +7614,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyTargetColorLerpAllFramesRGBName(string path, int red1, int green1, int blue1, int red2, int green2, int blue2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginMultiplyTargetColorLerpAllFramesRGBName(lp_Path, red1, green1, blue1, red2, green2, blue2);
@@ -4668,6 +7632,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double MultiplyTargetColorLerpAllFramesRGBNameD(string path, double red1, double green1, double blue1, double red2, double green2, double blue2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginMultiplyTargetColorLerpAllFramesRGBNameD(lp_Path, red1, green1, blue1, red2, green2, blue2);
@@ -4681,6 +7653,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void MultiplyTargetColorLerpName(string path, int frameId, int color1, int color2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginMultiplyTargetColorLerpName(lp_Path, frameId, color1, color2);
@@ -4693,6 +7673,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void OffsetColors(int animationId, int frameId, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginOffsetColors(animationId, frameId, red, green, blue);
 		}
 		/// <summary>
@@ -4702,6 +7690,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void OffsetColorsAllFrames(int animationId, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginOffsetColorsAllFrames(animationId, red, green, blue);
 		}
 		/// <summary>
@@ -4711,6 +7707,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void OffsetColorsAllFramesName(string path, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginOffsetColorsAllFramesName(lp_Path, red, green, blue);
@@ -4721,6 +7725,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double OffsetColorsAllFramesNameD(string path, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginOffsetColorsAllFramesNameD(lp_Path, red, green, blue);
@@ -4734,6 +7746,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void OffsetColorsName(string path, int frameId, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginOffsetColorsName(lp_Path, frameId, red, green, blue);
@@ -4744,6 +7764,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double OffsetColorsNameD(string path, double frameId, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginOffsetColorsNameD(lp_Path, frameId, red, green, blue);
@@ -4758,6 +7786,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void OffsetNonZeroColors(int animationId, int frameId, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginOffsetNonZeroColors(animationId, frameId, red, green, blue);
 		}
 		/// <summary>
@@ -4768,6 +7804,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void OffsetNonZeroColorsAllFrames(int animationId, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginOffsetNonZeroColorsAllFrames(animationId, red, green, blue);
 		}
 		/// <summary>
@@ -4778,6 +7822,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void OffsetNonZeroColorsAllFramesName(string path, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginOffsetNonZeroColorsAllFramesName(lp_Path, red, green, blue);
@@ -4788,6 +7840,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double OffsetNonZeroColorsAllFramesNameD(string path, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginOffsetNonZeroColorsAllFramesNameD(lp_Path, red, green, blue);
@@ -4802,6 +7862,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void OffsetNonZeroColorsName(string path, int frameId, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginOffsetNonZeroColorsName(lp_Path, frameId, red, green, blue);
@@ -4812,6 +7880,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double OffsetNonZeroColorsNameD(string path, double frameId, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginOffsetNonZeroColorsNameD(lp_Path, frameId, red, green, blue);
@@ -4825,6 +7901,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int OpenAnimation(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			int result = PluginOpenAnimation(lp_Path);
@@ -4836,6 +7920,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double OpenAnimationD(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginOpenAnimationD(lp_Path);
@@ -4851,6 +7943,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int OpenAnimationFromMemory(byte[] data, string name)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Name = GetStreamingPath(name);
 			IntPtr lp_Name = GetUnicodeIntPtr(str_Name);
 			int result = PluginOpenAnimationFromMemory(data, lp_Name);
@@ -4863,6 +7963,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int OpenEditorDialog(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			int result = PluginOpenEditorDialog(lp_Path);
@@ -4875,6 +7983,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int OpenEditorDialogAndPlay(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			int result = PluginOpenEditorDialogAndPlay(lp_Path);
@@ -4886,6 +8002,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double OpenEditorDialogAndPlayD(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginOpenEditorDialogAndPlayD(lp_Path);
@@ -4897,6 +8021,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double OpenEditorDialogD(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginOpenEditorDialogD(lp_Path);
@@ -4910,6 +8042,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int OverrideFrameDuration(int animationId, float duration)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginOverrideFrameDuration(animationId, duration);
 			return result;
 		}
@@ -4918,6 +8058,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double OverrideFrameDurationD(double animationId, double duration)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			double result = PluginOverrideFrameDurationD(animationId, duration);
 			return result;
 		}
@@ -4927,6 +8075,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void OverrideFrameDurationName(string path, float duration)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginOverrideFrameDurationName(lp_Path, duration);
@@ -4937,6 +8093,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void PauseAnimation(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginPauseAnimation(animationId);
 		}
 		/// <summary>
@@ -4944,6 +8108,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void PauseAnimationName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginPauseAnimationName(lp_Path);
@@ -4954,6 +8126,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double PauseAnimationNameD(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginPauseAnimationNameD(lp_Path);
@@ -4967,6 +8147,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int PlayAnimation(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginPlayAnimation(animationId);
 			return result;
 		}
@@ -4975,6 +8163,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double PlayAnimationD(double animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			double result = PluginPlayAnimationD(animationId);
 			return result;
 		}
@@ -4985,6 +8181,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void PlayAnimationFrame(int animationId, int frameId, bool loop)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginPlayAnimationFrame(animationId, frameId, loop);
 		}
 		/// <summary>
@@ -4994,6 +8198,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void PlayAnimationFrameName(string path, int frameId, bool loop)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginPlayAnimationFrameName(lp_Path, frameId, loop);
@@ -5004,6 +8216,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double PlayAnimationFrameNameD(string path, double frameId, double loop)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginPlayAnimationFrameNameD(lp_Path, frameId, loop);
@@ -5017,6 +8237,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void PlayAnimationLoop(int animationId, bool loop)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginPlayAnimationLoop(animationId, loop);
 		}
 		/// <summary>
@@ -5026,6 +8254,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void PlayAnimationName(string path, bool loop)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginPlayAnimationName(lp_Path, loop);
@@ -5036,6 +8272,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double PlayAnimationNameD(string path, double loop)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginPlayAnimationNameD(lp_Path, loop);
@@ -5049,6 +8293,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void PlayComposite(string name, bool loop)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Name = GetStreamingPath(name);
 			IntPtr lp_Name = GetUnicodeIntPtr(str_Name);
 			PluginPlayComposite(lp_Name, loop);
@@ -5059,6 +8311,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double PlayCompositeD(string name, double loop)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Name = GetStreamingPath(name);
 			IntPtr lp_Name = GetUnicodeIntPtr(str_Name);
 			double result = PluginPlayCompositeD(lp_Name, loop);
@@ -5072,6 +8332,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int PreviewFrame(int animationId, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginPreviewFrame(animationId, frameId);
 			return result;
 		}
@@ -5080,6 +8348,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double PreviewFrameD(double animationId, double frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			double result = PluginPreviewFrameD(animationId, frameId);
 			return result;
 		}
@@ -5089,6 +8365,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void PreviewFrameName(string path, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginPreviewFrameName(lp_Path, frameId);
@@ -5100,6 +8384,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void ReduceFrames(int animationId, int n)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginReduceFrames(animationId, n);
 		}
 		/// <summary>
@@ -5108,6 +8400,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void ReduceFramesName(string path, int n)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginReduceFramesName(lp_Path, n);
@@ -5118,6 +8418,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double ReduceFramesNameD(string path, double n)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginReduceFramesNameD(lp_Path, n);
@@ -5130,6 +8438,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int ResetAnimation(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginResetAnimation(animationId);
 			return result;
 		}
@@ -5138,6 +8454,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void ResumeAnimation(int animationId, bool loop)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginResumeAnimation(animationId, loop);
 		}
 		/// <summary>
@@ -5145,6 +8469,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void ResumeAnimationName(string path, bool loop)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginResumeAnimationName(lp_Path, loop);
@@ -5155,6 +8487,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double ResumeAnimationNameD(string path, double loop)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginResumeAnimationNameD(lp_Path, loop);
@@ -5168,6 +8508,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int Reverse(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginReverse(animationId);
 			return result;
 		}
@@ -5177,6 +8525,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void ReverseAllFrames(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginReverseAllFrames(animationId);
 		}
 		/// <summary>
@@ -5185,6 +8541,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void ReverseAllFramesName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginReverseAllFramesName(lp_Path);
@@ -5195,6 +8559,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double ReverseAllFramesNameD(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginReverseAllFramesNameD(lp_Path);
@@ -5206,6 +8578,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int SaveAnimation(int animationId, string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			int result = PluginSaveAnimation(animationId, lp_Path);
@@ -5217,6 +8597,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int SaveAnimationName(string sourceAnimation, string targetAnimation)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -5233,6 +8621,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void Set1DColor(int animationId, int frameId, int led, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSet1DColor(animationId, frameId, led, color);
 		}
 		/// <summary>
@@ -5242,6 +8638,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void Set1DColorName(string path, int frameId, int led, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSet1DColorName(lp_Path, frameId, led, color);
@@ -5252,6 +8656,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double Set1DColorNameD(string path, double frameId, double led, double color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginSet1DColorNameD(lp_Path, frameId, led, color);
@@ -5266,6 +8678,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void Set2DColor(int animationId, int frameId, int row, int column, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSet2DColor(animationId, frameId, row, column, color);
 		}
 		/// <summary>
@@ -5276,6 +8696,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void Set2DColorName(string path, int frameId, int row, int column, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSet2DColorName(lp_Path, frameId, row, column, color);
@@ -5286,6 +8714,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double Set2DColorNameD(string path, double frameId, double rowColumnIndex, double color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginSet2DColorNameD(lp_Path, frameId, rowColumnIndex, color);
@@ -5298,6 +8734,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetChromaCustomColorAllFrames(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetChromaCustomColorAllFrames(animationId);
 		}
 		/// <summary>
@@ -5306,6 +8750,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetChromaCustomColorAllFramesName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetChromaCustomColorAllFramesName(lp_Path);
@@ -5316,6 +8768,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double SetChromaCustomColorAllFramesNameD(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginSetChromaCustomColorAllFramesNameD(lp_Path);
@@ -5329,6 +8789,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetChromaCustomFlag(int animationId, bool flag)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetChromaCustomFlag(animationId, flag);
 		}
 		/// <summary>
@@ -5338,6 +8806,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetChromaCustomFlagName(string path, bool flag)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetChromaCustomFlagName(lp_Path, flag);
@@ -5348,6 +8824,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double SetChromaCustomFlagNameD(string path, double flag)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginSetChromaCustomFlagNameD(lp_Path, flag);
@@ -5359,6 +8843,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetCurrentFrame(int animationId, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetCurrentFrame(animationId, frameId);
 		}
 		/// <summary>
@@ -5366,6 +8858,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetCurrentFrameName(string path, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetCurrentFrameName(lp_Path, frameId);
@@ -5376,6 +8876,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double SetCurrentFrameNameD(string path, double frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginSetCurrentFrameNameD(lp_Path, frameId);
@@ -5387,6 +8895,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int SetCustomColorFlag2D(int device, int[] colors)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginSetCustomColorFlag2D(device, colors);
 			return result;
 		}
@@ -5397,6 +8913,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int SetDevice(int animationId, int deviceType, int device)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginSetDevice(animationId, deviceType, device);
 			return result;
 		}
@@ -5405,6 +8929,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int SetEffect(Guid effectId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginSetEffect(effectId);
 			return result;
 		}
@@ -5413,6 +8945,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int SetEffectCustom1D(int device, int[] colors)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginSetEffectCustom1D(device, colors);
 			return result;
 		}
@@ -5421,6 +8961,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int SetEffectCustom2D(int device, int[] colors)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginSetEffectCustom2D(device, colors);
 			return result;
 		}
@@ -5431,6 +8979,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int SetEffectKeyboardCustom2D(int device, int[] colors, int[] keys)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginSetEffectKeyboardCustom2D(device, colors, keys);
 			return result;
 		}
@@ -5440,6 +8996,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetIdleAnimation(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetIdleAnimation(animationId);
 		}
 		/// <summary>
@@ -5448,6 +9012,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetIdleAnimationName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetIdleAnimationName(lp_Path);
@@ -5458,6 +9030,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeyColor(int animationId, int frameId, int rzkey, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetKeyColor(animationId, frameId, rzkey, color);
 		}
 		/// <summary>
@@ -5466,6 +9046,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeyColorAllFrames(int animationId, int rzkey, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetKeyColorAllFrames(animationId, rzkey, color);
 		}
 		/// <summary>
@@ -5474,6 +9062,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeyColorAllFramesName(string path, int rzkey, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeyColorAllFramesName(lp_Path, rzkey, color);
@@ -5484,6 +9080,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double SetKeyColorAllFramesNameD(string path, double rzkey, double color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginSetKeyColorAllFramesNameD(lp_Path, rzkey, color);
@@ -5496,6 +9100,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeyColorAllFramesRGB(int animationId, int rzkey, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetKeyColorAllFramesRGB(animationId, rzkey, red, green, blue);
 		}
 		/// <summary>
@@ -5504,6 +9116,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeyColorAllFramesRGBName(string path, int rzkey, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeyColorAllFramesRGBName(lp_Path, rzkey, red, green, blue);
@@ -5514,6 +9134,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double SetKeyColorAllFramesRGBNameD(string path, double rzkey, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginSetKeyColorAllFramesRGBNameD(lp_Path, rzkey, red, green, blue);
@@ -5525,6 +9153,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeyColorName(string path, int frameId, int rzkey, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeyColorName(lp_Path, frameId, rzkey, color);
@@ -5535,6 +9171,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double SetKeyColorNameD(string path, double frameId, double rzkey, double color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginSetKeyColorNameD(lp_Path, frameId, rzkey, color);
@@ -5547,6 +9191,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeyColorRGB(int animationId, int frameId, int rzkey, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetKeyColorRGB(animationId, frameId, rzkey, red, green, blue);
 		}
 		/// <summary>
@@ -5555,6 +9207,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeyColorRGBName(string path, int frameId, int rzkey, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeyColorRGBName(lp_Path, frameId, rzkey, red, green, blue);
@@ -5565,6 +9225,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double SetKeyColorRGBNameD(string path, double frameId, double rzkey, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginSetKeyColorRGBNameD(lp_Path, frameId, rzkey, red, green, blue);
@@ -5577,6 +9245,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeyNonZeroColor(int animationId, int frameId, int rzkey, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetKeyNonZeroColor(animationId, frameId, rzkey, color);
 		}
 		/// <summary>
@@ -5585,6 +9261,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeyNonZeroColorName(string path, int frameId, int rzkey, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeyNonZeroColorName(lp_Path, frameId, rzkey, color);
@@ -5595,6 +9279,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double SetKeyNonZeroColorNameD(string path, double frameId, double rzkey, double color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginSetKeyNonZeroColorNameD(lp_Path, frameId, rzkey, color);
@@ -5607,6 +9299,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeyNonZeroColorRGB(int animationId, int frameId, int rzkey, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetKeyNonZeroColorRGB(animationId, frameId, rzkey, red, green, blue);
 		}
 		/// <summary>
@@ -5615,6 +9315,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeyNonZeroColorRGBName(string path, int frameId, int rzkey, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeyNonZeroColorRGBName(lp_Path, frameId, rzkey, red, green, blue);
@@ -5625,6 +9333,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double SetKeyNonZeroColorRGBNameD(string path, double frameId, double rzkey, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginSetKeyNonZeroColorRGBNameD(lp_Path, frameId, rzkey, red, green, blue);
@@ -5637,6 +9353,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeyRowColumnColorName(string path, int frameId, int row, int column, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeyRowColumnColorName(lp_Path, frameId, row, column, color);
@@ -5648,6 +9372,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysColor(int animationId, int frameId, int[] rzkeys, int keyCount, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetKeysColor(animationId, frameId, rzkeys, keyCount, color);
 		}
 		/// <summary>
@@ -5656,6 +9388,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysColorAllFrames(int animationId, int[] rzkeys, int keyCount, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetKeysColorAllFrames(animationId, rzkeys, keyCount, color);
 		}
 		/// <summary>
@@ -5664,6 +9404,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysColorAllFramesName(string path, int[] rzkeys, int keyCount, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeysColorAllFramesName(lp_Path, rzkeys, keyCount, color);
@@ -5675,6 +9423,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysColorAllFramesRGB(int animationId, int[] rzkeys, int keyCount, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetKeysColorAllFramesRGB(animationId, rzkeys, keyCount, red, green, blue);
 		}
 		/// <summary>
@@ -5683,6 +9439,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysColorAllFramesRGBName(string path, int[] rzkeys, int keyCount, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeysColorAllFramesRGBName(lp_Path, rzkeys, keyCount, red, green, blue);
@@ -5693,6 +9457,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysColorName(string path, int frameId, int[] rzkeys, int keyCount, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeysColorName(lp_Path, frameId, rzkeys, keyCount, color);
@@ -5704,6 +9476,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysColorRGB(int animationId, int frameId, int[] rzkeys, int keyCount, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetKeysColorRGB(animationId, frameId, rzkeys, keyCount, red, green, blue);
 		}
 		/// <summary>
@@ -5712,6 +9492,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysColorRGBName(string path, int frameId, int[] rzkeys, int keyCount, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeysColorRGBName(lp_Path, frameId, rzkeys, keyCount, red, green, blue);
@@ -5723,6 +9511,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysNonZeroColor(int animationId, int frameId, int[] rzkeys, int keyCount, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetKeysNonZeroColor(animationId, frameId, rzkeys, keyCount, color);
 		}
 		/// <summary>
@@ -5731,6 +9527,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysNonZeroColorAllFrames(int animationId, int[] rzkeys, int keyCount, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetKeysNonZeroColorAllFrames(animationId, rzkeys, keyCount, color);
 		}
 		/// <summary>
@@ -5739,6 +9543,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysNonZeroColorAllFramesName(string path, int[] rzkeys, int keyCount, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeysNonZeroColorAllFramesName(lp_Path, rzkeys, keyCount, color);
@@ -5750,6 +9562,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysNonZeroColorName(string path, int frameId, int[] rzkeys, int keyCount, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeysNonZeroColorName(lp_Path, frameId, rzkeys, keyCount, color);
@@ -5761,6 +9581,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysNonZeroColorRGB(int animationId, int frameId, int[] rzkeys, int keyCount, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetKeysNonZeroColorRGB(animationId, frameId, rzkeys, keyCount, red, green, blue);
 		}
 		/// <summary>
@@ -5769,6 +9597,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysNonZeroColorRGBName(string path, int frameId, int[] rzkeys, int keyCount, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeysNonZeroColorRGBName(lp_Path, frameId, rzkeys, keyCount, red, green, blue);
@@ -5780,6 +9616,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysZeroColor(int animationId, int frameId, int[] rzkeys, int keyCount, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetKeysZeroColor(animationId, frameId, rzkeys, keyCount, color);
 		}
 		/// <summary>
@@ -5788,6 +9632,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysZeroColorAllFrames(int animationId, int[] rzkeys, int keyCount, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetKeysZeroColorAllFrames(animationId, rzkeys, keyCount, color);
 		}
 		/// <summary>
@@ -5796,6 +9648,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysZeroColorAllFramesName(string path, int[] rzkeys, int keyCount, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeysZeroColorAllFramesName(lp_Path, rzkeys, keyCount, color);
@@ -5807,6 +9667,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysZeroColorAllFramesRGB(int animationId, int[] rzkeys, int keyCount, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetKeysZeroColorAllFramesRGB(animationId, rzkeys, keyCount, red, green, blue);
 		}
 		/// <summary>
@@ -5815,6 +9683,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysZeroColorAllFramesRGBName(string path, int[] rzkeys, int keyCount, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeysZeroColorAllFramesRGBName(lp_Path, rzkeys, keyCount, red, green, blue);
@@ -5826,6 +9702,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysZeroColorName(string path, int frameId, int[] rzkeys, int keyCount, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeysZeroColorName(lp_Path, frameId, rzkeys, keyCount, color);
@@ -5837,6 +9721,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysZeroColorRGB(int animationId, int frameId, int[] rzkeys, int keyCount, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetKeysZeroColorRGB(animationId, frameId, rzkeys, keyCount, red, green, blue);
 		}
 		/// <summary>
@@ -5845,6 +9737,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeysZeroColorRGBName(string path, int frameId, int[] rzkeys, int keyCount, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeysZeroColorRGBName(lp_Path, frameId, rzkeys, keyCount, red, green, blue);
@@ -5856,6 +9756,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeyZeroColor(int animationId, int frameId, int rzkey, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetKeyZeroColor(animationId, frameId, rzkey, color);
 		}
 		/// <summary>
@@ -5864,6 +9772,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeyZeroColorName(string path, int frameId, int rzkey, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeyZeroColorName(lp_Path, frameId, rzkey, color);
@@ -5874,6 +9790,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double SetKeyZeroColorNameD(string path, double frameId, double rzkey, double color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginSetKeyZeroColorNameD(lp_Path, frameId, rzkey, color);
@@ -5886,6 +9810,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeyZeroColorRGB(int animationId, int frameId, int rzkey, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetKeyZeroColorRGB(animationId, frameId, rzkey, red, green, blue);
 		}
 		/// <summary>
@@ -5894,6 +9826,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetKeyZeroColorRGBName(string path, int frameId, int rzkey, int red, int green, int blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSetKeyZeroColorRGBName(lp_Path, frameId, rzkey, red, green, blue);
@@ -5904,6 +9844,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double SetKeyZeroColorRGBNameD(string path, double frameId, double rzkey, double red, double green, double blue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginSetKeyZeroColorRGBNameD(lp_Path, frameId, rzkey, red, green, blue);
@@ -5917,6 +9865,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetLogDelegate(IntPtr fp)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetLogDelegate(fp);
 		}
 		/// <summary>
@@ -5924,6 +9880,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetStaticColor(int deviceType, int device, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetStaticColor(deviceType, device, color);
 		}
 		/// <summary>
@@ -5931,6 +9895,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SetStaticColorAll(int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSetStaticColorAll(color);
 		}
 		/// <summary>
@@ -5938,6 +9910,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void StaticColor(int deviceType, int device, int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginStaticColor(deviceType, device, color);
 		}
 		/// <summary>
@@ -5945,6 +9925,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void StaticColorAll(int color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginStaticColorAll(color);
 		}
 		/// <summary>
@@ -5952,6 +9940,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double StaticColorD(double deviceType, double device, double color)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			double result = PluginStaticColorD(deviceType, device, color);
 			return result;
 		}
@@ -5961,6 +9957,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void StopAll()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginStopAll();
 		}
 		/// <summary>
@@ -5969,6 +9973,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int StopAnimation(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginStopAnimation(animationId);
 			return result;
 		}
@@ -5977,6 +9989,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double StopAnimationD(double animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			double result = PluginStopAnimationD(animationId);
 			return result;
 		}
@@ -5987,6 +10007,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void StopAnimationName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginStopAnimationName(lp_Path);
@@ -5997,6 +10025,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double StopAnimationNameD(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginStopAnimationNameD(lp_Path);
@@ -6010,6 +10046,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void StopAnimationType(int deviceType, int device)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginStopAnimationType(deviceType, device);
 		}
 		/// <summary>
@@ -6017,6 +10061,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double StopAnimationTypeD(double deviceType, double device)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			double result = PluginStopAnimationTypeD(deviceType, device);
 			return result;
 		}
@@ -6027,6 +10079,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void StopComposite(string name)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Name = GetStreamingPath(name);
 			IntPtr lp_Name = GetUnicodeIntPtr(str_Name);
 			PluginStopComposite(lp_Name);
@@ -6037,6 +10097,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double StopCompositeD(string name)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Name = GetStreamingPath(name);
 			IntPtr lp_Name = GetUnicodeIntPtr(str_Name);
 			double result = PluginStopCompositeD(lp_Name);
@@ -6048,6 +10116,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int SubtractColor(int color1, int color2)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return 0;
+			}
+			if (!_sInitialized)
+			{
+				return 0;
+			}
 			int result = PluginSubtractColor(color1, color2);
 			return result;
 		}
@@ -6057,6 +10133,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SubtractNonZeroAllKeys(int sourceAnimationId, int targetAnimationId, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSubtractNonZeroAllKeys(sourceAnimationId, targetAnimationId, frameId);
 		}
 		/// <summary>
@@ -6065,6 +10149,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SubtractNonZeroAllKeysAllFrames(int sourceAnimationId, int targetAnimationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSubtractNonZeroAllKeysAllFrames(sourceAnimationId, targetAnimationId);
 		}
 		/// <summary>
@@ -6073,6 +10165,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SubtractNonZeroAllKeysAllFramesName(string sourceAnimation, string targetAnimation)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -6086,6 +10186,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double SubtractNonZeroAllKeysAllFramesNameD(string sourceAnimation, string targetAnimation)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -6102,6 +10210,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SubtractNonZeroAllKeysAllFramesOffset(int sourceAnimationId, int targetAnimationId, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSubtractNonZeroAllKeysAllFramesOffset(sourceAnimationId, targetAnimationId, offset);
 		}
 		/// <summary>
@@ -6111,6 +10227,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SubtractNonZeroAllKeysAllFramesOffsetName(string sourceAnimation, string targetAnimation, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -6124,6 +10248,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double SubtractNonZeroAllKeysAllFramesOffsetNameD(string sourceAnimation, string targetAnimation, double offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -6139,6 +10271,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SubtractNonZeroAllKeysName(string sourceAnimation, string targetAnimation, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -6154,6 +10294,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SubtractNonZeroAllKeysOffset(int sourceAnimationId, int targetAnimationId, int frameId, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSubtractNonZeroAllKeysOffset(sourceAnimationId, targetAnimationId, frameId, offset);
 		}
 		/// <summary>
@@ -6163,6 +10311,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SubtractNonZeroAllKeysOffsetName(string sourceAnimation, string targetAnimation, int frameId, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -6176,6 +10332,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double SubtractNonZeroAllKeysOffsetNameD(string sourceAnimation, string targetAnimation, double frameId, double offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -6191,6 +10355,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SubtractNonZeroTargetAllKeysAllFrames(int sourceAnimationId, int targetAnimationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSubtractNonZeroTargetAllKeysAllFrames(sourceAnimationId, targetAnimationId);
 		}
 		/// <summary>
@@ -6199,6 +10371,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SubtractNonZeroTargetAllKeysAllFramesName(string sourceAnimation, string targetAnimation)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -6212,6 +10392,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double SubtractNonZeroTargetAllKeysAllFramesNameD(string sourceAnimation, string targetAnimation)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -6228,6 +10416,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SubtractNonZeroTargetAllKeysAllFramesOffset(int sourceAnimationId, int targetAnimationId, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSubtractNonZeroTargetAllKeysAllFramesOffset(sourceAnimationId, targetAnimationId, offset);
 		}
 		/// <summary>
@@ -6237,6 +10433,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SubtractNonZeroTargetAllKeysAllFramesOffsetName(string sourceAnimation, string targetAnimation, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -6250,6 +10454,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double SubtractNonZeroTargetAllKeysAllFramesOffsetNameD(string sourceAnimation, string targetAnimation, double offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -6266,6 +10478,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SubtractNonZeroTargetAllKeysOffset(int sourceAnimationId, int targetAnimationId, int frameId, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSubtractNonZeroTargetAllKeysOffset(sourceAnimationId, targetAnimationId, frameId, offset);
 		}
 		/// <summary>
@@ -6275,6 +10495,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SubtractNonZeroTargetAllKeysOffsetName(string sourceAnimation, string targetAnimation, int frameId, int offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -6288,6 +10516,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double SubtractNonZeroTargetAllKeysOffsetNameD(string sourceAnimation, string targetAnimation, double frameId, double offset)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_SourceAnimation = GetStreamingPath(sourceAnimation);
 			IntPtr lp_SourceAnimation = GetUnicodeIntPtr(str_SourceAnimation);
 			string str_TargetAnimation = GetStreamingPath(targetAnimation);
@@ -6304,6 +10540,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SubtractThresholdColorsMinMaxAllFramesRGB(int animationId, int minThreshold, int minRed, int minGreen, int minBlue, int maxThreshold, int maxRed, int maxGreen, int maxBlue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSubtractThresholdColorsMinMaxAllFramesRGB(animationId, minThreshold, minRed, minGreen, minBlue, maxThreshold, maxRed, maxGreen, maxBlue);
 		}
 		/// <summary>
@@ -6313,6 +10557,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SubtractThresholdColorsMinMaxAllFramesRGBName(string path, int minThreshold, int minRed, int minGreen, int minBlue, int maxThreshold, int maxRed, int maxGreen, int maxBlue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSubtractThresholdColorsMinMaxAllFramesRGBName(lp_Path, minThreshold, minRed, minGreen, minBlue, maxThreshold, maxRed, maxGreen, maxBlue);
@@ -6323,6 +10575,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double SubtractThresholdColorsMinMaxAllFramesRGBNameD(string path, double minThreshold, double minRed, double minGreen, double minBlue, double maxThreshold, double maxRed, double maxGreen, double maxBlue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginSubtractThresholdColorsMinMaxAllFramesRGBNameD(lp_Path, minThreshold, minRed, minGreen, minBlue, maxThreshold, maxRed, maxGreen, maxBlue);
@@ -6337,6 +10597,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SubtractThresholdColorsMinMaxRGB(int animationId, int frameId, int minThreshold, int minRed, int minGreen, int minBlue, int maxThreshold, int maxRed, int maxGreen, int maxBlue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginSubtractThresholdColorsMinMaxRGB(animationId, frameId, minThreshold, minRed, minGreen, minBlue, maxThreshold, maxRed, maxGreen, maxBlue);
 		}
 		/// <summary>
@@ -6347,6 +10615,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void SubtractThresholdColorsMinMaxRGBName(string path, int frameId, int minThreshold, int minRed, int minGreen, int minBlue, int maxThreshold, int maxRed, int maxGreen, int maxBlue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginSubtractThresholdColorsMinMaxRGBName(lp_Path, frameId, minThreshold, minRed, minGreen, minBlue, maxThreshold, maxRed, maxGreen, maxBlue);
@@ -6357,6 +10633,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double SubtractThresholdColorsMinMaxRGBNameD(string path, int frameId, int minThreshold, int minRed, int minGreen, int minBlue, int maxThreshold, int maxRed, int maxGreen, int maxBlue)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginSubtractThresholdColorsMinMaxRGBNameD(lp_Path, frameId, minThreshold, minRed, minGreen, minBlue, maxThreshold, maxRed, maxGreen, maxBlue);
@@ -6369,6 +10653,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void TrimEndFrames(int animationId, int lastFrameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginTrimEndFrames(animationId, lastFrameId);
 		}
 		/// <summary>
@@ -6377,6 +10669,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void TrimEndFramesName(string path, int lastFrameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginTrimEndFramesName(lp_Path, lastFrameId);
@@ -6387,6 +10687,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double TrimEndFramesNameD(string path, double lastFrameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginTrimEndFramesNameD(lp_Path, lastFrameId);
@@ -6398,6 +10706,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void TrimFrame(int animationId, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginTrimFrame(animationId, frameId);
 		}
 		/// <summary>
@@ -6405,6 +10721,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void TrimFrameName(string path, int frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginTrimFrameName(lp_Path, frameId);
@@ -6415,6 +10739,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double TrimFrameNameD(string path, double frameId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginTrimFrameNameD(lp_Path, frameId);
@@ -6427,6 +10759,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void TrimStartFrames(int animationId, int numberOfFrames)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginTrimStartFrames(animationId, numberOfFrames);
 		}
 		/// <summary>
@@ -6435,6 +10775,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void TrimStartFramesName(string path, int numberOfFrames)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginTrimStartFramesName(lp_Path, numberOfFrames);
@@ -6445,6 +10793,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double TrimStartFramesNameD(string path, double numberOfFrames)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			double result = PluginTrimStartFramesNameD(lp_Path, numberOfFrames);
@@ -6457,7 +10813,19 @@ namespace ChromaSDK
 		/// </summary>
 		public static int Uninit()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return RazerErrors.RZRESULT_SUCCESS;
+			}
+			if (!_sInitialized)
+			{
+				return RazerErrors.RZRESULT_SUCCESS;
+			}
 			int result = PluginUninit();
+			if (result == RazerErrors.RZRESULT_SUCCESS)
+			{
+				_sInitialized = false;
+			}
 			return result;
 		}
 		/// <summary>
@@ -6465,7 +10833,19 @@ namespace ChromaSDK
 		/// </summary>
 		public static double UninitD()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return RazerErrors.RZRESULT_SUCCESS;
+			}
+			if (!_sInitialized)
+			{
+				return RazerErrors.RZRESULT_SUCCESS;
+			}
 			double result = PluginUninitD();
+			if (result == RazerErrors.RZRESULT_SUCCESS)
+			{
+				_sInitialized = false;
+			}
 			return result;
 		}
 		/// <summary>
@@ -6475,6 +10855,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int UnloadAnimation(int animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginUnloadAnimation(animationId);
 			return result;
 		}
@@ -6483,6 +10871,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static double UnloadAnimationD(double animationId)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			double result = PluginUnloadAnimationD(animationId);
 			return result;
 		}
@@ -6491,6 +10887,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void UnloadAnimationName(string path)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginUnloadAnimationName(lp_Path);
@@ -6502,6 +10906,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void UnloadComposite(string name)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Name = GetStreamingPath(name);
 			IntPtr lp_Name = GetUnicodeIntPtr(str_Name);
 			PluginUnloadComposite(lp_Name);
@@ -6512,6 +10924,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void UnloadLibrarySDK()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginUnloadLibrarySDK();
 		}
 		/// <summary>
@@ -6520,6 +10940,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void UnloadLibraryStreamingPlugin()
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginUnloadLibraryStreamingPlugin();
 		}
 		/// <summary>
@@ -6535,6 +10963,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int UpdateFrame(int animationId, int frameId, float duration, int[] colors, int length, int[] keys, int keysLength)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			int result = PluginUpdateFrame(animationId, frameId, duration, colors, length, keys, keysLength);
 			return result;
 		}
@@ -6552,6 +10988,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static int UpdateFrameName(string path, int frameId, float duration, int[] colors, int length, int[] keys, int keysLength)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return -1;
+			}
+			if (!_sInitialized)
+			{
+				return -1;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			int result = PluginUpdateFrameName(lp_Path, frameId, duration, colors, length, keys, keysLength);
@@ -6564,6 +11008,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void UseForwardChromaEvents(bool flag)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginUseForwardChromaEvents(flag);
 		}
 		/// <summary>
@@ -6576,6 +11028,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void UseIdleAnimation(int device, bool flag)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginUseIdleAnimation(device, flag);
 		}
 		/// <summary>
@@ -6583,6 +11043,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void UseIdleAnimations(bool flag)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginUseIdleAnimations(flag);
 		}
 		/// <summary>
@@ -6591,6 +11059,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void UsePreloading(int animationId, bool flag)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			PluginUsePreloading(animationId, flag);
 		}
 		/// <summary>
@@ -6599,6 +11075,14 @@ namespace ChromaSDK
 		/// </summary>
 		public static void UsePreloadingName(string path, bool flag)
 		{
+			if (!_sIsChromaticAvailable)
+			{
+				return;
+			}
+			if (!_sInitialized)
+			{
+				return;
+			}
 			string str_Path = GetStreamingPath(path);
 			IntPtr lp_Path = GetUnicodeIntPtr(str_Path);
 			PluginUsePreloadingName(lp_Path, flag);
