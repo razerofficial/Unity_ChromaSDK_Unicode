@@ -3601,7 +3601,11 @@ namespace ChromaSDK
 				return RazerErrors.RZRESULT_SUCCESS;
 			}
 			int result = PluginCoreUnInit();
-			return result;
+			if (result == RazerErrors.RZRESULT_SUCCESS)
+            {
+                _sInitialized = false;
+            }
+            return result;
 		}
 		/// <summary>
 		/// Creates a `Chroma` animation at the given path. The `deviceType` parameter 
