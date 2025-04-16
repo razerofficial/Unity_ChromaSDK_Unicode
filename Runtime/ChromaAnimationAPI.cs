@@ -314,7 +314,7 @@ namespace ChromaSDK
                         "Razer Chroma SDK",
                         "bin",
                         "RzChromatic64.dll"),
-					// Get SysWOW64 folder
+					// Get system32 folder
 					Path.Combine(
                         Environment.GetFolderPath(Environment.SpecialFolder.Windows),
                         "System32",
@@ -329,7 +329,7 @@ namespace ChromaSDK
                         "Razer Chroma SDK",
 						"bin",
 						"RzChromatic.dll"),
-					// Get system32 folder
+					// Get SysWOW64 folder
 					Path.Combine(
 						Environment.GetFolderPath(Environment.SpecialFolder.Windows),
 						"SysWOW64",
