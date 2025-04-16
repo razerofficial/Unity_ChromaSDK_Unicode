@@ -294,33 +294,73 @@ namespace ChromaSDK
 		static bool _sIsChromaticAvailable = false;
 
         static ChromaAnimationAPI()
-		{
+        {
             _sIsChromaticAvailable = false;
 
             try
             {
-                String fileName;
+                string[] fileNames;
+
+                // check program files for production version
+
+                // check windows systems folders for production version
 
 #if UNITY_64
-                // Get SysWOW64 folder
-                fileName = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.Windows),
-                    "System32",
-                    "RzChromatic64.dll"
-                );
+                fileNames = new string[]
+                {
+					// Get 64-bit program files folder
+                    Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+                        "Razer Chroma SDK",
+                        "bin",
+                        "RzChromatic64.dll"),
+					// Get SysWOW64 folder
+					Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+                        "System32",
+                        "RzChromatic64.dll"),
+                };
 #else
-                // Get system32 folder
-                fileName = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.Windows),
-                    "SysWOW64",
-                    "RzChromatic.dll"
-                );
+				fileNames = new string[]
+				{
+					// Get 32-bit program files folder
+                    Path.Combine(
+						Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+                        "Razer Chroma SDK",
+						"bin",
+						"RzChromatic.dll"),
+					// Get system32 folder
+					Path.Combine(
+						Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+						"SysWOW64",
+						"RzChromatic.dll"),
+				};
 #endif
 
+                foreach (string fileName in fileNames)
+                {
+                    if (!IsProductionVersionAvailable(fileName))
+                    {
+                        return;
+                    }
+                }
+
+                _sIsChromaticAvailable = true; // production version or better
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(string.Format("The ChromaSDK is not available! Exception={0}", ex));
+            }
+        }
+
+        private static bool IsProductionVersionAvailable(string fileName)
+		{
+            try
+            {
                 FileInfo fi = new FileInfo(fileName);
                 if (!fi.Exists)
                 {
-                    return;
+                    return false;
                 }
 
 #if ENABLE_IL2CPP
@@ -335,31 +375,31 @@ namespace ChromaSDK
                 String[] versionParts = fileVersion.Split(".".ToCharArray());
                 if (versionParts.Length < 4)
                 {
-                    return;
+                    return false;
                 }
 
                 int major;
                 if (!int.TryParse(versionParts[0], out major))
                 {
-                    return;
+                    return false;
                 }
 
                 int minor;
                 if (!int.TryParse(versionParts[1], out minor))
                 {
-                    return;
+                    return false;
                 }
 
                 int build;
                 if (!int.TryParse(versionParts[2], out build))
                 {
-                    return;
+                    return false;
                 }
 
                 int revision;
                 if (!int.TryParse(versionParts[3], out revision))
                 {
-                    return;
+                    return false;
                 }
 
                 // Anything less than the min version returns false
@@ -372,29 +412,30 @@ namespace ChromaSDK
 
                 if (major < minMajor) // Less than minMajor
                 {
-                    return;
+                    return false;
                 }
 
                 if (major == minMajor && minor < minMinor) // Less than minMinor
                 {
-                    return;
+                    return false;
                 }
 
                 if (major == minMajor && minor == minMinor && build < minBuild) // Less than minBuild
                 {
-                    return;
+                    return false;
                 }
 
                 if (major == minMajor && minor == minMinor && build == minBuild && revision < minRevision) // Less than minRevision
                 {
-                    return;
+                    return false;
                 }
 
-                _sIsChromaticAvailable = true; // production version or better
+				return true;
             }
             catch (Exception ex)
             {
                 Debug.LogError(string.Format("The ChromaSDK is not available! Exception={0}", ex));
+				return false;
             }
         }
 
